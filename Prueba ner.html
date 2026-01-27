@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inflación Argentina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background: linear-gradient(135deg, #001f3f 0%, #003366 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        /* LOGIN SCREEN */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            color: #001f3f;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+            color: #001f3f;
+        }
+
+        .login-box p {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #001f3f;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #001f3f;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #001f3f;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #003366;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .credentials-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .credentials-info strong {
+            color: #001f3f;
+        }
+
+        /* DASHBOARD */
+        .dashboard {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .update-btn {
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .update-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .update-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .update-btn.updating {
+            background: #ff9800;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #001f3f;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Lora', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            background: #218838;
+        }
+
+        .update-notification {
+            background: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.5s;
+        }
+
+        .update-notification.show {
+            display: block;
+        }
+
+        .update-notification.no-updates {
+            background: #2196F3;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .rotating {
+            display: inline-block;
+            animation: rotate 1s linear infinite;
+        }
+
+        /* Tarjeta destacada de inflación actual */
+        .featured-stat {
+            background: white;
+            color: #001f3f;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .featured-label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .featured-value {
+            font-size: 72px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #001f3f;
+        }
+
+        .featured-period {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .featured-change {
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .featured-change.positive {
+            color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .featured-change.negative {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .chart-title {
+            color: #001f3f;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        canvas {
+            max-height: 350px;
+        }
+
+        .last-update {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .featured-value {
+                font-size: 48px;
+            }
+
+            .chart-container {
+                padding: 20px;
+            }
+
+            .chart-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1>🇦🇷 Inflación Argentina</h1>
+            <p>Seguimiento de inflación en tiempo real</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" placeholder="Ingrese su usuario" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Ingrese su contraseña" required>
+                </div>
+                
+                <button type="submit" class="login-btn">Iniciar Sesión</button>
+                
+                <div class="error-message" id="errorMessage">
+                    Usuario o contraseña incorrectos
+                </div>
+            </form>
+
+            <div class="credentials-info">
+                <strong>Credenciales de prueba:</strong><br>
+                Usuario: <strong>admin</strong><br>
+                Contraseña: <strong>argentina2025</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard" id="dashboard">
+        <div class="header">
+            <h1>📊 Inflación Argentina</h1>
+            <div class="header-buttons">
+                <button class="download-btn" onclick="descargarExcel()">📥 Descargar Excel</button>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Dato destacado de inflación actual -->
+        <div class="featured-stat">
+            <div class="featured-label">Inflación Mensual</div>
+            <div class="featured-value">2.8%</div>
+            <div class="featured-period">Diciembre 2025</div>
+            <div class="featured-change positive">▲ +0.3 puntos vs noviembre</div>
+        </div>
+
+        <!-- Gráfico de inflación mensual con EMAE -->
+        <div class="chart-container">
+            <div class="chart-title">Inflación Mensual Nov 2023 - Dic 2025 | EMAE Desest. Nov 2023 - Nov 2025</div>
+            <canvas id="inflacionMensualChart"></canvas>
+        </div>
+
+        <!-- Gráfico de inflación interanual -->
+        <div class="chart-container">
+            <div class="chart-title">Inflación Interanual (%)</div>
+            <canvas id="inflacionInteranualChart"></canvas>
+        </div>
+
+        <!-- Gráfico de inflación núcleo -->
+        <div class="chart-container">
+            <div class="chart-title">Inflación Núcleo Mensual (%)</div>
+            <canvas id="inflacionNucleoChart"></canvas>
+        </div>
+
+        <div class="last-update">
+            Última actualización: 26 de enero de 2026, 15:00 hs<br>
+            Fuente: INDEC - Inflación: Dic 2025 (2.8%) | EMAE: Nov 2025 (152.4)
+        </div>
+    </div>
+
+    <script>
+        // SISTEMA DE LOGIN
+        const users = {
+            'admin': 'argentina2025',
+            'usuario': '123456'
+        };
+
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('username').value.trim();
+                    const password = document.getElementById('password').value.trim();
+                    
+                    if (users[username] && users[username] === password) {
+                        document.getElementById('loginScreen').style.display = 'none';
+                        document.getElementById('dashboard').classList.add('active');
+                        initCharts();
+                    } else {
+                        document.getElementById('errorMessage').style.display = 'block';
+                        setTimeout(() => {
+                            document.getElementById('errorMessage').style.display = 'none';
+                        }, 3000);
+                    }
+                });
+            }
+        });
+
+        // FUNCIÓN PARA DESCARGAR XLSX CON GRÁFICOS
+        async function descargarExcel() {
+            try {
+                // Mostrar mensaje de generación
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '⏳ Generando Excel...';
+                btn.disabled = true;
+                
+                // Importar ExcelJS dinámicamente
+                const ExcelJS = window.ExcelJS || await loadExcelJS();
+                
+                // Crear workbook
+                const workbook = new ExcelJS.Workbook();
+                
+                // Datos
+                const meses = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 
+                              'May 24', 'Jun 24', 'Jul 24', 'Ago 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dic 24',
+                              'Ene 25', 'Feb 25', 'Mar 25', 'Abr 25', 'May 25', 'Jun 25', 'Jul 25', 'Ago 25', 
+                              'Sep 25', 'Oct 25', 'Nov 25', 'Dic 25'];
+                
+                const datosMensual = [12.8, 25.5, 20.6, 13.2, 11.0, 8.8, 4.6, 4.0, 4.0, 4.2, 3.5, 2.7, 2.4, 2.7,
+                                      2.2, 2.4, 3.7, 2.8, 1.5, 1.6, 1.9, 1.9, 2.1, 2.3, 2.5, 2.8];
+                
+                const datosEMAE = [146.4, 143.3, 143.9, 143.9, 142.9, 141.0, 142.6, 143.6, 147.1, 147.8, 147.7, 148.7, 150.4, 152.2,
+                                  152.2, 153.4, 150.7, 152.4, 152.2, 151.5, 151.5, 152.5, 153.4, 152.8, 152.4, null];
+                
+                const datosInteranual = [160.9, 211.4, 254.2, 276.2, 287.9, 289.4, 263.4, 236.7, 215.1, 209.8, 193.1, 166.5, 152.9, 117.8,
+                                         66.9, 55.9, 47.3, 43.5, 39.4, 36.6, 33.6, 31.8, 31.3, 31.4, 31.5, 31.5];
+                
+                const datosNucleo = [11.5, 24.0, 19.8, 12.8, 10.3, 7.8, 3.7, 3.3, 3.6, 3.8, 3.3, 2.4, 2.2, 2.5,
+                                     2.3, 2.5, 3.2, 2.5, 1.2, 1.4, 1.7, 1.7, 1.9, 2.0, 2.6, 2.7];
+                
+                // ============== SHEET 1: Inflación y EMAE ==============
+                const sheet1 = workbook.addWorksheet('Inflación y EMAE');
+                
+                // Headers
+                sheet1.columns = [
+                    { header: 'Mes', key: 'mes', width: 12 },
+                    { header: 'Inflación Mensual (%)', key: 'inflacion', width: 22 },
+                    { header: 'EMAE Desest. (2004=100)', key: 'emae', width: 25 }
+                ];
+                
+                // Estilo headers
+                sheet1.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                sheet1.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF001f3f' } };
+                sheet1.getRow(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                
+                // Agregar datos
+                for (let i = 0; i < meses.length; i++) {
+                    sheet1.addRow({
+                        mes: meses[i],
+                        inflacion: datosMensual[i],
+                        emae: datosEMAE[i]
+                    });
+                }
+                
+                // Formatear números
+                for (let i = 2; i <= meses.length + 1; i++) {
+                    sheet1.getCell(`B${i}`).numFmt = '0.0';
+                    sheet1.getCell(`B${i}`).alignment = { horizontal: 'center' };
+                    if (sheet1.getCell(`C${i}`).value !== null) {
+                        sheet1.getCell(`C${i}`).numFmt = '0.0';
+                        sheet1.getCell(`C${i}`).alignment = { horizontal: 'center' };
+                    }
+                }
+                
+                // ============== SHEET 2: Inflación Interanual ==============
+                const sheet2 = workbook.addWorksheet('Inflación Interanual');
+                
+                sheet2.columns = [
+                    { header: 'Mes', key: 'mes', width: 12 },
+                    { header: 'Inflación Interanual (%)', key: 'interanual', width: 25 }
+                ];
+                
+                sheet2.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                sheet2.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF001f3f' } };
+                sheet2.getRow(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                
+                for (let i = 0; i < meses.length; i++) {
+                    sheet2.addRow({ mes: meses[i], interanual: datosInteranual[i] });
+                }
+                
+                for (let i = 2; i <= meses.length + 1; i++) {
+                    sheet2.getCell(`B${i}`).numFmt = '0.0';
+                    sheet2.getCell(`B${i}`).alignment = { horizontal: 'center' };
+                }
+                
+                // ============== SHEET 3: Inflación Núcleo ==============
+                const sheet3 = workbook.addWorksheet('Inflación Núcleo');
+                
+                sheet3.columns = [
+                    { header: 'Mes', key: 'mes', width: 12 },
+                    { header: 'Inflación Núcleo (%)', key: 'nucleo', width: 22 }
+                ];
+                
+                sheet3.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                sheet3.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF001f3f' } };
+                sheet3.getRow(1).alignment = { horizontal: 'center', vertical: 'middle' };
+                
+                for (let i = 0; i < meses.length; i++) {
+                    sheet3.addRow({ mes: meses[i], nucleo: datosNucleo[i] });
+                }
+                
+                for (let i = 2; i <= meses.length + 1; i++) {
+                    sheet3.getCell(`B${i}`).numFmt = '0.0';
+                    sheet3.getCell(`B${i}`).alignment = { horizontal: 'center' };
+                }
+                
+                // Generar archivo
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'inflacion_argentina_datos.xlsx';
+                link.click();
+                window.URL.revokeObjectURL(url);
+                
+                // Restaurar botón
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+            } catch (error) {
+                console.error('Error al generar Excel:', error);
+                alert('Error al generar el archivo Excel. Por favor intenta nuevamente.');
+                const btn = event.target;
+                btn.innerHTML = '📥 Descargar Excel';
+                btn.disabled = false;
+            }
+        }
+
+        // Cargar ExcelJS dinámicamente
+        function loadExcelJS() {
+            return new Promise((resolve, reject) => {
+                if (window.ExcelJS) {
+                    resolve(window.ExcelJS);
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js';
+                script.onload = () => resolve(window.ExcelJS);
+                script.onerror = () => reject(new Error('No se pudo cargar ExcelJS'));
+                document.head.appendChild(script);
+            });
+        }
+
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Variables globales para almacenar los gráficos
+        let chartMensual, chartInteranual, chartNucleo;
+
+        // FUNCIÓN DE ACTUALIZACIÓN AUTOMÁTICA
+        async function checkForUpdates() {
+            const updateBtn = document.getElementById('updateBtn');
+            const updateIcon = document.getElementById('updateIcon');
+            const notification = document.getElementById('updateNotification');
+            
+            // Deshabilitar botón y mostrar animación
+            updateBtn.disabled = true;
+            updateBtn.classList.add('updating');
+            updateIcon.classList.add('rotating');
+            updateBtn.innerHTML = '<span class="rotating">🔄</span> Buscando actualizaciones...';
+            
+            try {
+                // Intentar obtener datos de diferentes fuentes
+                const nuevoDato = await buscarNuevosDatos();
+                
+                if (nuevoDato.hayNuevos) {
+                    // Hay datos nuevos - actualizar
+                    notification.textContent = `✅ ¡Nuevo dato disponible! Inflación de ${nuevoDato.mes}: ${nuevoDato.valor}%`;
+                    notification.className = 'update-notification show';
+                    
+                    // Actualizar gráficos con nuevos datos
+                    actualizarGraficos(nuevoDato);
+                    
+                    // Actualizar dato destacado
+                    document.querySelector('.featured-value').textContent = nuevoDato.valor + '%';
+                    document.querySelector('.featured-period').textContent = nuevoDato.mes;
+                    
+                    // Guardar en localStorage
+                    guardarDatosLocalmente(nuevoDato);
+                    
+                    // Ocultar notificación después de 5 segundos
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 5000);
+                    
+                } else {
+                    // No hay datos nuevos
+                    notification.textContent = `ℹ️ No hay datos nuevos. Último dato: Diciembre 2025 (2.8%)`;
+                    notification.className = 'update-notification show no-updates';
+                    
+                    // Ocultar notificación después de 4 segundos
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 4000);
+                }
+                
+            } catch (error) {
+                console.error('Error al buscar actualizaciones:', error);
+                
+                notification.textContent = `❌ Error de conexión. No se pudo verificar si hay datos nuevos.`;
+                notification.className = 'update-notification show no-updates';
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            } finally {
+                // Restaurar botón
+                updateBtn.disabled = false;
+                updateBtn.classList.remove('updating');
+                updateIcon.classList.remove('rotating');
+                updateBtn.innerHTML = '<span id="updateIcon">🔄</span> Actualizar Datos';
+            }
+        }
+
+        // BUSCAR NUEVOS DATOS EN LA WEB DEL INDEC (WEB SCRAPING)
+        async function buscarNuevosDatos() {
+            try {
+                // URL del INDEC donde publican los datos de inflación
+                const urlINDEC = 'https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31';
+                
+                // Hacer petición al sitio del INDEC
+                const response = await fetch(urlINDEC, {
+                    method: 'GET',
+                    mode: 'cors',
+                });
+                
+                if (!response.ok) {
+                    throw new Error('No se pudo acceder al sitio del INDEC');
+                }
+                
+                const html = await response.text();
+                
+                // Buscar el último dato publicado en el HTML
+                const datoExtraido = extraerUltimoDato(html);
+                
+                // Comparar con el último dato que tenemos
+                const ultimoDatoLocal = obtenerUltimoDatoLocal();
+                
+                if (datoExtraido.fecha > ultimoDatoLocal.fecha) {
+                    // ¡Hay un dato nuevo!
+                    return {
+                        hayNuevos: true,
+                        mes: datoExtraido.mes,
+                        valor: datoExtraido.valor,
+                        fecha: datoExtraido.fecha,
+                        nucleo: datoExtraido.nucleo,
+                        interanual: datoExtraido.interanual
+                    };
+                } else {
+                    // No hay datos nuevos
+                    return {
+                        hayNuevos: false,
+                        mes: 'Diciembre 2025',
+                        valor: 2.8,
+                        fecha: new Date('2025-12-01')
+                    };
+                }
+                
+            } catch (error) {
+                console.error('Error al conectar con INDEC:', error);
+                // NO usar proxy - solo INDEC oficial
+                throw new Error('No se pudo conectar con el sitio oficial del INDEC. Verificá tu conexión a internet o intentá más tarde.');
+            }
+        }
+
+        // EXTRAER DATOS DEL HTML DEL INDEC
+        function extraerUltimoDato(html) {
+            // Crear un parser DOM temporal
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // MÉTODO 1: Buscar en tablas
+            const tablas = doc.querySelectorAll('table');
+            let ultimoDato = null;
+            
+            for (let tabla of tablas) {
+                const filas = tabla.querySelectorAll('tr');
+                for (let fila of filas) {
+                    const celdas = fila.querySelectorAll('td');
+                    if (celdas.length >= 2) {
+                        // Buscar patrón: "Enero 2026" o "Ene 26" seguido de número
+                        const textoMes = celdas[0].textContent.trim();
+                        const textoValor = celdas[1].textContent.trim();
+                        
+                        const matchMes = textoMes.match(/(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+(\d{4})/i);
+                        const matchValor = textoValor.match(/(\d+[.,]\d+)/);
+                        
+                        if (matchMes && matchValor) {
+                            const mes = matchMes[1];
+                            const año = parseInt(matchMes[2]);
+                            const valor = parseFloat(matchValor[1].replace(',', '.'));
+                            
+                            ultimoDato = {
+                                mes: `${mes} ${año}`,
+                                valor: valor,
+                                fecha: new Date(año, obtenerNumeroMes(mes), 1)
+                            };
+                        }
+                    }
+                }
+            }
+            
+            // MÉTODO 2: Buscar con expresiones regulares en todo el texto
+            if (!ultimoDato) {
+                const textoCompleto = doc.body.textContent;
+                
+                // Buscar patrón: "inflación de enero 2026 fue de 2,5%"
+                const regex = /(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s+(?:de\s+)?(\d{4}).*?(\d+[.,]\d+)%/gi;
+                const matches = textoCompleto.matchAll(regex);
+                
+                for (let match of matches) {
+                    const mes = match[1];
+                    const año = parseInt(match[2]);
+                    const valor = parseFloat(match[3].replace(',', '.'));
+                    
+                    ultimoDato = {
+                        mes: `${mes.charAt(0).toUpperCase() + mes.slice(1)} ${año}`,
+                        valor: valor,
+                        fecha: new Date(año, obtenerNumeroMes(mes), 1)
+                    };
+                }
+            }
+            
+            // Si no encontró nada, devolver el último dato conocido
+            if (!ultimoDato) {
+                return {
+                    mes: 'Diciembre 2025',
+                    valor: 2.8,
+                    fecha: new Date('2025-12-01'),
+                    nucleo: 2.7,
+                    interanual: 31.5
+                };
+            }
+            
+            return ultimoDato;
+        }
+
+        // CONVERTIR NOMBRE DE MES A NÚMERO
+        function obtenerNumeroMes(nombreMes) {
+            const meses = {
+                'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3,
+                'mayo': 4, 'junio': 5, 'julio': 6, 'agosto': 7,
+                'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+            };
+            return meses[nombreMes.toLowerCase()] || 0;
+        }
+
+        // FORMATEAR MES PARA MOSTRAR
+        function formatearMes(fecha, incluirAño = true) {
+            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                          'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const año = fecha.getFullYear().toString().slice(-2);
+            return incluirAño ? `${meses[fecha.getMonth()]} ${año}` : meses[fecha.getMonth()];
+        }
+
+        // ACTUALIZAR GRÁFICOS CON NUEVOS DATOS
+        function actualizarGraficos(nuevoDato) {
+            const mesFormateado = formatearMes(new Date(nuevoDato.fecha));
+            
+            // Actualizar gráfico mensual
+            if (chartMensual) {
+                chartMensual.data.labels.push(mesFormateado);
+                chartMensual.data.datasets[0].data.push(nuevoDato.valor);
+                chartMensual.update();
+            }
+            
+            // Actualizar gráfico interanual (si viene el dato)
+            if (chartInteranual && nuevoDato.interanual) {
+                chartInteranual.data.labels.push(mesFormateado);
+                chartInteranual.data.datasets[0].data.push(nuevoDato.interanual);
+                chartInteranual.update();
+            }
+            
+            // Actualizar gráfico núcleo (si viene el dato)
+            if (chartNucleo && nuevoDato.nucleo) {
+                chartNucleo.data.labels.push(mesFormateado);
+                chartNucleo.data.datasets[0].data.push(nuevoDato.nucleo);
+                chartNucleo.update();
+            }
+            
+            // Actualizar fecha de última actualización
+            const ahora = new Date();
+            const fechaFormateada = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()} ${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+            document.querySelector('.last-update').innerHTML = `
+                Última actualización: ${fechaFormateada} hs<br>
+                Fuente: INDEC - Último dato: ${nuevoDato.mes} (${nuevoDato.valor}%)
+            `;
+        }
+
+        // GUARDAR DATOS LOCALMENTE
+        function guardarDatosLocalmente(dato) {
+            const datosGuardados = JSON.parse(localStorage.getItem('inflacionDatos') || '[]');
+            datosGuardados.push({
+                mes: dato.mes,
+                valor: dato.valor,
+                fecha: dato.fecha,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('inflacionDatos', JSON.stringify(datosGuardados));
+        }
+
+        // OBTENER ÚLTIMO DATO LOCAL
+        function obtenerUltimoDatoLocal() {
+            const datosGuardados = JSON.parse(localStorage.getItem('inflacionDatos') || '[]');
+            if (datosGuardados.length > 0) {
+                return datosGuardados[datosGuardados.length - 1];
+            }
+            return {
+                mes: 'Diciembre 2025',
+                valor: 2.8,
+                fecha: new Date('2025-12-01')
+            };
+        }
+
+        // GRÁFICOS
+        function initCharts() {
+            // Datos de inflación mensual desde Nov 2023 hasta Dic 2025 (último dato oficial INDEC)
+            const mesesMensual = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 
+                                  'May 24', 'Jun 24', 'Jul 24', 'Ago 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dic 24',
+                                  'Ene 25', 'Feb 25', 'Mar 25', 'Abr 25', 'May 25', 'Jun 25', 'Jul 25', 'Ago 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dic 25'];
+            const datosMensual = [12.8, 25.5, 20.6, 13.2, 11.0, 8.8, 4.6, 4.0, 4.0, 4.2, 3.5, 2.7, 2.4, 2.7,
+                                  2.2, 2.4, 3.7, 2.8, 1.5, 1.6, 1.9, 1.9, 2.1, 2.3, 2.5, 2.8];
+
+            // Datos EMAE desestacionalizado (índice base 2004=100) Nov 2023 a Nov 2025 - Fuente: INDEC
+            // Nota: EMAE tiene un mes menos que inflación (termina en Nov 25)
+            const datosEMAE = [146.4, 143.3, 143.9, 143.9, 142.9, 141.0, 142.6, 143.6, 147.1, 147.8, 147.7, 148.7, 150.4, 152.2,
+                              152.2, 153.4, 150.7, 152.4, 152.2, 151.5, 151.5, 152.5, 153.4, 152.8, 152.4, null]; // null para dic 25
+
+            // Datos de inflación interanual
+            const mesesInteranual = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 
+                                     'May 24', 'Jun 24', 'Jul 24', 'Ago 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dic 24',
+                                     'Ene 25', 'Feb 25', 'Mar 25', 'Abr 25', 'May 25', 'Jun 25', 'Jul 25', 'Ago 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dic 25'];
+            const datosInteranual = [160.9, 211.4, 254.2, 276.2, 287.9, 289.4, 263.4, 236.7, 215.1, 209.8, 193.1, 166.5, 152.9, 117.8,
+                                     66.9, 55.9, 47.3, 43.5, 39.4, 36.6, 33.6, 31.8, 31.3, 31.4, 31.5, 31.5];
+
+            // Datos de inflación núcleo
+            const mesesNucleo = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 
+                                 'May 24', 'Jun 24', 'Jul 24', 'Ago 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dic 24',
+                                 'Ene 25', 'Feb 25', 'Mar 25', 'Abr 25', 'May 25', 'Jun 25', 'Jul 25', 'Ago 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dic 25'];
+            const datosNucleo = [11.5, 24.0, 19.8, 12.8, 10.3, 7.8, 3.7, 3.3, 3.6, 3.8, 3.3, 2.4, 2.2, 2.5,
+                                 2.3, 2.5, 3.2, 2.5, 1.2, 1.4, 1.7, 1.7, 1.9, 2.0, 2.6, 2.7];
+
+            // Configuración común para remover líneas de fondo
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        display: false  // Por defecto oculto, se activa solo en barras
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false  // Quita las líneas de fondo
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Lora',
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false  // Quita las líneas de fondo
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Lora',
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Configuración especial para gráficos de barras con etiquetas (solo primer y último)
+            const barOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        display: function(context) {
+                            // Mostrar solo primer y último dato
+                            const length = context.dataset.data.length;
+                            return context.dataIndex === 0 || context.dataIndex === length - 1;
+                        },
+                        anchor: 'end',
+                        align: 'top',
+                        font: {
+                            family: 'Lora',
+                            size: 11,
+                            weight: 'bold'
+                        },
+                        color: '#001f3f',
+                        formatter: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Lora',
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Lora',
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Gráfico COMBINADO: Inflación Mensual (Barras) + EMAE (Línea)
+            const ctxMensual = document.getElementById('inflacionMensualChart').getContext('2d');
+            chartMensual = new Chart(ctxMensual, {
+                type: 'bar',
+                data: {
+                    labels: mesesMensual,
+                    datasets: [{
+                        label: 'Inflación Mensual (%)',
+                        data: datosMensual,
+                        backgroundColor: '#001f3f',
+                        borderRadius: 6,
+                        yAxisID: 'y',
+                        order: 2,
+                        datalabels: {
+                            display: function(context) {
+                                // Mostrar solo primer y último dato
+                                return context.dataIndex === 0 || context.dataIndex === datosMensual.length - 1;
+                            },
+                            anchor: 'end',
+                            align: 'top',
+                            font: {
+                                family: 'Lora',
+                                size: 11,
+                                weight: 'bold'
+                            },
+                            color: '#001f3f',
+                            formatter: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    {
+                        label: 'EMAE Desest. (base 2004=100)',
+                        data: datosEMAE,
+                        type: 'line',
+                        borderColor: '#808080',
+                        backgroundColor: 'rgba(128, 128, 128, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        yAxisID: 'y1',
+                        order: 1,
+                        datalabels: {
+                            display: function(context) {
+                                // Mostrar solo primer y último dato
+                                return context.dataIndex === 0 || context.dataIndex === datosEMAE.length - 1;
+                            },
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 4,
+                            font: {
+                                family: 'Lora',
+                                size: 11,
+                                weight: 'bold'
+                            },
+                            color: '#808080',
+                            formatter: function(value) {
+                                return value.toFixed(1);  // Sin símbolo %, solo el índice
+                            }
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: {
+                                    family: 'Lora',
+                                    size: 12
+                                },
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label.includes('EMAE')) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(1);
+                                    }
+                                    return context.dataset.label + ': ' + context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Lora',
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Inflación (%)',
+                                font: {
+                                    family: 'Lora',
+                                    size: 12
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            display: false, // Ocultar eje Y de EMAE
+                            min: 130,
+                            max: 160,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Lora',
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Inflación Interanual (Línea)
+            const ctxInteranual = document.getElementById('inflacionInteranualChart').getContext('2d');
+            chartInteranual = new Chart(ctxInteranual, {
+                type: 'line',
+                data: {
+                    labels: mesesInteranual,
+                    datasets: [{
+                        label: 'Inflación Interanual (%)',
+                        data: datosInteranual,
+                        borderColor: '#001f3f',
+                        backgroundColor: 'rgba(0, 31, 63, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#001f3f',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: commonOptions
+            });
+
+            // Gráfico de Inflación Núcleo (Barras)
+            const ctxNucleo = document.getElementById('inflacionNucleoChart').getContext('2d');
+            chartNucleo = new Chart(ctxNucleo, {
+                type: 'bar',
+                data: {
+                    labels: mesesNucleo,
+                    datasets: [{
+                        label: 'Inflación Núcleo (%)',
+                        data: datosNucleo,
+                        backgroundColor: '#003366',
+                        borderRadius: 6
+                    }]
+                },
+                options: barOptions
+            });
+        }
+    </script>
+</body>
+</html>

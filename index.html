@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Inflación Argentina</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,6 @@
             padding-bottom: 80px;
         }
 
-        /* LOGIN */
         .login-container {
             display: flex;
             justify-content: center;
@@ -45,14 +44,8 @@
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .login-box h1 {
@@ -150,7 +143,6 @@
             font-weight: 600;
         }
 
-        /* DASHBOARD */
         .dashboard {
             display: none;
             max-width: 1400px;
@@ -228,7 +220,65 @@
             transform: translateY(-2px);
         }
 
-        /* SECCIONES */
+        .date-filter {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-group select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .btn-filter {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
         .section {
             display: none;
         }
@@ -238,7 +288,6 @@
             animation: fadeIn 0.3s ease-out;
         }
 
-        /* RESUMEN */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -340,7 +389,6 @@
             gap: 4px;
         }
 
-        /* DETALLE DE GRÁFICO */
         .chart-detail {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -387,7 +435,6 @@
             transform: translateX(-4px);
         }
 
-        /* NAVEGACIÓN INFERIOR */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -454,78 +501,41 @@
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .stat-card .value {
-                font-size: 40px;
-            }
-
-            .chart-wrapper {
-                height: 550px;
-                padding: 16px 8px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-detail {
-                padding: 20px 12px;
-            }
-
-            .chart-detail h2 {
-                font-size: 18px;
-                margin-bottom: 16px;
-            }
+            .header h1 { font-size: 22px; }
+            .stat-card .value { font-size: 40px; }
+            .chart-wrapper { height: 550px; padding: 16px 8px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .chart-detail { padding: 20px 12px; }
+            .chart-detail h2 { font-size: 18px; margin-bottom: 16px; }
+            .date-filter { padding: 16px; }
         }
 
         @media (max-width: 480px) {
-            .dashboard {
-                padding: 12px;
-            }
-
-            .stat-card {
-                padding: 24px;
-            }
-
-            .chart-wrapper {
-                height: 500px;
-                padding: 12px 6px;
-            }
-
-            .chart-detail {
-                padding: 16px 8px;
-            }
-
-            .chart-detail h2 {
-                font-size: 16px;
-            }
+            .dashboard { padding: 12px; }
+            .stat-card { padding: 24px; }
+            .chart-wrapper { height: 500px; padding: 12px 6px; }
+            .chart-detail { padding: 16px 8px; }
+            .chart-detail h2 { font-size: 16px; }
+            .date-filter { padding: 12px; }
+            .filter-group { min-width: 100%; }
         }
     </style>
 </head>
 <body>
-    <!-- LOGIN -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h1>🇦🇷 Inflación</h1>
             <p>Datos oficiales INDEC</p>
-            
             <div class="input-group">
                 <label for="username">Usuario</label>
                 <input type="text" id="username" placeholder="Ingrese su usuario">
             </div>
-            
             <div class="input-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" placeholder="Ingrese su contraseña">
             </div>
-            
             <button class="login-btn" onclick="login()">Ingresar</button>
-            
             <div class="error-message" id="errorMessage">Usuario o contraseña incorrectos</div>
-            
             <div class="credentials-info">
                 <strong>Credenciales de prueba:</strong>
                 Usuario: <code>admin</code> / Contraseña: <code>argentina2025</code><br>
@@ -534,20 +544,17 @@
         </div>
     </div>
 
-    <!-- DASHBOARD -->
     <div id="dashboard" class="dashboard">
         <div class="header">
             <h1>📊 Inflación Argentina 2024-2025</h1>
             <div class="header-buttons">
                 <button class="btn btn-primary" onclick="descargarExcel()">
-                    <span>📥</span>
-                    <span>Descargar Excel</span>
+                    <span>📥</span><span>Descargar Excel</span>
                 </button>
                 <button class="btn btn-secondary" onclick="logout()">Cerrar Sesión</button>
             </div>
         </div>
 
-        <!-- RESUMEN -->
         <div id="resumenSection" class="section active">
             <div class="stats-grid">
                 <div class="stat-card" onclick="showSection('mensual')">
@@ -557,65 +564,94 @@
                     <div class="change neutral">Año 2025: 31.5%</div>
                     <div class="view-more">Ver evolución →</div>
                 </div>
-                <div class="stat-card" onclick="showSection('anual')">
+                <div class="stat-card" onclick="showSection('interanual')">
+                    <h3>Inflación Interanual</h3>
+                    <div class="value">31.5%</div>
+                    <div class="description">Dic 2025 vs Dic 2024</div>
+                    <div class="change negative">↓ Menor desde 2017</div>
+                    <div class="view-more">Ver evolución →</div>
+                </div>
+                <div class="stat-card" onclick="showSection('emae')">
+                    <h3>EMAE Noviembre 2025</h3>
+                    <div class="value">152.4</div>
+                    <div class="description">Desestacionalizado</div>
+                    <div class="change neutral">Base 2004=100</div>
+                    <div class="view-more">Ver serie →</div>
+                </div>
+                <div class="stat-card" onclick="showSection('mensual')">
                     <h3>Inflación 2024</h3>
                     <div class="value">117.8%</div>
                     <div class="description">Año completo 2024</div>
                     <div class="change negative">↓ vs 2023: -93.6pp</div>
-                    <div class="view-more">Ver comparativa →</div>
-                </div>
-                <div class="stat-card" onclick="showSection('comparativa')">
-                    <h3>EMAE Octubre 2025</h3>
-                    <div class="value">+3.2%</div>
-                    <div class="description">Variación interanual</div>
-                    <div class="change neutral">Actividad económica</div>
-                    <div class="view-more">Ver detalles →</div>
-                </div>
-                <div class="stat-card" onclick="showSection('mensual')">
-                    <h3>Inflación 2025</h3>
-                    <div class="value">31.5%</div>
-                    <div class="description">Acumulado año 2025</div>
-                    <div class="change negative">Menor desde 2017</div>
                     <div class="view-more">Ver datos →</div>
                 </div>
             </div>
         </div>
 
-        <!-- SECCIÓN MENSUAL -->
         <div id="mensualSection" class="section">
             <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <select id="fechaDesde"></select>
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <select id="fechaHasta"></select>
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroMensual()">Aplicar</button>
+            </div>
             <div class="chart-detail">
-                <h2>Inflación Mensual y EMAE - Nov 2023 a Dic 2025</h2>
+                <h2>Inflación Mensual y EMAE</h2>
                 <div class="chart-wrapper">
                     <canvas id="inflacionMensualChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- SECCIÓN ANUAL -->
-        <div id="anualSection" class="section">
+        <div id="interanualSection" class="section">
             <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <select id="fechaDesdeInteranual"></select>
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <select id="fechaHastaInteranual"></select>
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroInteranual()">Aplicar</button>
+            </div>
             <div class="chart-detail">
-                <h2>Inflación Acumulada por Año</h2>
+                <h2>Inflación Interanual Mensual</h2>
                 <div class="chart-wrapper">
-                    <canvas id="inflacionAnualChart"></canvas>
+                    <canvas id="inflacionInteranualChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- SECCIÓN COMPARATIVA -->
-        <div id="comparativaSection" class="section">
+        <div id="emaeSection" class="section">
             <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <select id="fechaDesdeEmae"></select>
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <select id="fechaHastaEmae"></select>
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroEmae()">Aplicar</button>
+            </div>
             <div class="chart-detail">
-                <h2>Comparativa 2023 vs 2024 vs 2025</h2>
+                <h2>EMAE Desestacionalizado (Base 2004=100)</h2>
                 <div class="chart-wrapper">
-                    <canvas id="comparativaChart"></canvas>
+                    <canvas id="emaeChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR -->
     <div id="bottomNav" class="bottom-nav">
         <button class="nav-item active" onclick="showSection('resumen')">
             <div class="icon">📊</div>
@@ -625,47 +661,47 @@
             <div class="icon">📈</div>
             <div class="label">Mensual</div>
         </button>
-        <button class="nav-item" onclick="showSection('anual')">
+        <button class="nav-item" onclick="showSection('interanual')">
             <div class="icon">📉</div>
-            <div class="label">Anual</div>
+            <div class="label">Interanual</div>
         </button>
-        <button class="nav-item" onclick="showSection('comparativa')">
-            <div class="icon">🔄</div>
-            <div class="label">Comparar</div>
+        <button class="nav-item" onclick="showSection('emae')">
+            <div class="icon">📊</div>
+            <div class="label">EMAE</div>
         </button>
     </div>
 
     <script>
-        const validUsers = {
-            'admin': 'argentina2025',
-            'usuario': '123456'
-        };
-
-        let chartMensual, chartAnual, chartComparativa;
+        const validUsers = {'admin': 'argentina2025', 'usuario': '123456'};
+        let chartMensual, chartInteranual, chartEmae;
         let chartsInitialized = false;
 
-        // Datos 2023-2025
-        const meses = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 'May 24', 'Jun 24', 
-                       'Jul 24', 'Ago 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dic 24', 
-                       'Ene 25', 'Feb 25', 'Mar 25', 'Abr 25', 'May 25', 'Jun 25', 
-                       'Jul 25', 'Ago 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dic 25'];
+        const todosMeses = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 'May 24', 'Jun 24', 
+                            'Jul 24', 'Ago 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dic 24', 
+                            'Ene 25', 'Feb 25', 'Mar 25', 'Abr 25', 'May 25', 'Jun 25', 
+                            'Jul 25', 'Ago 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dic 25'];
         
-        const inflacionMensual = [12.8, 25.5, 20.6, 13.2, 11.0, 8.8, 4.2, 4.6, 
-                                  4.0, 4.2, 3.5, 2.7, 2.4, 2.7,
-                                  2.2, 2.4, 3.7, 2.8, 1.5, 1.6,
-                                  1.9, 1.9, 2.1, 2.3, 2.5, 2.8];
+        const todosInflacionMensual = [12.8, 25.5, 20.6, 13.2, 11.0, 8.8, 4.2, 4.6, 
+                                       4.0, 4.2, 3.5, 2.7, 2.4, 2.7,
+                                       2.2, 2.4, 3.7, 2.8, 1.5, 1.6,
+                                       1.9, 1.9, 2.1, 2.3, 2.5, 2.8];
 
-        // EMAE Desestacionalizado (base 2004=100)
-        const emaeData = [146.4, 143.3, 143.9, 143.9, 142.9, 141.0, 142.6, 143.6, 
-                         147.1, 147.8, 147.7, 148.7, 150.4, 152.2, 
-                         152.2, 153.4, 150.7, 152.4, 152.2, 151.5,
-                         151.5, 152.5, 153.4, 152.8, 152.4, null];
+        const todosInflacionInteranual = [160.9, 211.4, 254.2, 276.2, 287.9, 289.4, 263.4, 236.7,
+                                          215.1, 209.8, 193.1, 166.5, 152.9, 117.8,
+                                          84.5, 82.5, 79.0, 75.5, 67.5, 63.3,
+                                          58.0, 54.2, 50.8, 47.5, 31.4, 31.5];
 
-        // Datos comparativa
-        const meses2023 = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        const datos2023 = [6.0, 6.6, 7.7, 8.4, 7.8, 6.0, 6.3, 12.4, 12.7, 8.3, 12.8, 25.5];
-        const datos2024 = [20.6, 13.2, 11.0, 8.8, 4.2, 4.6, 4.0, 4.2, 3.5, 2.7, 2.4, 2.7];
-        const datos2025 = [2.2, 2.4, 3.7, 2.8, 1.5, 1.6, 1.9, 1.9, 2.1, 2.3, 2.5, 2.8];
+        const todosEmae = [146.4, 143.3, 143.9, 143.9, 142.9, 141.0, 142.6, 143.6, 
+                          147.1, 147.8, 147.7, 148.7, 150.4, 152.2, 
+                          152.2, 153.4, 150.7, 152.4, 152.2, 151.5,
+                          151.5, 152.5, 153.4, 152.8, 152.4, null];
+
+        let filtroMensualDesde = 0;
+        let filtroMensualHasta = todosMeses.length - 1;
+        let filtroInteranualDesde = 0;
+        let filtroInteranualHasta = todosMeses.length - 1;
+        let filtroEmaeDesde = 0;
+        let filtroEmaeHasta = todosMeses.length - 2;
 
         function login() {
             const username = document.getElementById('username').value;
@@ -677,6 +713,7 @@
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('bottomNav').classList.add('active');
                 errorMessage.style.display = 'none';
+                inicializarFiltros();
             } else {
                 errorMessage.style.display = 'block';
             }
@@ -691,13 +728,71 @@
             document.getElementById('errorMessage').style.display = 'none';
         }
 
+        function inicializarFiltros() {
+            const selectDesde = document.getElementById('fechaDesde');
+            const selectHasta = document.getElementById('fechaHasta');
+            todosMeses.forEach((mes, index) => {
+                selectDesde.innerHTML += `<option value="${index}">${mes}</option>`;
+                selectHasta.innerHTML += `<option value="${index}">${mes}</option>`;
+            });
+            selectHasta.value = todosMeses.length - 1;
+
+            const selectDesdeInt = document.getElementById('fechaDesdeInteranual');
+            const selectHastaInt = document.getElementById('fechaHastaInteranual');
+            todosMeses.forEach((mes, index) => {
+                selectDesdeInt.innerHTML += `<option value="${index}">${mes}</option>`;
+                selectHastaInt.innerHTML += `<option value="${index}">${mes}</option>`;
+            });
+            selectHastaInt.value = todosMeses.length - 1;
+
+            const selectDesdeEmae = document.getElementById('fechaDesdeEmae');
+            const selectHastaEmae = document.getElementById('fechaHastaEmae');
+            todosMeses.forEach((mes, index) => {
+                if (todosEmae[index] !== null) {
+                    selectDesdeEmae.innerHTML += `<option value="${index}">${mes}</option>`;
+                    selectHastaEmae.innerHTML += `<option value="${index}">${mes}</option>`;
+                }
+            });
+            selectHastaEmae.value = todosMeses.length - 2;
+        }
+
+        function aplicarFiltroMensual() {
+            filtroMensualDesde = parseInt(document.getElementById('fechaDesde').value);
+            filtroMensualHasta = parseInt(document.getElementById('fechaHasta').value);
+            if (filtroMensualDesde > filtroMensualHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            actualizarChartMensual();
+        }
+
+        function aplicarFiltroInteranual() {
+            filtroInteranualDesde = parseInt(document.getElementById('fechaDesdeInteranual').value);
+            filtroInteranualHasta = parseInt(document.getElementById('fechaHastaInteranual').value);
+            if (filtroInteranualDesde > filtroInteranualHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            actualizarChartInteranual();
+        }
+
+        function aplicarFiltroEmae() {
+            filtroEmaeDesde = parseInt(document.getElementById('fechaDesdeEmae').value);
+            filtroEmaeHasta = parseInt(document.getElementById('fechaHastaEmae').value);
+            if (filtroEmaeDesde > filtroEmaeHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            actualizarChartEmae();
+        }
+
         function showSection(section) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(section + 'Section').classList.add('active');
             
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             const navItems = document.querySelectorAll('.nav-item');
-            const sectionMap = { 'resumen': 0, 'mensual': 1, 'anual': 2, 'comparativa': 3 };
+            const sectionMap = { 'resumen': 0, 'mensual': 1, 'interanual': 2, 'emae': 3 };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
@@ -731,11 +826,10 @@
                 }
                 
                 const workbook = new ExcelJS.Workbook();
-                
-                const ws = workbook.addWorksheet('Inflación y EMAE');
-                ws.addRow(['Mes', 'Inflación Mensual (%)', 'EMAE Desest. (base 2004=100)']);
-                for (let i = 0; i < meses.length; i++) {
-                    ws.addRow([meses[i], inflacionMensual[i], emaeData[i]]);
+                const ws = workbook.addWorksheet('Datos Completos');
+                ws.addRow(['Mes', 'Inflación Mensual (%)', 'Inflación Interanual (%)', 'EMAE Desest. (base 2004=100)']);
+                for (let i = 0; i < todosMeses.length; i++) {
+                    ws.addRow([todosMeses[i], todosInflacionMensual[i], todosInflacionInteranual[i], todosEmae[i]]);
                 }
                 formatWorksheet(ws);
                 
@@ -766,22 +860,17 @@
         function formatWorksheet(worksheet) {
             const headerRow = worksheet.getRow(1);
             headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            headerRow.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FF0f172a' }
-            };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0f172a' } };
             headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
-            
             worksheet.getColumn(1).width = 12;
             worksheet.getColumn(2).width = 24;
-            worksheet.getColumn(3).width = 30;
-            
+            worksheet.getColumn(3).width = 26;
+            worksheet.getColumn(4).width = 30;
             for (let i = 2; i <= worksheet.rowCount; i++) {
-                worksheet.getCell(i, 2).numFmt = '0.0';
-                worksheet.getCell(i, 2).alignment = { horizontal: 'center' };
-                worksheet.getCell(i, 3).numFmt = '0.0';
-                worksheet.getCell(i, 3).alignment = { horizontal: 'center' };
+                for (let j = 2; j <= 4; j++) {
+                    worksheet.getCell(i, j).numFmt = '0.0';
+                    worksheet.getCell(i, j).alignment = { horizontal: 'center' };
+                }
             }
         }
 
@@ -798,16 +887,28 @@
         function initCharts() {
             Chart.defaults.color = '#cbd5e1';
             Chart.defaults.font.family = "'Inter', sans-serif";
+            
+            crearChartMensual();
+            crearChartInteranual();
+            crearChartEmae();
+        }
 
-            // Gráfico Mensual con EMAE
-            const ctxMensual = document.getElementById('inflacionMensualChart').getContext('2d');
-            chartMensual = new Chart(ctxMensual, {
+        function crearChartMensual() {
+            const meses = todosMeses.slice(filtroMensualDesde, filtroMensualHasta + 1);
+            const inflacion = todosInflacionMensual.slice(filtroMensualDesde, filtroMensualHasta + 1);
+            const emae = todosEmae.slice(filtroMensualDesde, filtroMensualHasta + 1);
+
+            const ctx = document.getElementById('inflacionMensualChart').getContext('2d');
+            if (chartMensual) chartMensual.destroy();
+            
+            chartMensual = new Chart(ctx, {
                 type: 'bar',
+                plugins: [ChartDataLabels],
                 data: {
                     labels: meses,
                     datasets: [{
                         label: 'Inflación Mensual (%)',
-                        data: inflacionMensual,
+                        data: inflacion,
                         backgroundColor: function(context) {
                             const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 400);
                             gradient.addColorStop(0, '#3b82f6');
@@ -821,7 +922,7 @@
                     },
                     {
                         label: 'EMAE Desest. (base 2004=100)',
-                        data: emaeData,
+                        data: emae,
                         type: 'line',
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -829,7 +930,7 @@
                         tension: 0.4,
                         fill: false,
                         pointRadius: 0,
-                        pointHoverRadius: 6,
+                        pointHoverRadius: 0,
                         yAxisID: 'y1',
                         order: 1
                     }]
@@ -837,10 +938,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
+                    interaction: { mode: null },
                     plugins: {
                         legend: {
                             display: true,
@@ -851,37 +949,56 @@
                                 usePointStyle: true
                             }
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            padding: 12,
-                            titleColor: '#ffffff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    if (context.dataset.label.includes('EMAE')) {
-                                        return context.dataset.label + ': ' + (context.parsed.y ? context.parsed.y.toFixed(1) : 'N/A');
-                                    }
-                                    return context.dataset.label + ': ' + context.parsed.y + '%';
-                                }
-                            }
-                        },
+                        tooltip: { enabled: false },
                         datalabels: {
                             display: function(context) {
-                                return context.datasetIndex === 0;
+                                const datasetIndex = context.datasetIndex;
+                                const dataIndex = context.dataIndex;
+                                
+                                // Para dataset 0 (inflación), mostrar todas
+                                if (datasetIndex === 0) {
+                                    return true;
+                                }
+                                
+                                // Para dataset 1 (EMAE), solo primera y última válida
+                                if (datasetIndex === 1) {
+                                    const data = context.dataset.data;
+                                    if (!data[dataIndex] || data[dataIndex] === null) return false;
+                                    
+                                    // Encontrar primer y último índice válido
+                                    let firstValid = -1;
+                                    let lastValid = -1;
+                                    for (let i = 0; i < data.length; i++) {
+                                        if (data[i] !== null && data[i] !== undefined) {
+                                            if (firstValid === -1) firstValid = i;
+                                            lastValid = i;
+                                        }
+                                    }
+                                    
+                                    return dataIndex === firstValid || dataIndex === lastValid;
+                                }
+                                
+                                return false;
                             },
                             anchor: 'end',
-                            align: 'top',
-                            offset: 4,
-                            font: {
-                                family: 'Inter',
-                                size: 13,
-                                weight: 'bold'
+                            align: 'end',
+                            rotation: -90,
+                            offset: 2,
+                            clip: false,
+                            font: { 
+                                family: 'Inter', 
+                                size: 10, 
+                                weight: 'bold' 
                             },
-                            color: '#ffffff',
-                            formatter: function(value) {
-                                return value + '%';
+                            color: function(context) {
+                                return context.datasetIndex === 0 ? '#ffffff' : '#10b981';
+                            },
+                            formatter: function(value, context) {
+                                if (value === null || value === undefined) return '';
+                                if (context.datasetIndex === 0) {
+                                    return value + '%';
+                                }
+                                return value.toFixed(1);
                             }
                         }
                     },
@@ -890,47 +1007,19 @@
                             type: 'linear',
                             position: 'left',
                             beginAtZero: true,
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 12 },
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'Inflación (%)',
-                                color: '#cbd5e1',
-                                font: { size: 12, weight: '600' }
-                            }
+                            display: false,
+                            grid: { display: false }
                         },
                         y1: {
                             type: 'linear',
                             position: 'right',
-                            display: true,
+                            display: false,
                             min: 140,
                             max: 155,
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 12 }
-                            },
-                            title: {
-                                display: true,
-                                text: 'EMAE',
-                                color: '#10b981',
-                                font: { size: 12, weight: '600' }
-                            }
+                            grid: { display: false }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
                                 font: { size: 10 },
@@ -941,24 +1030,39 @@
                     }
                 }
             });
+        }
 
-            // Gráfico Anual
-            const ctxAnual = document.getElementById('inflacionAnualChart').getContext('2d');
-            chartAnual = new Chart(ctxAnual, {
-                type: 'bar',
+        function crearChartInteranual() {
+            const meses = todosMeses.slice(filtroInteranualDesde, filtroInteranualHasta + 1);
+            const interanual = todosInflacionInteranual.slice(filtroInteranualDesde, filtroInteranualHasta + 1);
+
+            const ctx = document.getElementById('inflacionInteranualChart').getContext('2d');
+            if (chartInteranual) chartInteranual.destroy();
+            
+            chartInteranual = new Chart(ctx, {
+                type: 'line',
+                plugins: [ChartDataLabels],
                 data: {
-                    labels: ['2023', '2024', '2025'],
+                    labels: meses,
                     datasets: [{
-                        label: 'Inflación Anual (%)',
-                        data: [211.4, 117.8, 31.5],
-                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
-                        borderRadius: 8,
-                        borderSkipped: false
+                        label: 'Inflación Interanual (%)',
+                        data: interanual,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: { mode: null },
                     plugins: {
                         legend: {
                             display: true,
@@ -968,151 +1072,139 @@
                                 padding: 20
                             }
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            padding: 12,
-                            titleColor: '#ffffff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                            borderWidth: 1
-                        },
+                        tooltip: { enabled: false },
                         datalabels: {
                             display: true,
                             anchor: 'end',
                             align: 'top',
-                            offset: 8,
-                            font: {
-                                family: 'Inter',
-                                size: 16,
-                                weight: 'bold'
+                            offset: 5,
+                            clip: false,
+                            font: { 
+                                family: 'Inter', 
+                                size: 12, 
+                                weight: 'bold' 
                             },
                             color: '#ffffff',
-                            formatter: function(value) {
-                                return value + '%';
+                            formatter: function(value) { 
+                                if (value === null || value === undefined) return '';
+                                return value + '%'; 
                             }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 12 },
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
+                            display: false,
+                            grid: { display: false }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: 14, weight: '600' }
+                                font: { size: 10 },
+                                maxRotation: 45,
+                                minRotation: 45
                             }
                         }
                     }
                 }
             });
+        }
 
-            // Gráfico Comparativa
-            const ctxComparativa = document.getElementById('comparativaChart').getContext('2d');
-            chartComparativa = new Chart(ctxComparativa, {
+        function crearChartEmae() {
+            const meses = todosMeses.slice(filtroEmaeDesde, filtroEmaeHasta + 1);
+            const emae = todosEmae.slice(filtroEmaeDesde, filtroEmaeHasta + 1);
+
+            const ctx = document.getElementById('emaeChart').getContext('2d');
+            if (chartEmae) chartEmae.destroy();
+            
+            chartEmae = new Chart(ctx, {
                 type: 'line',
+                plugins: [ChartDataLabels],
                 data: {
-                    labels: meses2023,
+                    labels: meses,
                     datasets: [{
-                        label: '2023',
-                        data: datos2023,
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#ef4444',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2
-                    },
-                    {
-                        label: '2024',
-                        data: datos2024,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#f59e0b',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2
-                    },
-                    {
-                        label: '2025',
-                        data: datos2025,
+                        label: 'EMAE Desestacionalizado (base 2004=100)',
+                        data: emae,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
                         tension: 0.4,
                         fill: true,
                         pointRadius: 5,
                         pointBackgroundColor: '#10b981',
                         pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: { mode: null },
                     plugins: {
                         legend: {
                             display: true,
                             labels: {
                                 color: '#cbd5e1',
                                 font: { size: 13, weight: '600' },
-                                padding: 20,
-                                usePointStyle: true
+                                padding: 20
                             }
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            padding: 12,
-                            titleColor: '#ffffff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                            borderWidth: 1
-                        },
+                        tooltip: { enabled: false },
                         datalabels: {
-                            display: false
+                            display: function(context) {
+                                const value = context.dataset.data[context.dataIndex];
+                                return value !== null && value !== undefined;
+                            },
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 5,
+                            clip: false,
+                            font: { 
+                                family: 'Inter', 
+                                size: 12, 
+                                weight: 'bold' 
+                            },
+                            color: '#ffffff',
+                            formatter: function(value) {
+                                if (value === null || value === undefined) return '';
+                                return value.toFixed(1);
+                            }
                         }
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { size: 12 },
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
+                            beginAtZero: false,
+                            display: false,
+                            min: 140,
+                            max: 155,
+                            grid: { display: false }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: 12 }
+                                font: { size: 10 },
+                                maxRotation: 45,
+                                minRotation: 45
                             }
                         }
                     }
                 }
             });
+        }
+
+        function actualizarChartMensual() {
+            crearChartMensual();
+        }
+
+        function actualizarChartInteranual() {
+            crearChartInteranual();
+        }
+
+        function actualizarChartEmae() {
+            crearChartEmae();
         }
     </script>
 </body>

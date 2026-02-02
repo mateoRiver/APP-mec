@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    
+    <!-- LZ-String para compresión de datos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -411,7 +415,7 @@
             height: 600px;
             background: rgba(255, 255, 255, 0.02);
             border-radius: 12px;
-            padding: 20px;
+            padding: 30px 20px 20px 20px;
         }
 
         .back-btn {
@@ -503,7 +507,7 @@
         @media (max-width: 768px) {
             .header h1 { font-size: 22px; }
             .stat-card .value { font-size: 40px; }
-            .chart-wrapper { height: 550px; padding: 16px 8px; }
+            .chart-wrapper { height: 550px; padding: 25px 16px 16px 16px; }
             .stats-grid { grid-template-columns: 1fr; }
             .chart-detail { padding: 20px 12px; }
             .chart-detail h2 { font-size: 18px; margin-bottom: 16px; }
@@ -513,7 +517,7 @@
         @media (max-width: 480px) {
             .dashboard { padding: 12px; }
             .stat-card { padding: 24px; }
-            .chart-wrapper { height: 500px; padding: 12px 6px; }
+            .chart-wrapper { height: 500px; padding: 20px 12px 12px 12px; }
             .chart-detail { padding: 16px 8px; }
             .chart-detail h2 { font-size: 16px; }
             .date-filter { padding: 12px; }
@@ -578,12 +582,12 @@
                     <div class="change neutral">Base 2004=100</div>
                     <div class="view-more">Ver serie →</div>
                 </div>
-                <div class="stat-card" onclick="showSection('mensual')">
-                    <h3>Inflación 2024</h3>
-                    <div class="value">117.8%</div>
-                    <div class="description">Año completo 2024</div>
-                    <div class="change negative">↓ vs 2023: -93.6pp</div>
-                    <div class="view-more">Ver datos →</div>
+                <div class="stat-card" onclick="showSection('bcra')">
+                    <h3>Base Monetaria</h3>
+                    <div class="value">41.9B</div>
+                    <div class="description">27 Enero 2026</div>
+                    <div class="change neutral">Millones de pesos</div>
+                    <div class="view-more">Ver serie →</div>
                 </div>
             </div>
         </div>
@@ -650,6 +654,102 @@
                 </div>
             </div>
         </div>
+
+        <!-- SECCIÓN BCRA -->
+        <div id="bcraSection" class="section">
+            <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            
+            <div class="chart-detail">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                    <h2 style="margin: 0;">Base Monetaria (millones $)</h2>
+                    <button class="btn btn-secondary" onclick="mostrarModalUpload()" style="padding: 8px 16px; font-size: 13px;">
+                        <span>📥</span>
+                        <span>Actualizar Excel</span>
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="bcraChart"></canvas>
+                </div>
+                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdate">
+                    Datos del Excel: 1 Nov 2025 - 27 Ene 2026 (57 días hábiles)
+                </p>
+            </div>
+        </div>
+
+        <!-- MODAL DE UPLOAD OBLIGATORIO -->
+        <div id="modalUploadBCRA" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; overflow-y: auto;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; margin: 40px auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;">
+                <h2 style="color: white; margin: 0 0 16px 0; font-size: 24px;">📊 Datos de Base Monetaria</h2>
+                <p style="color: #94a3b8; margin: 0 0 24px 0; line-height: 1.6;">
+                    Para ver los datos actualizados, selecciona una opción:
+                </p>
+
+                <!-- Opción: Ingresar código -->
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <p style="color: #60a5fa; margin: 0 0 12px 0; font-weight: 600; font-size: 14px;">🔑 ¿Tienes un código?</p>
+                    <p style="color: #94a3b8; margin: 0 0 12px 0; font-size: 13px;">Ingresa el código compartido por el administrador</p>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="codigoInput" placeholder="ABC-123" maxlength="7" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 16px; text-align: center; text-transform: uppercase; letter-spacing: 2px;" />
+                        <button onclick="cargarDesdeCodigo()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                            Cargar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Opción: Subir archivo -->
+                <div style="background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: all 0.3s;" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
+                    <p style="color: #60a5fa; margin: 0 0 8px 0; font-weight: 600;" id="uploadTextModal">Subir archivo Excel</p>
+                    <p style="color: #94a3b8; margin: 0; font-size: 13px;">Click para seleccionar o arrastra aquí</p>
+                    <input type="file" id="fileInput" accept=".xlsm,.xlsx" style="display: none;" onchange="procesarExcelBCRA(event)">
+                </div>
+
+                <div id="uploadStatus" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;"></div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="usarDatosEjemplo()" style="flex: 1; padding: 12px 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+                        Datos de ejemplo
+                    </button>
+                    <button id="btnContinuar" onclick="cerrarModalUpload()" disabled style="flex: 1; padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-size: 14px; font-weight: 600; opacity: 0.5; transition: all 0.3s;">
+                        Continuar
+                    </button>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;">📍 ¿Dónde descargar el archivo?</p>
+                    <a href="https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 13px; display: block; margin-bottom: 8px;">
+                        → Sitio oficial del BCRA
+                    </a>
+                    <p style="color: #64748b; margin: 0; font-size: 12px;">Busca el archivo "series.xlsm" en la página de Principales Variables</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL PARA MOSTRAR CÓDIGO (SOLO ADMIN) -->
+        <div id="modalCodigo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; justify-content: center; align-items: center; overflow-y: auto;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 40px; max-width: 450px; width: 90%; margin: 40px auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="color: white; margin: 0 0 16px 0; font-size: 24px;">✅ Código Generado</h2>
+                <p style="color: #94a3b8; margin: 0 0 24px 0; line-height: 1.6;">
+                    Comparte este código con los usuarios para que accedan a los datos actualizados:
+                </p>
+
+                <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 13px;">Código:</p>
+                    <p id="codigoGenerado" style="color: #22c55e; margin: 0 0 16px 0; font-size: 32px; font-weight: 700; letter-spacing: 4px; font-family: monospace;"></p>
+                    <button onclick="copiarCodigo()" style="width: 100%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                        📋 Copiar Código
+                    </button>
+                </div>
+
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                    <p id="codigoInfo" style="color: #94a3b8; margin: 0; font-size: 13px; line-height: 1.5;"></p>
+                </div>
+
+                <button onclick="cerrarModalCodigo()" style="width: 100%; padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                    Continuar al dashboard
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="bottomNav" class="bottom-nav">
@@ -669,11 +769,18 @@
             <div class="icon">📊</div>
             <div class="label">EMAE</div>
         </button>
+        <button class="nav-item" onclick="showSection('bcra')">
+            <div class="icon">🏦</div>
+            <div class="label">BCRA</div>
+        </button>
     </div>
 
     <script>
+        // ==========================================
+        // USUARIOS Y DATOS
+        // ==========================================
         const validUsers = {'admin': 'argentina2025', 'usuario': '123456'};
-        let chartMensual, chartInteranual, chartEmae;
+        let chartMensual, chartInteranual, chartEmae, chartBcra;
         let chartsInitialized = false;
 
         const todosMeses = ['Nov 23', 'Dic 23', 'Ene 24', 'Feb 24', 'Mar 24', 'Abr 24', 'May 24', 'Jun 24', 
@@ -696,6 +803,27 @@
                           152.2, 153.4, 150.7, 152.4, 152.2, 151.5,
                           151.5, 152.5, 153.4, 152.8, 152.4, null];
 
+        // Datos BCRA - Base Monetaria (en millones de pesos)
+        // Fuente: Excel del BCRA - Variable ID 71 (Saldo de base monetaria)
+        // Datos diarios: 1 Nov 2025 - 27 Ene 2026 (57 días hábiles)
+        let fechasBCRA = [
+            '2025-11-01', '2025-11-03', '2025-11-04', '2025-11-05', '2025-11-07', '2025-11-10', '2025-11-11', '2025-11-12', '2025-11-13', '2025-11-14',
+            '2025-11-17', '2025-11-18', '2025-11-19', '2025-11-20', '2025-11-25', '2025-11-26', '2025-11-27', '2025-11-28', '2025-12-01', '2025-12-01',
+            '2025-12-02', '2025-12-03', '2025-12-04', '2025-12-05', '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12', '2025-12-15', '2025-12-16',
+            '2025-12-17', '2025-12-18', '2025-12-19', '2025-12-22', '2025-12-23', '2025-12-26', '2025-12-29', '2025-12-30', '2026-01-01', '2026-01-02',
+            '2026-01-05', '2026-01-06', '2026-01-07', '2026-01-08', '2026-01-09', '2026-01-12', '2026-01-13', '2026-01-14', '2026-01-15', '2026-01-16',
+            '2026-01-19', '2026-01-20', '2026-01-21', '2026-01-22', '2026-01-23', '2026-01-26', '2026-01-27'
+        ];
+        
+        let baseMonetaria = [
+            40938039, 41437306, 40730943, 41136124, 41881861, 41632920, 40036417, 40264655, 39820024, 40285409,
+            40819556, 40323072, 40314551, 40927869, 42341489, 40563401, 41009226, 40926609, 40862891, 40921357,
+            39684092, 37842747, 40457720, 38933317, 40069791, 40146702, 40856240, 41173306, 41443740, 40768621,
+            41112794, 40972242, 40805912, 41416844, 41853086, 42492789, 42305192, 42956965, 43446368, 42960320,
+            42683047, 42682795, 43167152, 43272002, 42895272, 42938346, 43346010, 43803268, 43701459, 44102114,
+            44050201, 44040732, 44265806, 44262398, 44254340, 43364675, 41880963
+        ];
+
         let filtroMensualDesde = 0;
         let filtroMensualHasta = todosMeses.length - 1;
         let filtroInteranualDesde = 0;
@@ -709,6 +837,7 @@
             const errorMessage = document.getElementById('errorMessage');
 
             if (validUsers[username] && validUsers[username] === password) {
+                window.currentUser = username; // Guardar usuario actual
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('bottomNav').classList.add('active');
@@ -787,12 +916,18 @@
         }
 
         function showSection(section) {
+            // Si intenta ir a BCRA y no ha cargado datos, mostrar modal
+            if (section === 'bcra' && !window.bcraDataLoaded) {
+                mostrarModalUpload();
+                return;
+            }
+            
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(section + 'Section').classList.add('active');
             
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             const navItems = document.querySelectorAll('.nav-item');
-            const sectionMap = { 'resumen': 0, 'mensual': 1, 'interanual': 2, 'emae': 3 };
+            const sectionMap = { 'resumen': 0, 'mensual': 1, 'interanual': 2, 'emae': 3, 'bcra': 4 };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
@@ -802,8 +937,341 @@
                 chartsInitialized = true;
             }
             
+            // Inicializar gráfico BCRA si entramos a esa sección
+            if (section === 'bcra' && !chartBcra) {
+                crearChartBCRA();
+            }
+            
             window.scrollTo(0, 0);
         }
+
+        function mostrarModalUpload() {
+            const modal = document.getElementById('modalUploadBCRA');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Bloquear scroll del body
+        }
+        
+        function cerrarModalUpload() {
+            const modal = document.getElementById('modalUploadBCRA');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll del body
+            showSection('bcra');
+        }
+
+        function usarDatosEjemplo() {
+            window.bcraDataLoaded = true;
+            document.getElementById('btnContinuar').disabled = false;
+            document.getElementById('btnContinuar').style.opacity = '1';
+            document.getElementById('btnContinuar').style.cursor = 'pointer';
+            
+            const status = document.getElementById('uploadStatus');
+            status.style.display = 'block';
+            status.style.background = 'rgba(34, 197, 94, 0.1)';
+            status.style.color = '#22c55e';
+            status.style.border = '1px solid #22c55e';
+            status.innerHTML = '✅ Usando datos de ejemplo (1 Nov 2025 - 27 Ene 2026)';
+        }
+
+        // ==========================================
+        // SISTEMA DE CÓDIGOS COMPARTIBLES
+        // ==========================================
+        
+        function generarCodigo() {
+            // Genera un código de 7 caracteres: XXX-XXX
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Sin I, O, 0, 1 para evitar confusión
+            let codigo = '';
+            for (let i = 0; i < 6; i++) {
+                codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+                if (i === 2) codigo += '-';
+            }
+            return codigo;
+        }
+
+        function mostrarModalCodigo(codigo, info) {
+            document.getElementById('codigoGenerado').textContent = codigo;
+            document.getElementById('codigoInfo').textContent = info;
+            document.getElementById('modalCodigo').style.display = 'flex';
+            window.bcraDataLoaded = true;
+        }
+
+        function cerrarModalCodigo() {
+            document.getElementById('modalCodigo').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll
+            cerrarModalUpload();
+        }
+
+        function copiarCodigo() {
+            const codigo = document.getElementById('codigoGenerado').textContent;
+            navigator.clipboard.writeText(codigo).then(() => {
+                const btn = event.target;
+                const textoOriginal = btn.textContent;
+                btn.textContent = '✅ Copiado!';
+                setTimeout(() => {
+                    btn.textContent = textoOriginal;
+                }, 2000);
+            }).catch(err => {
+                alert('Código: ' + codigo);
+            });
+        }
+
+        function cargarDesdeCodigo() {
+            const codigoInput = document.getElementById('codigoInput').value.toUpperCase().trim();
+            const status = document.getElementById('uploadStatus');
+            
+            if (!codigoInput) {
+                status.style.display = 'block';
+                status.style.background = 'rgba(239, 68, 68, 0.1)';
+                status.style.color = '#ef4444';
+                status.style.border = '1px solid #ef4444';
+                status.innerHTML = '❌ Por favor ingresa un código';
+                return;
+            }
+
+            status.style.display = 'block';
+            status.style.background = 'rgba(59, 130, 246, 0.1)';
+            status.style.color = '#3b82f6';
+            status.style.border = '1px solid #3b82f6';
+            status.innerHTML = '⏳ Cargando datos...';
+
+            try {
+                // Buscar el código en localStorage
+                const datosComprimidos = localStorage.getItem('codigo_' + codigoInput);
+                
+                if (!datosComprimidos) {
+                    throw new Error('Código no válido o expirado');
+                }
+
+                // Descomprimir datos
+                const datosJSON = LZString.decompressFromUTF16(datosComprimidos);
+                const datos = JSON.parse(datosJSON);
+
+                // Verificar expiración (30 días)
+                const ahora = new Date().getTime();
+                const diasTranscurridos = (ahora - datos.timestamp) / (1000 * 60 * 60 * 24);
+                
+                if (diasTranscurridos > 30) {
+                    throw new Error('Código expirado (más de 30 días)');
+                }
+
+                // Cargar datos
+                fechasBCRA = datos.fechas;
+                baseMonetaria = datos.saldos;
+                window.bcraDataLoaded = true;
+
+                // Actualizar gráfico si existe
+                if (chartBcra) {
+                    crearChartBCRA();
+                }
+
+                // Actualizar mensaje
+                const primerFecha = new Date(fechasBCRA[0]).toLocaleDateString('es-AR');
+                const ultimaFecha = new Date(fechasBCRA[fechasBCRA.length-1]).toLocaleDateString('es-AR');
+                document.getElementById('lastUpdate').textContent = 
+                    `✅ Cargado con código ${codigoInput}: ${primerFecha} - ${ultimaFecha}`;
+
+                // Actualizar tarjeta
+                const ultimoValor = (baseMonetaria[baseMonetaria.length-1] / 1_000_000).toFixed(1);
+                const tarjetaBcra = document.querySelector('.stat-card[onclick="showSection(\'bcra\')"] .value');
+                if (tarjetaBcra) tarjetaBcra.textContent = `${ultimoValor}B`;
+
+                // Mostrar éxito
+                status.style.background = 'rgba(34, 197, 94, 0.1)';
+                status.style.color = '#22c55e';
+                status.style.border = '1px solid #22c55e';
+                status.innerHTML = `✅ Datos cargados: ${datos.info}`;
+
+                // Habilitar continuar
+                document.getElementById('btnContinuar').disabled = false;
+                document.getElementById('btnContinuar').style.opacity = '1';
+                document.getElementById('btnContinuar').style.cursor = 'pointer';
+
+            } catch (error) {
+                console.error('Error cargando código:', error);
+                status.style.background = 'rgba(239, 68, 68, 0.1)';
+                status.style.color = '#ef4444';
+                status.style.border = '1px solid #ef4444';
+                status.innerHTML = `❌ ${error.message}`;
+            }
+        }
+
+        async function procesarExcelBCRA(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('uploadStatus');
+            status.style.display = 'block';
+            status.style.background = 'rgba(59, 130, 246, 0.1)';
+            status.style.color = '#3b82f6';
+            status.style.border = '1px solid #3b82f6';
+            status.innerHTML = '⏳ Procesando archivo...';
+
+            try {
+                // Cargar SheetJS desde CDN si no está cargado
+                if (typeof XLSX === 'undefined') {
+                    await cargarSheetJS();
+                }
+
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Buscar hoja BASE MONETARIA
+                const sheetName = 'BASE MONETARIA';
+                if (!workbook.Sheets[sheetName]) {
+                    throw new Error('No se encontró la hoja "BASE MONETARIA"');
+                }
+
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // Extraer datos de la columna A (fechas) y columna AD (saldo base monetaria)
+                const nuevasFechas = [];
+                const nuevosSaldos = [];
+
+                // Empezar desde fila 10 (índice 9) donde están los datos
+                for (let i = 9; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    const fecha = row[0]; // Columna A
+                    const saldo = row[29]; // Columna AD (índice 29)
+
+                    if (fecha && saldo && typeof saldo === 'number') {
+                        // Convertir fecha de Excel a formato ISO
+                        const fechaJS = XLSX.SSF.parse_date_code(fecha);
+                        if (fechaJS) {
+                            const fechaISO = `${fechaJS.y}-${String(fechaJS.m).padStart(2, '0')}-${String(fechaJS.d).padStart(2, '0')}`;
+                            nuevasFechas.push(fechaISO);
+                            nuevosSaldos.push(Math.round(saldo));
+                        }
+                    }
+                }
+
+                // Tomar últimos 60 días
+                const ultimos60Fechas = nuevasFechas.slice(-60);
+                const ultimos60Saldos = nuevosSaldos.slice(-60);
+
+                if (ultimos60Fechas.length === 0) {
+                    throw new Error('No se encontraron datos válidos');
+                }
+
+                // Actualizar variables globales
+                fechasBCRA = ultimos60Fechas;
+                baseMonetaria = ultimos60Saldos;
+                window.bcraDataLoaded = true;
+
+                // Variables para el código (admin)
+                let codigo = null;
+                let infoParaCodigo = null;
+
+                // SI ES USUARIO ADMIN, GENERAR CÓDIGO COMPARTIBLE
+                const currentUser = window.currentUser;
+                if (currentUser === 'admin') {
+                    const primerFecha = new Date(ultimos60Fechas[0]).toLocaleDateString('es-AR');
+                    const ultimaFecha = new Date(ultimos60Fechas[ultimos60Fechas.length-1]).toLocaleDateString('es-AR');
+                    infoParaCodigo = `${ultimos60Fechas.length} días: ${primerFecha} - ${ultimaFecha}`;
+                    
+                    status.innerHTML = '⏳ Generando código...';
+                    
+                    // Generar código único
+                    codigo = generarCodigo();
+                    
+                    // Preparar datos para comprimir
+                    const datosParaGuardar = {
+                        fechas: ultimos60Fechas,
+                        saldos: ultimos60Saldos,
+                        info: infoParaCodigo,
+                        timestamp: new Date().getTime(),
+                        uploadedBy: currentUser
+                    };
+                    
+                    // Comprimir datos con LZ-String
+                    const datosJSON = JSON.stringify(datosParaGuardar);
+                    const datosComprimidos = LZString.compressToUTF16(datosJSON);
+                    
+                    // Guardar con el código como key
+                    localStorage.setItem('codigo_' + codigo, datosComprimidos);
+                    
+                    console.log(`✅ Código generado: ${codigo}`);
+                    console.log(`📊 Tamaño original: ${datosJSON.length} bytes`);
+                    console.log(`📦 Tamaño comprimido: ${datosComprimidos.length} bytes`);
+                    console.log(`🎯 Compresión: ${((1 - datosComprimidos.length / datosJSON.length) * 100).toFixed(1)}%`);
+                }
+
+                // Actualizar gráfico si ya existe
+                if (chartBcra) {
+                    crearChartBCRA();
+                }
+
+                // Actualizar mensaje
+                const primerFecha = new Date(fechasBCRA[0]).toLocaleDateString('es-AR');
+                const ultimaFecha = new Date(fechasBCRA[fechasBCRA.length-1]).toLocaleDateString('es-AR');
+                document.getElementById('lastUpdate').textContent = 
+                    `✅ Actualizado: ${primerFecha} - ${ultimaFecha} (${fechasBCRA.length} días)`;
+
+                // Actualizar tarjeta del resumen
+                const ultimoValor = (baseMonetaria[baseMonetaria.length-1] / 1_000_000).toFixed(1);
+                const tarjetaBcra = document.querySelector('.stat-card[onclick="showSection(\'bcra\')"] .value');
+                if (tarjetaBcra) tarjetaBcra.textContent = `${ultimoValor}B`;
+
+                // Mostrar éxito
+                status.style.background = 'rgba(34, 197, 94, 0.1)';
+                status.style.color = '#22c55e';
+                status.style.border = '1px solid #22c55e';
+                
+                if (currentUser === 'admin' && codigo) {
+                    // Ocultar status y mostrar modal con código
+                    status.style.display = 'none';
+                    mostrarModalCodigo(codigo, infoParaCodigo);
+                } else {
+                    status.innerHTML = `✅ ${fechasBCRA.length} días cargados (${primerFecha} - ${ultimaFecha})`;
+                    // Habilitar botón continuar
+                    document.getElementById('btnContinuar').disabled = false;
+                    document.getElementById('btnContinuar').style.opacity = '1';
+                    document.getElementById('btnContinuar').style.cursor = 'pointer';
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                status.style.background = 'rgba(239, 68, 68, 0.1)';
+                status.style.color = '#ef4444';
+                status.style.border = '1px solid #ef4444';
+                status.innerHTML = `❌ ${error.message}`;
+            }
+        }
+
+        function cargarSheetJS() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Drag and drop
+        window.addEventListener('load', () => {
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) {
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = '#60a5fa';
+                    dropZone.style.background = 'rgba(59, 130, 246, 0.2)';
+                });
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.style.borderColor = '#3b82f6';
+                    dropZone.style.background = 'rgba(59, 130, 246, 0.1)';
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = '#3b82f6';
+                    dropZone.style.background = 'rgba(59, 130, 246, 0.1)';
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        document.getElementById('fileInput').files = files;
+                        procesarExcelBCRA({ target: { files: files } });
+                    }
+                });
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('username').addEventListener('keypress', function(e) {
@@ -812,6 +1280,22 @@
             document.getElementById('password').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') login();
             });
+            
+            // Enter en el input de código
+            const codigoInput = document.getElementById('codigoInput');
+            if (codigoInput) {
+                codigoInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') cargarDesdeCodigo();
+                });
+                // Auto-formatear código (agregar guion después de 3 caracteres)
+                codigoInput.addEventListener('input', function(e) {
+                    let valor = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    if (valor.length > 3) {
+                        valor = valor.substring(0, 3) + '-' + valor.substring(3, 6);
+                    }
+                    e.target.value = valor;
+                });
+            }
         });
 
         async function descargarExcel() {
@@ -955,7 +1439,7 @@
                                 const datasetIndex = context.datasetIndex;
                                 const dataIndex = context.dataIndex;
                                 
-                                // Para dataset 0 (inflación), mostrar todas
+                                // Para dataset 0 (inflación), mostrar TODAS
                                 if (datasetIndex === 0) {
                                     return true;
                                 }
@@ -980,10 +1464,26 @@
                                 
                                 return false;
                             },
-                            anchor: 'end',
-                            align: 'end',
-                            rotation: -90,
-                            offset: 2,
+                            anchor: function(context) {
+                                // Inflación: arriba de las barras
+                                // EMAE: abajo de la línea
+                                return context.datasetIndex === 0 ? 'end' : 'end';
+                            },
+                            align: function(context) {
+                                // Inflación: alineado arriba
+                                // EMAE: alineado abajo
+                                return context.datasetIndex === 0 ? 'end' : 'bottom';
+                            },
+                            rotation: function(context) {
+                                // Inflación: vertical (-90 grados)
+                                // EMAE: horizontal (0 grados)
+                                return context.datasetIndex === 0 ? -90 : 0;
+                            },
+                            offset: function(context) {
+                                // Inflación: offset pequeño
+                                // EMAE: offset mayor para separar de la línea
+                                return context.datasetIndex === 0 ? 2 : 8;
+                            },
                             clip: false,
                             font: { 
                                 family: 'Inter', 
@@ -1063,6 +1563,14 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: null },
+                    layout: {
+                        padding: {
+                            top: 30,
+                            right: 20,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
@@ -1074,14 +1582,30 @@
                         },
                         tooltip: { enabled: false },
                         datalabels: {
-                            display: true,
+                            display: function(context) {
+                                const dataIndex = context.dataIndex;
+                                const data = context.dataset.data;
+                                const totalPoints = data.length;
+                                
+                                // Primer dato
+                                if (dataIndex === 0) return true;
+                                
+                                // Último dato
+                                if (dataIndex === totalPoints - 1) return true;
+                                
+                                // Valor máximo
+                                const maxValue = Math.max(...data);
+                                if (data[dataIndex] === maxValue) return true;
+                                
+                                return false;
+                            },
                             anchor: 'end',
                             align: 'top',
-                            offset: 5,
+                            offset: 6,
                             clip: false,
                             font: { 
                                 family: 'Inter', 
-                                size: 12, 
+                                size: 11, 
                                 weight: 'bold' 
                             },
                             color: '#ffffff',
@@ -1142,6 +1666,14 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: null },
+                    layout: {
+                        padding: {
+                            top: 30,
+                            right: 20,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
@@ -1154,16 +1686,39 @@
                         tooltip: { enabled: false },
                         datalabels: {
                             display: function(context) {
-                                const value = context.dataset.data[context.dataIndex];
-                                return value !== null && value !== undefined;
+                                const dataIndex = context.dataIndex;
+                                const data = context.dataset.data;
+                                const value = data[dataIndex];
+                                
+                                // No mostrar si es null
+                                if (value === null || value === undefined) return false;
+                                
+                                // Primer dato válido
+                                if (dataIndex === 0) return true;
+                                
+                                // Encontrar el último índice válido
+                                let lastValid = -1;
+                                for (let i = 0; i < data.length; i++) {
+                                    if (data[i] !== null && data[i] !== undefined) {
+                                        lastValid = i;
+                                    }
+                                }
+                                if (dataIndex === lastValid) return true;
+                                
+                                // Valor máximo (solo considerar valores no-null)
+                                const validValues = data.filter(v => v !== null && v !== undefined);
+                                const maxValue = Math.max(...validValues);
+                                if (value === maxValue) return true;
+                                
+                                return false;
                             },
                             anchor: 'end',
                             align: 'top',
-                            offset: 5,
+                            offset: 6,
                             clip: false,
                             font: { 
                                 family: 'Inter', 
-                                size: 12, 
+                                size: 11, 
                                 weight: 'bold' 
                             },
                             color: '#ffffff',
@@ -1206,6 +1761,126 @@
         function actualizarChartEmae() {
             crearChartEmae();
         }
+
+        function crearChartBCRA() {
+            const ctx = document.getElementById('bcraChart').getContext('2d');
+            if (chartBcra) chartBcra.destroy();
+            
+            // Formatear fechas para mostrar (mostrar cada 7 días para legibilidad)
+            const labelsFormateados = fechasBCRA.map((fecha, index) => {
+                // Mostrar cada 7 días + primero y último
+                if (index === 0 || index === fechasBCRA.length - 1 || index % 7 === 0) {
+                    const d = new Date(fecha);
+                    return `${d.getDate()}/${d.getMonth() + 1}`;
+                }
+                return '';
+            });
+            
+            chartBcra = new Chart(ctx, {
+                type: 'line',
+                plugins: [ChartDataLabels],
+                data: {
+                    labels: labelsFormateados,
+                    datasets: [{
+                        label: 'Base Monetaria (millones $)',
+                        data: baseMonetaria,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: function(context) {
+                            const index = context.dataIndex;
+                            // Mostrar puntos cada 7 días + primero y último
+                            if (index === 0 || index === baseMonetaria.length - 1 || index % 7 === 0) {
+                                return 5;
+                            }
+                            return 0;
+                        },
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: null },
+                    layout: {
+                        padding: {
+                            top: 30,
+                            right: 20,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { size: 13, weight: '600' },
+                                padding: 20
+                            }
+                        },
+                        tooltip: { enabled: false },
+                        datalabels: {
+                            display: function(context) {
+                                const dataIndex = context.dataIndex;
+                                const data = context.dataset.data;
+                                const totalPoints = data.length;
+                                
+                                // Primer dato
+                                if (dataIndex === 0) return true;
+                                
+                                // Último dato
+                                if (dataIndex === totalPoints - 1) return true;
+                                
+                                // Valor máximo
+                                const maxValue = Math.max(...data);
+                                if (data[dataIndex] === maxValue) return true;
+                                
+                                return false;
+                            },
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 6,
+                            clip: false,
+                            font: { 
+                                family: 'Inter', 
+                                size: 11, 
+                                weight: 'bold' 
+                            },
+                            color: '#ffffff',
+                            formatter: function(value) {
+                                if (value === null || value === undefined) return '';
+                                // Formatear en billones
+                                const billones = (value / 1000000).toFixed(1);
+                                return billones + 'B';
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            display: false,
+                            grid: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 10 },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
     </script>
 </body>
 </html>

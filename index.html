@@ -677,71 +677,82 @@
         </div>
 
         <!-- MODAL DE UPLOAD OBLIGATORIO -->
-        <div id="modalUploadBCRA" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; overflow-y: auto;">
-            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; margin: 40px auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;">
-                <h2 style="color: white; margin: 0 0 16px 0; font-size: 24px;">📊 Datos de Base Monetaria</h2>
-                <p style="color: #94a3b8; margin: 0 0 24px 0; line-height: 1.6;">
+        <div id="modalUploadBCRA" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 30px 20px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;">
+                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px;">📊 Datos de Base Monetaria</h2>
+                <p style="color: #94a3b8; margin: 0 0 20px 0; line-height: 1.5; font-size: 14px;">
                     Para ver los datos actualizados, selecciona una opción:
                 </p>
 
+                <!-- Mostrar última actualización si existe -->
+                <div id="ultimaActualizacion" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <p style="color: #22c55e; margin: 0; font-size: 13px; font-weight: 600;">✅ Última actualización del administrador:</p>
+                    <p id="textoUltimaActualizacion" style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;"></p>
+                </div>
+
                 <!-- Opción: Ingresar código -->
-                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                    <p style="color: #60a5fa; margin: 0 0 12px 0; font-weight: 600; font-size: 14px;">🔑 ¿Tienes un código?</p>
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                    <p style="color: #60a5fa; margin: 0 0 8px 0; font-weight: 600; font-size: 14px;">🔑 ¿Tienes un código?</p>
                     <p style="color: #94a3b8; margin: 0 0 12px 0; font-size: 13px;">Ingresa el código compartido por el administrador</p>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="codigoInput" placeholder="ABC-123" maxlength="7" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 16px; text-align: center; text-transform: uppercase; letter-spacing: 2px;" />
-                        <button onclick="cargarDesdeCodigo()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <input type="text" id="codigoInput" placeholder="DD/MM/YYYY" maxlength="10" style="flex: 1; min-width: 150px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 16px; text-align: center;" />
+                        <button onclick="cargarDesdeCodigo()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; font-size: 14px;">
                             Cargar
                         </button>
                     </div>
                 </div>
 
                 <!-- Opción: Subir archivo -->
-                <div style="background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px; cursor: pointer; transition: all 0.3s;" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
-                    <p style="color: #60a5fa; margin: 0 0 8px 0; font-weight: 600;" id="uploadTextModal">Subir archivo Excel</p>
-                    <p style="color: #94a3b8; margin: 0; font-size: 13px;">Click para seleccionar o arrastra aquí</p>
+                <div style="background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: all 0.3s;" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 40px; margin-bottom: 8px;">📁</div>
+                    <p style="color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; font-size: 14px;" id="uploadTextModal">Subir archivo Excel</p>
+                    <p style="color: #94a3b8; margin: 0; font-size: 12px;">Click para seleccionar o arrastra aquí</p>
                     <input type="file" id="fileInput" accept=".xlsm,.xlsx" style="display: none;" onchange="procesarExcelBCRA(event)">
                 </div>
 
-                <div id="uploadStatus" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;"></div>
+                <div id="uploadStatus" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px;"></div>
 
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="usarDatosEjemplo()" style="flex: 1; padding: 12px 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button onclick="usarDatosEjemplo()" style="flex: 1; min-width: 120px; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s;">
                         Datos de ejemplo
                     </button>
-                    <button id="btnContinuar" onclick="cerrarModalUpload()" disabled style="flex: 1; padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-size: 14px; font-weight: 600; opacity: 0.5; transition: all 0.3s;">
+                    <button id="btnContinuar" onclick="cerrarModalUpload()" disabled style="flex: 1; min-width: 120px; padding: 10px 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-size: 13px; font-weight: 600; opacity: 0.5; transition: all 0.3s;">
                         Continuar
                     </button>
                 </div>
 
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 13px; font-weight: 600;">📍 ¿Dónde descargar el archivo?</p>
-                    <a href="https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 13px; display: block; margin-bottom: 8px;">
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">📍 ¿Dónde descargar el archivo?</p>
+                    <a href="https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 12px; display: block; margin-bottom: 4px;">
                         → Sitio oficial del BCRA
                     </a>
-                    <p style="color: #64748b; margin: 0; font-size: 12px;">Busca el archivo "series.xlsm" en la página de Principales Variables</p>
+                    <p style="color: #64748b; margin: 0; font-size: 11px;">Busca el archivo "series.xlsm" en la página de Principales Variables</p>
                 </div>
             </div>
         </div>
 
         <!-- MODAL PARA MOSTRAR CÓDIGO (SOLO ADMIN) -->
-        <div id="modalCodigo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; justify-content: center; align-items: center; overflow-y: auto;">
-            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 40px; max-width: 450px; width: 90%; margin: 40px auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
-                <h2 style="color: white; margin: 0 0 16px 0; font-size: 24px;">✅ Código Generado</h2>
-                <p style="color: #94a3b8; margin: 0 0 24px 0; line-height: 1.6;">
+        <div id="modalCodigo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 30px 20px; max-width: 450px; width: 100%; margin: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); position: relative;">
+                <!-- Botón X para cerrar -->
+                <button onclick="cerrarModalCodigoSinContinuar()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                    ✕
+                </button>
+                
+                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px; padding-right: 40px;">✅ Código Generado</h2>
+                <p style="color: #94a3b8; margin: 0 0 20px 0; line-height: 1.5; font-size: 14px;">
                     Comparte este código con los usuarios para que accedan a los datos actualizados:
                 </p>
 
-                <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
-                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 13px;">Código:</p>
-                    <p id="codigoGenerado" style="color: #22c55e; margin: 0 0 16px 0; font-size: 32px; font-weight: 700; letter-spacing: 4px; font-family: monospace;"></p>
+                <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 13px;">Código de actualización:</p>
+                    <p id="codigoGenerado" style="color: #22c55e; margin: 0 0 16px 0; font-size: 26px; font-weight: 700; letter-spacing: 2px; font-family: monospace;"></p>
                     <button onclick="copiarCodigo()" style="width: 100%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
                         📋 Copiar Código
                     </button>
                 </div>
 
-                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
                     <p id="codigoInfo" style="color: #94a3b8; margin: 0; font-size: 13px; line-height: 1.5;"></p>
                 </div>
 
@@ -949,6 +960,38 @@
             const modal = document.getElementById('modalUploadBCRA');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // Bloquear scroll del body
+            
+            // Verificar si hay códigos guardados y mostrar el más reciente
+            const keys = Object.keys(localStorage).filter(k => k.startsWith('codigo_'));
+            if (keys.length > 0) {
+                // Ordenar por fecha (el código ES la fecha)
+                const codigosOrdenados = keys.sort((a, b) => {
+                    const fechaA = a.replace('codigo_', '');
+                    const fechaB = b.replace('codigo_', '');
+                    // Convertir DD/MM/YYYY a Date para comparar
+                    const [diaA, mesA, anioA] = fechaA.split('/');
+                    const [diaB, mesB, anioB] = fechaB.split('/');
+                    return new Date(anioB, mesB-1, diaB) - new Date(anioA, mesA-1, diaA);
+                });
+                
+                const ultimoCodigo = codigosOrdenados[0].replace('codigo_', '');
+                
+                // Cargar info del código
+                try {
+                    const datosComprimidos = localStorage.getItem('codigo_' + ultimoCodigo);
+                    if (datosComprimidos) {
+                        const datosJSON = LZString.decompressFromUTF16(datosComprimidos);
+                        const datos = JSON.parse(datosJSON);
+                        
+                        // Mostrar última actualización
+                        document.getElementById('ultimaActualizacion').style.display = 'block';
+                        document.getElementById('textoUltimaActualizacion').textContent = 
+                            `Fecha: ${ultimoCodigo} - ${datos.info}`;
+                    }
+                } catch (e) {
+                    console.log('Error cargando última actualización:', e);
+                }
+            }
         }
         
         function cerrarModalUpload() {
@@ -956,6 +999,12 @@
             modal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restaurar scroll del body
             showSection('bcra');
+        }
+        
+        function cerrarModalCodigoSinContinuar() {
+            document.getElementById('modalCodigo').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll
+            // No cerrar el modal de upload, solo volver a él
         }
 
         function usarDatosEjemplo() {
@@ -977,14 +1026,12 @@
         // ==========================================
         
         function generarCodigo() {
-            // Genera un código de 7 caracteres: XXX-XXX
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Sin I, O, 0, 1 para evitar confusión
-            let codigo = '';
-            for (let i = 0; i < 6; i++) {
-                codigo += chars.charAt(Math.floor(Math.random() * chars.length));
-                if (i === 2) codigo += '-';
-            }
-            return codigo;
+            // Genera código basado en la fecha actual: DD/MM/YYYY
+            const ahora = new Date();
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const anio = ahora.getFullYear();
+            return `${dia}/${mes}/${anio}`;
         }
 
         function mostrarModalCodigo(codigo, info) {
@@ -1015,7 +1062,7 @@
         }
 
         function cargarDesdeCodigo() {
-            const codigoInput = document.getElementById('codigoInput').value.toUpperCase().trim();
+            const codigoInput = document.getElementById('codigoInput').value.trim();
             const status = document.getElementById('uploadStatus');
             
             if (!codigoInput) {
@@ -1038,7 +1085,7 @@
                 const datosComprimidos = localStorage.getItem('codigo_' + codigoInput);
                 
                 if (!datosComprimidos) {
-                    throw new Error('Código no válido o expirado');
+                    throw new Error('Código no válido o no existe');
                 }
 
                 // Descomprimir datos
@@ -1287,11 +1334,14 @@
                 codigoInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') cargarDesdeCodigo();
                 });
-                // Auto-formatear código (agregar guion después de 3 caracteres)
+                // Auto-formatear código como fecha DD/MM/YYYY
                 codigoInput.addEventListener('input', function(e) {
-                    let valor = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                    if (valor.length > 3) {
-                        valor = valor.substring(0, 3) + '-' + valor.substring(3, 6);
+                    let valor = e.target.value.replace(/[^0-9]/g, ''); // Solo números
+                    if (valor.length >= 2) {
+                        valor = valor.substring(0, 2) + '/' + valor.substring(2);
+                    }
+                    if (valor.length >= 5) {
+                        valor = valor.substring(0, 5) + '/' + valor.substring(5, 9);
                     }
                     e.target.value = valor;
                 });

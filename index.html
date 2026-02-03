@@ -742,6 +742,102 @@
 
     <script>
         // ==========================================
+        // CONFIGURACIÓN DE GITHUB STORAGE
+        // ==========================================
+        const GITHUB_CONFIG = {
+            token: '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',
+            owner: 'mateoriv',
+            repo: 'APP-mec',
+            branch: 'main',
+            path: 'storage/archivo_admin.json'
+        };
+
+        async function guardarEnGitHub(fileData) {
+            try {
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(fileData))));
+                
+                let sha = null;
+                try {
+                    const getResponse = await fetch(
+                        `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,
+                        {
+                            headers: {
+                                'Authorization': `token ${GITHUB_CONFIG.token}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        }
+                    );
+                    
+                    if (getResponse.ok) {
+                        const data = await getResponse.json();
+                        sha = data.sha;
+                    }
+                } catch (e) {
+                    console.log('Archivo nuevo, se creará');
+                }
+                
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Actualizar archivo - ${new Date().toLocaleString('es-AR')}`,
+                            content: content,
+                            branch: GITHUB_CONFIG.branch,
+                            ...(sha && { sha: sha })
+                        })
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error(`GitHub error: ${response.status}`);
+                }
+                
+                console.log('✅ Guardado en GitHub');
+                return true;
+            } catch (error) {
+                console.error('Error GitHub:', error);
+                return false;
+            }
+        }
+        
+        async function cargarDesdeGitHub() {
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        return null;
+                    }
+                    throw new Error(`GitHub error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const content = decodeURIComponent(escape(atob(data.content)));
+                const fileData = JSON.parse(content);
+                
+                console.log('✅ Cargado desde GitHub');
+                return fileData;
+            } catch (error) {
+                console.error('Error GitHub:', error);
+                return null;
+            }
+        }
+
+        // ==========================================
         // USUARIOS Y DATOS
         // ==========================================
         const validUsers = {'admin': 'argentina2025', 'usuario': '123456'};
@@ -954,7 +1050,7 @@
             window.scrollTo(0, 0);
         }
 
-        function mostrarModalUpload() {
+        async function mostrarModalUpload() {
             const modal = document.getElementById('modalUploadBCRA');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -962,18 +1058,17 @@
             const currentUser = window.currentUser;
             const isAdmin = currentUser === 'admin';
             
-            // Verificar si hay archivo del admin guardado
-            const adminFileData = localStorage.getItem('archivo_admin');
+            // Verificar si hay archivo en GitHub
+            const adminFileData = await cargarDesdeGitHub();
             
             if (isAdmin) {
                 // ADMIN: Puede subir archivo
                 document.getElementById('opcionSubir').style.display = 'block';
                 
                 if (adminFileData) {
-                    const fileInfo = JSON.parse(adminFileData);
                     document.getElementById('opcionAdmin').style.display = 'block';
                     document.getElementById('infoAdmin').textContent = 
-                        `Archivo: ${fileInfo.nombre} (${formatBytes(fileInfo.tamaño)}) - Subido: ${new Date(fileInfo.fecha).toLocaleString('es-AR')}`;
+                        `Archivo: ${adminFileData.nombre} (${formatBytes(adminFileData.tamaño)}) - Subido: ${new Date(adminFileData.fecha).toLocaleString('es-AR')}`;
                 } else {
                     document.getElementById('opcionAdmin').style.display = 'none';
                 }
@@ -982,10 +1077,9 @@
                 document.getElementById('opcionSubir').style.display = 'none';
                 
                 if (adminFileData) {
-                    const fileInfo = JSON.parse(adminFileData);
                     document.getElementById('opcionAdmin').style.display = 'block';
                     document.getElementById('infoAdmin').textContent = 
-                        `Archivo: ${fileInfo.nombre} (${formatBytes(fileInfo.tamaño)}) - Subido: ${new Date(fileInfo.fecha).toLocaleString('es-AR')}`;
+                        `Archivo: ${adminFileData.nombre} (${formatBytes(adminFileData.tamaño)}) - Subido: ${new Date(adminFileData.fecha).toLocaleString('es-AR')}`;
                     
                     // Auto-cargar para usuarios
                     setTimeout(() => verArchivoAdmin(), 300);
@@ -1068,7 +1162,7 @@
             
             const reader = new FileReader();
             
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const fileData = {
                     nombre: file.name,
                     tipo: file.type,
@@ -1078,10 +1172,20 @@
                     subidoPor: window.currentUser
                 };
                 
-                // Guardar en localStorage
+                // Guardar en GitHub si es admin
                 if (window.currentUser === 'admin') {
-                    localStorage.setItem('archivo_admin', JSON.stringify(fileData));
-                    console.log('✅ Archivo guardado para todos los usuarios');
+                    status.innerHTML = '⏳ Guardando en la nube...';
+                    const guardado = await guardarEnGitHub(fileData);
+                    
+                    if (!guardado) {
+                        status.style.background = 'rgba(239, 68, 68, 0.1)';
+                        status.style.color = '#ef4444';
+                        status.style.border = '1px solid #ef4444';
+                        status.innerHTML = '❌ Error al guardar en GitHub';
+                        return;
+                    }
+                    
+                    console.log('✅ Archivo guardado en GitHub para todos los usuarios');
                 }
                 
                 // Guardar en memoria para este usuario
@@ -1094,34 +1198,39 @@
                 status.innerHTML = `✅ Archivo subido: ${file.name} (${formatBytes(file.size)})`;
                 
                 if (window.currentUser === 'admin') {
-                    status.innerHTML += ' - Guardado para todos';
+                    status.innerHTML += ' - Guardado para todos los dispositivos';
                 }
                 
                 // Habilitar botón continuar
                 document.getElementById('btnContinuar').disabled = false;
                 document.getElementById('btnContinuar').style.opacity = '1';
                 document.getElementById('btnContinuar').style.cursor = 'pointer';
-                
-                // NO actualizar visor aquí porque el modal está abierto
-                // Se actualizará al cerrar el modal
             };
             
             reader.readAsDataURL(file);
         }
         
-        function verArchivoAdmin() {
-            const adminFileData = localStorage.getItem('archivo_admin');
-            if (!adminFileData) {
-                alert('No hay archivos del administrador');
+        async function verArchivoAdmin() {
+            const status = document.getElementById('uploadStatus');
+            status.style.display = 'block';
+            status.style.background = 'rgba(59, 130, 246, 0.1)';
+            status.style.color = '#3b82f6';
+            status.style.border = '1px solid #3b82f6';
+            status.innerHTML = '⏳ Cargando desde la nube...';
+            
+            const fileData = await cargarDesdeGitHub();
+            
+            if (!fileData) {
+                status.style.background = 'rgba(239, 68, 68, 0.1)';
+                status.style.color = '#ef4444';
+                status.style.border = '1px solid #ef4444';
+                status.innerHTML = '❌ No hay archivos del administrador';
                 return;
             }
             
-            const fileData = JSON.parse(adminFileData);
             window.archivoActual = fileData;
             
             // Mostrar éxito en el modal
-            const status = document.getElementById('uploadStatus');
-            status.style.display = 'block';
             status.style.background = 'rgba(34, 197, 94, 0.1)';
             status.style.color = '#22c55e';
             status.style.border = '1px solid #22c55e';
@@ -1131,9 +1240,6 @@
             document.getElementById('btnContinuar').disabled = false;
             document.getElementById('btnContinuar').style.opacity = '1';
             document.getElementById('btnContinuar').style.cursor = 'pointer';
-            
-            // NO actualizar visor aquí porque el modal está abierto
-            // Se actualizará al cerrar el modal
         }
         
         function mostrarArchivo(fileData) {

@@ -748,40 +748,77 @@
         // ==========================================
         const SUPABASE_URL = 'https://ihlwrzdspuqbhwqfgzta.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlobHdyemRzcHVxYmh3cWZnenRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDgwMDAsImV4cCI6MjA4NTcyNDAwMH0.0Dw7eS5N3EawIlU3NAN517qxWhUTb9u6ntRSAazudnU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function guardarEnSupabase(fileData) {
             try {
-                console.log('Guardando en Supabase...');
+                console.log('Guardando en Supabase Storage...');
                 
-                // Primero eliminar archivo anterior si existe
-                const { error: deleteError } = await supabase
+                // Convertir base64 a blob
+                const base64Response = await fetch(fileData.contenido);
+                const blob = await base64Response.blob();
+                
+                console.log('Archivo convertido a blob:', blob.size, 'bytes');
+                
+                // Eliminar archivo anterior si existe
+                const { data: listData, error: listError } = await supabaseClient.storage
+                    .from('archivos')
+                    .list();
+                
+                if (listData && listData.length > 0) {
+                    console.log('Eliminando archivos anteriores...');
+                    const filesToDelete = listData.map(f => f.name);
+                    await supabaseClient.storage
+                        .from('archivos')
+                        .remove(filesToDelete);
+                }
+                
+                // Subir nuevo archivo
+                const fileName = `archivo_admin_${Date.now()}`;
+                console.log('Subiendo archivo:', fileName);
+                
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('archivos')
+                    .upload(fileName, blob, {
+                        contentType: fileData.tipo,
+                        upsert: true
+                    });
+                
+                if (uploadError) {
+                    console.error('Error subiendo archivo:', uploadError);
+                    throw new Error(`Error Storage: ${uploadError.message || JSON.stringify(uploadError)}`);
+                }
+                
+                console.log('Archivo subido exitosamente, guardando metadata...');
+                
+                // Guardar metadata en la tabla
+                const { error: deleteError } = await supabaseClient
                     .from('archivos')
                     .delete()
                     .eq('subido_por', 'admin');
                 
-                // Insertar nuevo archivo
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('archivos')
                     .insert([{
                         nombre: fileData.nombre,
                         tipo: fileData.tipo,
                         tamano: fileData.tamaño,
-                        contenido: fileData.contenido,
+                        contenido: fileName,
                         subido_por: fileData.subidoPor
                     }])
                     .select();
                 
                 if (error) {
-                    console.error('Error Supabase:', error);
-                    throw error;
+                    console.error('Error guardando metadata:', error);
+                    throw new Error(`Error metadata: ${error.message || JSON.stringify(error)}`);
                 }
                 
-                console.log('✅ Guardado en Supabase exitoso');
+                console.log('✅ Guardado en Supabase Storage exitoso');
                 return true;
             } catch (error) {
                 console.error('Error completo:', error);
-                throw error;
+                const errorMsg = error.message || error.error_description || JSON.stringify(error);
+                throw new Error(errorMsg);
             }
         }
         
@@ -789,7 +826,8 @@
             try {
                 console.log('Cargando desde Supabase...');
                 
-                const { data, error } = await supabase
+                // Obtener metadata
+                const { data, error } = await supabaseClient
                     .from('archivos')
                     .select('*')
                     .eq('subido_por', 'admin')
@@ -807,11 +845,29 @@
                 }
                 
                 const archivo = data[0];
+                
+                // Obtener URL pública del archivo
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('archivos')
+                    .getPublicUrl(archivo.contenido);
+                
+                // Descargar el archivo como base64
+                const response = await fetch(publicUrlData.publicUrl);
+                const blob = await response.blob();
+                
+                const reader = new FileReader();
+                const base64Promise = new Promise((resolve) => {
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+                
+                const contenidoBase64 = await base64Promise;
+                
                 const fileData = {
                     nombre: archivo.nombre,
                     tipo: archivo.tipo,
                     tamaño: archivo.tamano,
-                    contenido: archivo.contenido,
+                    contenido: contenidoBase64,
                     fecha: archivo.fecha,
                     subidoPor: archivo.subido_por
                 };

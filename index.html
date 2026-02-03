@@ -658,24 +658,20 @@
             
             <div class="chart-detail">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-                    <h2 style="margin: 0;">Base Monetaria (millones $)</h2>
+                    <h2 style="margin: 0;">Archivo Compartido</h2>
                     <button class="btn btn-secondary" onclick="mostrarModalUpload()" style="padding: 8px 16px; font-size: 13px;">
-                        <span>📥</span>
-                        <span>Actualizar Excel</span>
+                        <span>📁</span>
+                        <span>Subir Archivo</span>
                     </button>
                 </div>
                 
-                <!-- Reemplazar gráfico con botón de descarga -->
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 40px 20px;">
-                    <div style="font-size: 64px; margin-bottom: 20px;">📊</div>
-                    <h3 style="color: white; margin: 0 0 12px 0; font-size: 24px;">Archivo Excel Cargado</h3>
-                    <p style="color: #94a3b8; margin: 0 0 24px 0; text-align: center; max-width: 400px;" id="infoDescarga">
-                        Descarga el archivo Excel que subiste o el último del administrador
+                <!-- Visor de archivo -->
+                <div id="visorArchivo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 40px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">📄</div>
+                    <h3 style="color: white; margin: 0 0 12px 0; font-size: 24px;">Sin archivos</h3>
+                    <p style="color: #94a3b8; margin: 0 0 24px 0; text-align: center; max-width: 400px;" id="infoArchivo">
+                        No hay archivos cargados
                     </p>
-                    <button id="btnDescargarBCRA" onclick="descargarExcelBCRA()" disabled style="padding: 16px 32px; background: #22c55e; color: white; border: none; border-radius: 12px; cursor: not-allowed; font-size: 16px; font-weight: 600; opacity: 0.5; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
-                        <span>📥</span>
-                        <span>Descargar Excel</span>
-                    </button>
                 </div>
                 
                 <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdate">
@@ -693,23 +689,23 @@
                     ✕
                 </button>
                 
-                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px; padding-right: 40px;">📊 Datos de Base Monetaria</h2>
+                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px; padding-right: 40px;">📁 Archivo Compartido</h2>
                 <p style="color: #94a3b8; margin: 0 0 20px 0; line-height: 1.5; font-size: 14px;">
                     Selecciona una opción:
                 </p>
 
-                <!-- Opción 1: Usar último del admin (SIEMPRE visible) -->
-                <div id="opcionAdmin" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 12px; padding: 16px; margin-bottom: 16px; cursor: pointer;" onclick="usarUltimoAdmin()">
-                    <p style="color: #22c55e; margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">✅ Usar datos del administrador</p>
+                <!-- Opción 1: Ver archivo del admin -->
+                <div id="opcionAdmin" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 12px; padding: 16px; margin-bottom: 16px; cursor: pointer;" onclick="verArchivoAdmin()">
+                    <p style="color: #22c55e; margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">✅ Ver archivo del administrador</p>
                     <p id="infoAdmin" style="color: #94a3b8; margin: 0; font-size: 13px;"></p>
                 </div>
 
                 <!-- Opción 2: Subir archivo (SOLO ADMIN) -->
                 <div id="opcionSubir" style="display: none; background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('fileInput').click()">
                     <div style="font-size: 40px; margin-bottom: 8px;">📁</div>
-                    <p style="color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">Subir archivo Excel</p>
-                    <p style="color: #94a3b8; margin: 0; font-size: 12px;">Click para seleccionar</p>
-                    <input type="file" id="fileInput" accept=".xlsm,.xlsx" style="display: none;" onchange="procesarExcelBCRA(event)">
+                    <p style="color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">Subir archivo</p>
+                    <p style="color: #94a3b8; margin: 0; font-size: 12px;">Cualquier tipo de archivo</p>
+                    <input type="file" id="fileInput" style="display: none;" onchange="procesarArchivo(event)">
                 </div>
 
                 <div id="uploadStatus" style="display: none; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px;"></div>
@@ -717,13 +713,6 @@
                 <button id="btnContinuar" onclick="cerrarModalUpload()" disabled style="width: 100%; margin-top: 16px; padding: 12px 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-size: 14px; font-weight: 600; opacity: 0.5; transition: all 0.3s;">
                     Continuar
                 </button>
-
-                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">📍 ¿Dónde descargar el archivo?</p>
-                    <a href="https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 12px; display: block;">
-                        → Sitio oficial del BCRA
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -828,10 +817,14 @@
                     btnDescargar.style.opacity = '0.5';
                     btnDescargar.style.cursor = 'not-allowed';
                 }
+                // Resetear archivo actual
+                window.archivoActual = null;
                 
                 // Resetear textos
-                document.getElementById('lastUpdate').textContent = 'Sin datos cargados';
-                document.getElementById('infoDescarga').textContent = 'Descarga el archivo Excel que subiste o el último del administrador';
+                const lastUpdate = document.getElementById('lastUpdate');
+                if (lastUpdate) {
+                    lastUpdate.textContent = 'Sin datos cargados';
+                }
                 
                 // Guardar usuario actual
                 window.currentUser = username;
@@ -854,25 +847,14 @@
         }
 
         function logout() {
-            // Resetear estado de BCRA
-            window.bcraDataLoaded = false;
-            window.bcraFileData = null;
-            window.bcraFileName = null;
-            window.bcraFileSource = null;
-            fechasBCRA = [];
-            baseMonetaria = [];
-            
-            // Resetear botón de descarga
-            const btnDescargar = document.getElementById('btnDescargarBCRA');
-            if (btnDescargar) {
-                btnDescargar.disabled = true;
-                btnDescargar.style.opacity = '0.5';
-                btnDescargar.style.cursor = 'not-allowed';
-            }
+            // Resetear estado
+            window.archivoActual = null;
             
             // Resetear textos
-            document.getElementById('lastUpdate').textContent = 'Sin datos cargados';
-            document.getElementById('infoDescarga').textContent = 'Descarga el archivo Excel que subiste o el último del administrador';
+            const lastUpdate = document.getElementById('lastUpdate');
+            if (lastUpdate) {
+                lastUpdate.textContent = 'Sin datos cargados';
+            }
             
             // Volver a la sección de resumen
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -980,55 +962,41 @@
             const currentUser = window.currentUser;
             const isAdmin = currentUser === 'admin';
             
-            // Verificar si hay datos del admin guardados
-            const adminData = localStorage.getItem('bcra_admin_data');
-            const adminInfo = localStorage.getItem('bcra_admin_info');
-            const adminDate = localStorage.getItem('bcra_admin_date');
+            // Verificar si hay archivo del admin guardado
+            const adminFileData = localStorage.getItem('archivo_admin');
             
-            // Mostrar/ocultar opciones según el tipo de usuario
             if (isAdmin) {
                 // ADMIN: Puede subir archivo
                 document.getElementById('opcionSubir').style.display = 'block';
                 
-                // Si hay datos del admin previos, mostrar opción
-                if (adminData && adminInfo) {
+                if (adminFileData) {
+                    const fileInfo = JSON.parse(adminFileData);
                     document.getElementById('opcionAdmin').style.display = 'block';
-                    const fecha = new Date(adminDate).toLocaleDateString('es-AR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
-                    document.getElementById('infoAdmin').textContent = `Actualizado: ${fecha} - ${adminInfo}`;
+                    document.getElementById('infoAdmin').textContent = 
+                        `Archivo: ${fileInfo.nombre} (${formatBytes(fileInfo.tamaño)}) - Subido: ${new Date(fileInfo.fecha).toLocaleString('es-AR')}`;
                 } else {
                     document.getElementById('opcionAdmin').style.display = 'none';
                 }
             } else {
-                // USUARIO NORMAL: Solo puede usar datos del admin
+                // USUARIO NORMAL: Solo puede ver archivo del admin
                 document.getElementById('opcionSubir').style.display = 'none';
                 
-                if (adminData && adminInfo) {
-                    // Hay datos del admin: mostrar opción y cargar automáticamente
+                if (adminFileData) {
+                    const fileInfo = JSON.parse(adminFileData);
                     document.getElementById('opcionAdmin').style.display = 'block';
-                    const fecha = new Date(adminDate).toLocaleDateString('es-AR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
-                    document.getElementById('infoAdmin').textContent = `Actualizado: ${fecha} - ${adminInfo}`;
+                    document.getElementById('infoAdmin').textContent = 
+                        `Archivo: ${fileInfo.nombre} (${formatBytes(fileInfo.tamaño)}) - Subido: ${new Date(fileInfo.fecha).toLocaleString('es-AR')}`;
                     
-                    // Auto-cargar datos del admin para usuarios normales
-                    setTimeout(() => {
-                        usarUltimoAdmin();
-                    }, 100);
+                    // Auto-cargar para usuarios
+                    setTimeout(() => verArchivoAdmin(), 300);
                 } else {
-                    // No hay datos del admin
                     document.getElementById('opcionAdmin').style.display = 'none';
                     const status = document.getElementById('uploadStatus');
                     status.style.display = 'block';
                     status.style.background = 'rgba(239, 68, 68, 0.1)';
                     status.style.color = '#ef4444';
                     status.style.border = '1px solid #ef4444';
-                    status.innerHTML = '⚠️ No hay datos disponibles. Contacta al administrador.';
+                    status.innerHTML = '⚠️ No hay archivos disponibles. Contacta al administrador.';
                 }
             }
         }
@@ -1043,119 +1011,24 @@
         function cerrarModalUpload() {
             const modal = document.getElementById('modalUploadBCRA');
             modal.style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restaurar scroll del body
+            document.body.style.overflow = 'auto';
             
-            // Mostrar sección BCRA directamente
+            // Mostrar sección BCRA
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById('bcraSection').classList.add('active');
             
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             const navItems = document.querySelectorAll('.nav-item');
-            navItems[4].classList.add('active'); // BCRA es el índice 4
+            navItems[4].classList.add('active');
             
-            // Inicializar gráfico BCRA si no existe
-            if (!chartBcra) {
-                crearChartBCRA();
+            // Actualizar visor si hay archivo cargado
+            if (window.archivoActual) {
+                setTimeout(() => mostrarArchivo(window.archivoActual), 100);
             }
             
             window.scrollTo(0, 0);
         }
         
-        function usarUltimoAdmin() {
-            try {
-                const adminDataStr = localStorage.getItem('bcra_admin_data');
-                const adminInfo = localStorage.getItem('bcra_admin_info');
-                const adminFile = localStorage.getItem('bcra_admin_file'); // Nombre del archivo
-                
-                if (!adminDataStr) {
-                    throw new Error('No se encontraron datos del administrador');
-                }
-                
-                const adminData = JSON.parse(adminDataStr);
-                fechasBCRA = adminData.fechas;
-                baseMonetaria = adminData.saldos;
-                
-                // Guardar info del archivo actual
-                window.bcraFileData = adminData;
-                window.bcraFileName = adminFile || 'base_monetaria_admin.xlsx';
-                window.bcraFileSource = 'admin';
-                
-                // Actualizar mensaje
-                const primerFecha = new Date(fechasBCRA[0]).toLocaleDateString('es-AR');
-                const ultimaFecha = new Date(fechasBCRA[fechasBCRA.length-1]).toLocaleDateString('es-AR');
-                document.getElementById('lastUpdate').textContent = 
-                    `✅ Datos del admin: ${primerFecha} - ${ultimaFecha}`;
-                
-                document.getElementById('infoDescarga').textContent = 
-                    `Archivo del administrador: ${adminInfo}`;
-                
-                // Habilitar botón de descarga
-                const btnDescargar = document.getElementById('btnDescargarBCRA');
-                btnDescargar.disabled = false;
-                btnDescargar.style.opacity = '1';
-                btnDescargar.style.cursor = 'pointer';
-                
-                // Mostrar éxito
-                const status = document.getElementById('uploadStatus');
-                status.style.display = 'block';
-                status.style.background = 'rgba(34, 197, 94, 0.1)';
-                status.style.color = '#22c55e';
-                status.style.border = '1px solid #22c55e';
-                status.innerHTML = `✅ ${adminInfo}`;
-                
-                // Habilitar continuar
-                document.getElementById('btnContinuar').disabled = false;
-                document.getElementById('btnContinuar').style.opacity = '1';
-                document.getElementById('btnContinuar').style.cursor = 'pointer';
-                
-            } catch (error) {
-                console.error('Error cargando datos admin:', error);
-                const status = document.getElementById('uploadStatus');
-                status.style.display = 'block';
-                status.style.background = 'rgba(239, 68, 68, 0.1)';
-                status.style.color = '#ef4444';
-                status.style.border = '1px solid #ef4444';
-                status.innerHTML = `❌ Error: ${error.message}`;
-            }
-        }
-        
-        function descargarExcelBCRA() {
-            if (!window.bcraFileData) {
-                alert('No hay datos para descargar');
-                return;
-            }
-            
-            const { fechas, saldos } = window.bcraFileData;
-            const fileName = window.bcraFileName || 'base_monetaria.xlsx';
-            const source = window.bcraFileSource || 'usuario';
-            
-            // Crear workbook
-            const wb = XLSX.utils.book_new();
-            
-            // Preparar datos para la hoja
-            const data = [
-                ['Fecha', 'Base Monetaria (millones $)']
-            ];
-            
-            for (let i = 0; i < fechas.length; i++) {
-                const fecha = new Date(fechas[i]);
-                const fechaFormateada = fecha.toLocaleDateString('es-AR');
-                data.push([fechaFormateada, saldos[i]]);
-            }
-            
-            // Crear hoja
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            
-            // Agregar hoja al workbook
-            XLSX.utils.book_append_sheet(wb, ws, "Base Monetaria");
-            
-            // Descargar
-            const downloadName = source === 'admin' ? 'base_monetaria_admin.xlsx' : fileName;
-            XLSX.writeFile(wb, downloadName);
-            
-            console.log(`✅ Excel descargado: ${downloadName}`);
-        }
-
         function usarDatosEjemplo() {
             window.bcraDataLoaded = true;
             document.getElementById('btnContinuar').disabled = false;
@@ -1174,118 +1047,53 @@
         // FUNCIONES SIMPLIFICADAS (SIN CÓDIGOS)
         // ==========================================
 
-        async function procesarExcelBCRA(event) {
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function procesarArchivo(event) {
             const file = event.target.files[0];
             if (!file) return;
-
+            
             const status = document.getElementById('uploadStatus');
             status.style.display = 'block';
             status.style.background = 'rgba(59, 130, 246, 0.1)';
             status.style.color = '#3b82f6';
             status.style.border = '1px solid #3b82f6';
-            status.innerHTML = '⏳ Procesando archivo...';
-
-            try {
-                // Cargar SheetJS desde CDN si no está cargado
-                if (typeof XLSX === 'undefined') {
-                    await cargarSheetJS();
-                }
-
-                const data = await file.arrayBuffer();
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Buscar hoja BASE MONETARIA
-                const sheetName = 'BASE MONETARIA';
-                if (!workbook.Sheets[sheetName]) {
-                    throw new Error('No se encontró la hoja "BASE MONETARIA"');
-                }
-
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                // Extraer datos de la columna A (fechas) y columna AD (saldo base monetaria)
-                const nuevasFechas = [];
-                const nuevosSaldos = [];
-
-                // Empezar desde fila 10 (índice 9) donde están los datos
-                for (let i = 9; i < jsonData.length; i++) {
-                    const row = jsonData[i];
-                    const fecha = row[0]; // Columna A
-                    const saldo = row[29]; // Columna AD (índice 29)
-
-                    if (fecha && saldo && typeof saldo === 'number') {
-                        // Convertir fecha de Excel a formato ISO
-                        const fechaJS = XLSX.SSF.parse_date_code(fecha);
-                        if (fechaJS) {
-                            const fechaISO = `${fechaJS.y}-${String(fechaJS.m).padStart(2, '0')}-${String(fechaJS.d).padStart(2, '0')}`;
-                            nuevasFechas.push(fechaISO);
-                            nuevosSaldos.push(Math.round(saldo));
-                        }
-                    }
-                }
-
-                // Tomar últimos 60 días
-                const ultimos60Fechas = nuevasFechas.slice(-60);
-                const ultimos60Saldos = nuevosSaldos.slice(-60);
-
-                if (ultimos60Fechas.length === 0) {
-                    throw new Error('No se encontraron datos válidos');
-                }
-
-                // Actualizar variables globales
-                fechasBCRA = ultimos60Fechas;
-                baseMonetaria = ultimos60Saldos;
-                window.bcraDataLoaded = true;
-                
-                // Guardar info del archivo para descarga posterior
-                window.bcraFileData = {
-                    fechas: ultimos60Fechas,
-                    saldos: ultimos60Saldos
+            status.innerHTML = '⏳ Subiendo archivo...';
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const fileData = {
+                    nombre: file.name,
+                    tipo: file.type,
+                    tamaño: file.size,
+                    contenido: e.target.result,
+                    fecha: new Date().toISOString(),
+                    subidoPor: window.currentUser
                 };
-                window.bcraFileName = file.name;
-                window.bcraFileSource = currentUser;
-
-                // SI ES USUARIO ADMIN, GUARDAR PARA TODOS
-                if (currentUser === 'admin') {
-                    const primerFecha = new Date(ultimos60Fechas[0]).toLocaleDateString('es-AR');
-                    const ultimaFecha = new Date(ultimos60Fechas[ultimos60Fechas.length-1]).toLocaleDateString('es-AR');
-                    const info = `${ultimos60Fechas.length} días: ${primerFecha} - ${ultimaFecha}`;
-                    
-                    const dataToSave = {
-                        fechas: ultimos60Fechas,
-                        saldos: ultimos60Saldos
-                    };
-                    
-                    localStorage.setItem('bcra_admin_data', JSON.stringify(dataToSave));
-                    localStorage.setItem('bcra_admin_date', new Date().toISOString());
-                    localStorage.setItem('bcra_admin_info', info);
-                    localStorage.setItem('bcra_admin_file', file.name);
-                    
-                    console.log('✅ Datos guardados para todos los usuarios');
+                
+                // Guardar en localStorage
+                if (window.currentUser === 'admin') {
+                    localStorage.setItem('archivo_admin', JSON.stringify(fileData));
+                    console.log('✅ Archivo guardado para todos los usuarios');
                 }
-
-                // Actualizar mensaje
-                const primerFecha = new Date(fechasBCRA[0]).toLocaleDateString('es-AR');
-                const ultimaFecha = new Date(fechasBCRA[fechasBCRA.length-1]).toLocaleDateString('es-AR');
-                document.getElementById('lastUpdate').textContent = 
-                    `✅ Actualizado: ${primerFecha} - ${ultimaFecha} (${fechasBCRA.length} días)`;
-
-                document.getElementById('infoDescarga').textContent = 
-                    `Archivo subido por ${currentUser}: ${file.name}`;
-
-                // Habilitar botón de descarga
-                const btnDescargar = document.getElementById('btnDescargarBCRA');
-                btnDescargar.disabled = false;
-                btnDescargar.style.opacity = '1';
-                btnDescargar.style.cursor = 'pointer';
-
+                
+                // Guardar en memoria para este usuario
+                window.archivoActual = fileData;
+                
                 // Mostrar éxito
                 status.style.background = 'rgba(34, 197, 94, 0.1)';
                 status.style.color = '#22c55e';
                 status.style.border = '1px solid #22c55e';
-                status.innerHTML = `✅ ${fechasBCRA.length} días cargados (${primerFecha} - ${ultimaFecha})`;
+                status.innerHTML = `✅ Archivo subido: ${file.name} (${formatBytes(file.size)})`;
                 
-                if (currentUser === 'admin') {
+                if (window.currentUser === 'admin') {
                     status.innerHTML += ' - Guardado para todos';
                 }
                 
@@ -1293,14 +1101,94 @@
                 document.getElementById('btnContinuar').disabled = false;
                 document.getElementById('btnContinuar').style.opacity = '1';
                 document.getElementById('btnContinuar').style.cursor = 'pointer';
-
-            } catch (error) {
-                console.error('Error:', error);
-                status.style.background = 'rgba(239, 68, 68, 0.1)';
-                status.style.color = '#ef4444';
-                status.style.border = '1px solid #ef4444';
-                status.innerHTML = `❌ ${error.message}`;
+                
+                // NO actualizar visor aquí porque el modal está abierto
+                // Se actualizará al cerrar el modal
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        function verArchivoAdmin() {
+            const adminFileData = localStorage.getItem('archivo_admin');
+            if (!adminFileData) {
+                alert('No hay archivos del administrador');
+                return;
             }
+            
+            const fileData = JSON.parse(adminFileData);
+            window.archivoActual = fileData;
+            
+            // Mostrar éxito en el modal
+            const status = document.getElementById('uploadStatus');
+            status.style.display = 'block';
+            status.style.background = 'rgba(34, 197, 94, 0.1)';
+            status.style.color = '#22c55e';
+            status.style.border = '1px solid #22c55e';
+            status.innerHTML = `✅ Archivo del admin: ${fileData.nombre} (${formatBytes(fileData.tamaño)})`;
+            
+            // Habilitar botón continuar
+            document.getElementById('btnContinuar').disabled = false;
+            document.getElementById('btnContinuar').style.opacity = '1';
+            document.getElementById('btnContinuar').style.cursor = 'pointer';
+            
+            // NO actualizar visor aquí porque el modal está abierto
+            // Se actualizará al cerrar el modal
+        }
+        
+        function mostrarArchivo(fileData) {
+            const visor = document.getElementById('visorArchivo');
+            const lastUpdate = document.getElementById('lastUpdate');
+            
+            if (!visor) {
+                console.error('visorArchivo no encontrado');
+                return;
+            }
+            
+            if (lastUpdate) {
+                lastUpdate.textContent = `Subido por ${fileData.subidoPor} - ${new Date(fileData.fecha).toLocaleString('es-AR')}`;
+            }
+            
+            // Determinar tipo de archivo y mostrar
+            if (fileData.tipo.startsWith('image/')) {
+                // Es una imagen
+                visor.innerHTML = `
+                    <img src="${fileData.contenido}" style="max-width: 100%; max-height: 500px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+                    <p style="color: #94a3b8; margin: 16px 0 0 0; text-align: center; font-size: 14px;">${fileData.nombre}</p>
+                    <button onclick="descargarArchivo()" style="margin-top: 16px; padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        📥 Descargar
+                    </button>
+                `;
+            } else {
+                // Otro tipo de archivo
+                const emoji = fileData.tipo.includes('pdf') ? '📄' : 
+                             fileData.tipo.includes('sheet') || fileData.tipo.includes('excel') ? '📊' : 
+                             fileData.tipo.includes('word') || fileData.tipo.includes('document') ? '📝' : 
+                             fileData.tipo.includes('zip') || fileData.tipo.includes('rar') ? '📦' :
+                             fileData.tipo.includes('video') ? '🎥' : '📁';
+                
+                visor.innerHTML = `
+                    <div style="font-size: 64px; margin-bottom: 20px;">${emoji}</div>
+                    <h3 style="color: white; margin: 0 0 12px 0; font-size: 24px;">${fileData.nombre}</h3>
+                    <p style="color: #94a3b8; margin: 0 0 24px 0;">${formatBytes(fileData.tamaño)}</p>
+                    <button onclick="descargarArchivo()" style="padding: 16px 32px; background: #22c55e; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <span>📥</span>
+                        <span>Descargar</span>
+                    </button>
+                `;
+            }
+        }
+        
+        function descargarArchivo() {
+            if (!window.archivoActual) {
+                alert('No hay archivo cargado');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.href = window.archivoActual.contenido;
+            link.download = window.archivoActual.nombre;
+            link.click();
         }
 
         function cargarSheetJS() {

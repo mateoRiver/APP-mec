@@ -742,74 +742,56 @@
 
     <script>
         // ==========================================
-        // CONFIGURACIÓN DE GITHUB STORAGE
+        // CONFIGURACIÓN DE GITHUB GIST
         // ==========================================
         const GITHUB_CONFIG = {
             token: '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',
-            owner: 'mateoriv',
-            repo: 'APP-mec',
-            branch: 'main',
-            path: 'storage/archivo_admin.json'
+            gistId: '989c516c0dc4d0c8171988d77a9ac86a',
+            filename: 'archivo_admin.json'
         };
 
         async function guardarEnGitHub(fileData) {
             try {
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(fileData))));
-                
-                let sha = null;
-                try {
-                    const getResponse = await fetch(
-                        `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,
-                        {
-                            headers: {
-                                'Authorization': `token ${GITHUB_CONFIG.token}`,
-                                'Accept': 'application/vnd.github.v3+json'
-                            }
-                        }
-                    );
-                    
-                    if (getResponse.ok) {
-                        const data = await getResponse.json();
-                        sha = data.sha;
-                    }
-                } catch (e) {
-                    console.log('Archivo nuevo, se creará');
-                }
+                console.log('Iniciando guardado en GitHub Gist...');
                 
                 const response = await fetch(
-                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,
+                    `https://api.github.com/gists/${GITHUB_CONFIG.gistId}`,
                     {
-                        method: 'PUT',
+                        method: 'PATCH',
                         headers: {
                             'Authorization': `token ${GITHUB_CONFIG.token}`,
                             'Accept': 'application/vnd.github.v3+json',
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            message: `Actualizar archivo - ${new Date().toLocaleString('es-AR')}`,
-                            content: content,
-                            branch: GITHUB_CONFIG.branch,
-                            ...(sha && { sha: sha })
+                            files: {
+                                [GITHUB_CONFIG.filename]: {
+                                    content: JSON.stringify(fileData, null, 2)
+                                }
+                            }
                         })
                     }
                 );
                 
+                const responseData = await response.json();
+                
                 if (!response.ok) {
-                    throw new Error(`GitHub error: ${response.status}`);
+                    console.error('Error GitHub:', response.status, responseData);
+                    throw new Error(responseData.message || `GitHub error: ${response.status}`);
                 }
                 
-                console.log('✅ Guardado en GitHub');
+                console.log('✅ Guardado en GitHub Gist exitoso');
                 return true;
             } catch (error) {
-                console.error('Error GitHub:', error);
-                return false;
+                console.error('Error completo:', error);
+                throw error;
             }
         }
         
         async function cargarDesdeGitHub() {
             try {
                 const response = await fetch(
-                    `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`,
+                    `https://api.github.com/gists/${GITHUB_CONFIG.gistId}`,
                     {
                         headers: {
                             'Authorization': `token ${GITHUB_CONFIG.token}`,
@@ -826,13 +808,19 @@
                 }
                 
                 const data = await response.json();
-                const content = decodeURIComponent(escape(atob(data.content)));
-                const fileData = JSON.parse(content);
+                const fileContent = data.files[GITHUB_CONFIG.filename]?.content;
                 
-                console.log('✅ Cargado desde GitHub');
+                if (!fileContent || fileContent === '{}') {
+                    console.log('Gist vacío');
+                    return null;
+                }
+                
+                const fileData = JSON.parse(fileContent);
+                
+                console.log('✅ Cargado desde GitHub Gist');
                 return fileData;
             } catch (error) {
-                console.error('Error GitHub:', error);
+                console.error('Error cargando desde GitHub:', error);
                 return null;
             }
         }
@@ -1175,17 +1163,23 @@
                 // Guardar en GitHub si es admin
                 if (window.currentUser === 'admin') {
                     status.innerHTML = '⏳ Guardando en la nube...';
-                    const guardado = await guardarEnGitHub(fileData);
                     
-                    if (!guardado) {
+                    try {
+                        const guardado = await guardarEnGitHub(fileData);
+                        
+                        if (!guardado) {
+                            throw new Error('Error desconocido al guardar');
+                        }
+                        
+                        console.log('✅ Archivo guardado en GitHub para todos los usuarios');
+                    } catch (error) {
                         status.style.background = 'rgba(239, 68, 68, 0.1)';
                         status.style.color = '#ef4444';
                         status.style.border = '1px solid #ef4444';
-                        status.innerHTML = '❌ Error al guardar en GitHub';
+                        status.innerHTML = `❌ Error al guardar: ${error.message}`;
+                        console.error('Error detallado:', error);
                         return;
                     }
-                    
-                    console.log('✅ Archivo guardado en GitHub para todos los usuarios');
                 }
                 
                 // Guardar en memoria para este usuario

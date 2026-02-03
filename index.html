@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Inflación Argentina</title>
+    <title>MECON Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    
-    <!-- LZ-String para compresión de datos -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
     
     <style>
         * {
@@ -528,8 +525,8 @@
 <body>
     <div id="loginScreen" class="login-container">
         <div class="login-box">
-            <h1>🇦🇷 Inflación</h1>
-            <p>Datos oficiales INDEC</p>
+            <h1>MECON</h1>
+            <p>Datos Oficiales</p>
             <div class="input-group">
                 <label for="username">Usuario</label>
                 <input type="text" id="username" placeholder="Ingrese su usuario">
@@ -550,7 +547,7 @@
 
     <div id="dashboard" class="dashboard">
         <div class="header">
-            <h1>📊 Inflación Argentina 2024-2025</h1>
+            <h1>MECON Dashboard</h1>
             <div class="header-buttons">
                 <button class="btn btn-primary" onclick="descargarExcel()">
                     <span>📥</span><span>Descargar Excel</span>
@@ -667,98 +664,66 @@
                         <span>Actualizar Excel</span>
                     </button>
                 </div>
-                <div class="chart-wrapper">
-                    <canvas id="bcraChart"></canvas>
+                
+                <!-- Reemplazar gráfico con botón de descarga -->
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 40px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">📊</div>
+                    <h3 style="color: white; margin: 0 0 12px 0; font-size: 24px;">Archivo Excel Cargado</h3>
+                    <p style="color: #94a3b8; margin: 0 0 24px 0; text-align: center; max-width: 400px;" id="infoDescarga">
+                        Descarga el archivo Excel que subiste o el último del administrador
+                    </p>
+                    <button id="btnDescargarBCRA" onclick="descargarExcelBCRA()" disabled style="padding: 16px 32px; background: #22c55e; color: white; border: none; border-radius: 12px; cursor: not-allowed; font-size: 16px; font-weight: 600; opacity: 0.5; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                        <span>📥</span>
+                        <span>Descargar Excel</span>
+                    </button>
                 </div>
+                
                 <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdate">
-                    Datos del Excel: 1 Nov 2025 - 27 Ene 2026 (57 días hábiles)
+                    Sin datos cargados
                 </p>
             </div>
         </div>
 
-        <!-- MODAL DE UPLOAD OBLIGATORIO -->
+        <!-- MODAL DE UPLOAD SIMPLIFICADO -->
         <div id="modalUploadBCRA" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 30px 20px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;">
-                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px;">📊 Datos de Base Monetaria</h2>
-                <p style="color: #94a3b8; margin: 0 0 20px 0; line-height: 1.5; font-size: 14px;">
-                    Para ver los datos actualizados, selecciona una opción:
-                </p>
-
-                <!-- Mostrar última actualización si existe -->
-                <div id="ultimaActualizacion" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-                    <p style="color: #22c55e; margin: 0; font-size: 13px; font-weight: 600;">✅ Última actualización del administrador:</p>
-                    <p id="textoUltimaActualizacion" style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;"></p>
-                </div>
-
-                <!-- Opción: Ingresar código -->
-                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
-                    <p style="color: #60a5fa; margin: 0 0 8px 0; font-weight: 600; font-size: 14px;">🔑 ¿Tienes un código?</p>
-                    <p style="color: #94a3b8; margin: 0 0 12px 0; font-size: 13px;">Ingresa el código compartido por el administrador</p>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <input type="text" id="codigoInput" placeholder="DD/MM/YYYY" maxlength="10" style="flex: 1; min-width: 150px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 16px; text-align: center;" />
-                        <button onclick="cargarDesdeCodigo()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; font-size: 14px;">
-                            Cargar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Opción: Subir archivo -->
-                <div style="background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: all 0.3s;" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size: 40px; margin-bottom: 8px;">📁</div>
-                    <p style="color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; font-size: 14px;" id="uploadTextModal">Subir archivo Excel</p>
-                    <p style="color: #94a3b8; margin: 0; font-size: 12px;">Click para seleccionar o arrastra aquí</p>
-                    <input type="file" id="fileInput" accept=".xlsm,.xlsx" style="display: none;" onchange="procesarExcelBCRA(event)">
-                </div>
-
-                <div id="uploadStatus" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px;"></div>
-
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button onclick="usarDatosEjemplo()" style="flex: 1; min-width: 120px; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s;">
-                        Datos de ejemplo
-                    </button>
-                    <button id="btnContinuar" onclick="cerrarModalUpload()" disabled style="flex: 1; min-width: 120px; padding: 10px 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-size: 13px; font-weight: 600; opacity: 0.5; transition: all 0.3s;">
-                        Continuar
-                    </button>
-                </div>
-
-                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">📍 ¿Dónde descargar el archivo?</p>
-                    <a href="https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 12px; display: block; margin-bottom: 4px;">
-                        → Sitio oficial del BCRA
-                    </a>
-                    <p style="color: #64748b; margin: 0; font-size: 11px;">Busca el archivo "series.xlsm" en la página de Principales Variables</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL PARA MOSTRAR CÓDIGO (SOLO ADMIN) -->
-        <div id="modalCodigo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 30px 20px; max-width: 450px; width: 100%; margin: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); position: relative;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 30px 20px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); position: relative;">
+                
                 <!-- Botón X para cerrar -->
-                <button onclick="cerrarModalCodigoSinContinuar()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                <button onclick="cerrarModalSinCargar()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 1;">
                     ✕
                 </button>
                 
-                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px; padding-right: 40px;">✅ Código Generado</h2>
+                <h2 style="color: white; margin: 0 0 12px 0; font-size: 22px; padding-right: 40px;">📊 Datos de Base Monetaria</h2>
                 <p style="color: #94a3b8; margin: 0 0 20px 0; line-height: 1.5; font-size: 14px;">
-                    Comparte este código con los usuarios para que accedan a los datos actualizados:
+                    Selecciona una opción:
                 </p>
 
-                <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
-                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 13px;">Código de actualización:</p>
-                    <p id="codigoGenerado" style="color: #22c55e; margin: 0 0 16px 0; font-size: 26px; font-weight: 700; letter-spacing: 2px; font-family: monospace;"></p>
-                    <button onclick="copiarCodigo()" style="width: 100%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
-                        📋 Copiar Código
-                    </button>
+                <!-- Opción 1: Usar último del admin (SIEMPRE visible) -->
+                <div id="opcionAdmin" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 12px; padding: 16px; margin-bottom: 16px; cursor: pointer;" onclick="usarUltimoAdmin()">
+                    <p style="color: #22c55e; margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">✅ Usar datos del administrador</p>
+                    <p id="infoAdmin" style="color: #94a3b8; margin: 0; font-size: 13px;"></p>
                 </div>
 
-                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-                    <p id="codigoInfo" style="color: #94a3b8; margin: 0; font-size: 13px; line-height: 1.5;"></p>
+                <!-- Opción 2: Subir archivo (SOLO ADMIN) -->
+                <div id="opcionSubir" style="display: none; background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 40px; margin-bottom: 8px;">📁</div>
+                    <p style="color: #60a5fa; margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">Subir archivo Excel</p>
+                    <p style="color: #94a3b8; margin: 0; font-size: 12px;">Click para seleccionar</p>
+                    <input type="file" id="fileInput" accept=".xlsm,.xlsx" style="display: none;" onchange="procesarExcelBCRA(event)">
                 </div>
 
-                <button onclick="cerrarModalCodigo()" style="width: 100%; padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
-                    Continuar al dashboard
+                <div id="uploadStatus" style="display: none; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px;"></div>
+
+                <button id="btnContinuar" onclick="cerrarModalUpload()" disabled style="width: 100%; margin-top: 16px; padding: 12px 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: not-allowed; font-size: 14px; font-weight: 600; opacity: 0.5; transition: all 0.3s;">
+                    Continuar
                 </button>
+
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <p style="color: #94a3b8; margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">📍 ¿Dónde descargar el archivo?</p>
+                    <a href="https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 12px; display: block;">
+                        → Sitio oficial del BCRA
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -848,7 +813,36 @@
             const errorMessage = document.getElementById('errorMessage');
 
             if (validUsers[username] && validUsers[username] === password) {
-                window.currentUser = username; // Guardar usuario actual
+                // Resetear estado de BCRA antes de entrar
+                window.bcraDataLoaded = false;
+                window.bcraFileData = null;
+                window.bcraFileName = null;
+                window.bcraFileSource = null;
+                fechasBCRA = [];
+                baseMonetaria = [];
+                
+                // Resetear botón de descarga
+                const btnDescargar = document.getElementById('btnDescargarBCRA');
+                if (btnDescargar) {
+                    btnDescargar.disabled = true;
+                    btnDescargar.style.opacity = '0.5';
+                    btnDescargar.style.cursor = 'not-allowed';
+                }
+                
+                // Resetear textos
+                document.getElementById('lastUpdate').textContent = 'Sin datos cargados';
+                document.getElementById('infoDescarga').textContent = 'Descarga el archivo Excel que subiste o el último del administrador';
+                
+                // Guardar usuario actual
+                window.currentUser = username;
+                
+                // Volver a la sección de resumen
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById('resumenSection').classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+                
+                // Mostrar dashboard
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('bottomNav').classList.add('active');
@@ -860,6 +854,33 @@
         }
 
         function logout() {
+            // Resetear estado de BCRA
+            window.bcraDataLoaded = false;
+            window.bcraFileData = null;
+            window.bcraFileName = null;
+            window.bcraFileSource = null;
+            fechasBCRA = [];
+            baseMonetaria = [];
+            
+            // Resetear botón de descarga
+            const btnDescargar = document.getElementById('btnDescargarBCRA');
+            if (btnDescargar) {
+                btnDescargar.disabled = true;
+                btnDescargar.style.opacity = '0.5';
+                btnDescargar.style.cursor = 'not-allowed';
+            }
+            
+            // Resetear textos
+            document.getElementById('lastUpdate').textContent = 'Sin datos cargados';
+            document.getElementById('infoDescarga').textContent = 'Descarga el archivo Excel que subiste o el último del administrador';
+            
+            // Volver a la sección de resumen
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('resumenSection').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.nav-item')[0].classList.add('active');
+            
+            // Ocultar dashboard y mostrar login
             document.getElementById('dashboard').classList.remove('active');
             document.getElementById('bottomNav').classList.remove('active');
             document.getElementById('loginScreen').style.display = 'flex';
@@ -927,8 +948,8 @@
         }
 
         function showSection(section) {
-            // Si intenta ir a BCRA y no ha cargado datos, mostrar modal
-            if (section === 'bcra' && !window.bcraDataLoaded) {
+            // Si intenta ir a BCRA, SIEMPRE mostrar modal (incluso si ya tiene datos)
+            if (section === 'bcra') {
                 mostrarModalUpload();
                 return;
             }
@@ -948,63 +969,191 @@
                 chartsInitialized = true;
             }
             
-            // Inicializar gráfico BCRA si entramos a esa sección
-            if (section === 'bcra' && !chartBcra) {
-                crearChartBCRA();
-            }
-            
             window.scrollTo(0, 0);
         }
 
         function mostrarModalUpload() {
             const modal = document.getElementById('modalUploadBCRA');
             modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Bloquear scroll del body
+            document.body.style.overflow = 'hidden';
             
-            // Verificar si hay códigos guardados y mostrar el más reciente
-            const keys = Object.keys(localStorage).filter(k => k.startsWith('codigo_'));
-            if (keys.length > 0) {
-                // Ordenar por fecha (el código ES la fecha)
-                const codigosOrdenados = keys.sort((a, b) => {
-                    const fechaA = a.replace('codigo_', '');
-                    const fechaB = b.replace('codigo_', '');
-                    // Convertir DD/MM/YYYY a Date para comparar
-                    const [diaA, mesA, anioA] = fechaA.split('/');
-                    const [diaB, mesB, anioB] = fechaB.split('/');
-                    return new Date(anioB, mesB-1, diaB) - new Date(anioA, mesA-1, diaA);
-                });
+            const currentUser = window.currentUser;
+            const isAdmin = currentUser === 'admin';
+            
+            // Verificar si hay datos del admin guardados
+            const adminData = localStorage.getItem('bcra_admin_data');
+            const adminInfo = localStorage.getItem('bcra_admin_info');
+            const adminDate = localStorage.getItem('bcra_admin_date');
+            
+            // Mostrar/ocultar opciones según el tipo de usuario
+            if (isAdmin) {
+                // ADMIN: Puede subir archivo
+                document.getElementById('opcionSubir').style.display = 'block';
                 
-                const ultimoCodigo = codigosOrdenados[0].replace('codigo_', '');
+                // Si hay datos del admin previos, mostrar opción
+                if (adminData && adminInfo) {
+                    document.getElementById('opcionAdmin').style.display = 'block';
+                    const fecha = new Date(adminDate).toLocaleDateString('es-AR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    document.getElementById('infoAdmin').textContent = `Actualizado: ${fecha} - ${adminInfo}`;
+                } else {
+                    document.getElementById('opcionAdmin').style.display = 'none';
+                }
+            } else {
+                // USUARIO NORMAL: Solo puede usar datos del admin
+                document.getElementById('opcionSubir').style.display = 'none';
                 
-                // Cargar info del código
-                try {
-                    const datosComprimidos = localStorage.getItem('codigo_' + ultimoCodigo);
-                    if (datosComprimidos) {
-                        const datosJSON = LZString.decompressFromUTF16(datosComprimidos);
-                        const datos = JSON.parse(datosJSON);
-                        
-                        // Mostrar última actualización
-                        document.getElementById('ultimaActualizacion').style.display = 'block';
-                        document.getElementById('textoUltimaActualizacion').textContent = 
-                            `Fecha: ${ultimoCodigo} - ${datos.info}`;
-                    }
-                } catch (e) {
-                    console.log('Error cargando última actualización:', e);
+                if (adminData && adminInfo) {
+                    // Hay datos del admin: mostrar opción y cargar automáticamente
+                    document.getElementById('opcionAdmin').style.display = 'block';
+                    const fecha = new Date(adminDate).toLocaleDateString('es-AR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    document.getElementById('infoAdmin').textContent = `Actualizado: ${fecha} - ${adminInfo}`;
+                    
+                    // Auto-cargar datos del admin para usuarios normales
+                    setTimeout(() => {
+                        usarUltimoAdmin();
+                    }, 100);
+                } else {
+                    // No hay datos del admin
+                    document.getElementById('opcionAdmin').style.display = 'none';
+                    const status = document.getElementById('uploadStatus');
+                    status.style.display = 'block';
+                    status.style.background = 'rgba(239, 68, 68, 0.1)';
+                    status.style.color = '#ef4444';
+                    status.style.border = '1px solid #ef4444';
+                    status.innerHTML = '⚠️ No hay datos disponibles. Contacta al administrador.';
                 }
             }
+        }
+        
+        function cerrarModalSinCargar() {
+            document.getElementById('modalUploadBCRA').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Volver a la sección anterior (resumen)
+            showSection('resumen');
         }
         
         function cerrarModalUpload() {
             const modal = document.getElementById('modalUploadBCRA');
             modal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Restaurar scroll del body
-            showSection('bcra');
+            
+            // Mostrar sección BCRA directamente
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('bcraSection').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems[4].classList.add('active'); // BCRA es el índice 4
+            
+            // Inicializar gráfico BCRA si no existe
+            if (!chartBcra) {
+                crearChartBCRA();
+            }
+            
+            window.scrollTo(0, 0);
         }
         
-        function cerrarModalCodigoSinContinuar() {
-            document.getElementById('modalCodigo').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restaurar scroll
-            // No cerrar el modal de upload, solo volver a él
+        function usarUltimoAdmin() {
+            try {
+                const adminDataStr = localStorage.getItem('bcra_admin_data');
+                const adminInfo = localStorage.getItem('bcra_admin_info');
+                const adminFile = localStorage.getItem('bcra_admin_file'); // Nombre del archivo
+                
+                if (!adminDataStr) {
+                    throw new Error('No se encontraron datos del administrador');
+                }
+                
+                const adminData = JSON.parse(adminDataStr);
+                fechasBCRA = adminData.fechas;
+                baseMonetaria = adminData.saldos;
+                
+                // Guardar info del archivo actual
+                window.bcraFileData = adminData;
+                window.bcraFileName = adminFile || 'base_monetaria_admin.xlsx';
+                window.bcraFileSource = 'admin';
+                
+                // Actualizar mensaje
+                const primerFecha = new Date(fechasBCRA[0]).toLocaleDateString('es-AR');
+                const ultimaFecha = new Date(fechasBCRA[fechasBCRA.length-1]).toLocaleDateString('es-AR');
+                document.getElementById('lastUpdate').textContent = 
+                    `✅ Datos del admin: ${primerFecha} - ${ultimaFecha}`;
+                
+                document.getElementById('infoDescarga').textContent = 
+                    `Archivo del administrador: ${adminInfo}`;
+                
+                // Habilitar botón de descarga
+                const btnDescargar = document.getElementById('btnDescargarBCRA');
+                btnDescargar.disabled = false;
+                btnDescargar.style.opacity = '1';
+                btnDescargar.style.cursor = 'pointer';
+                
+                // Mostrar éxito
+                const status = document.getElementById('uploadStatus');
+                status.style.display = 'block';
+                status.style.background = 'rgba(34, 197, 94, 0.1)';
+                status.style.color = '#22c55e';
+                status.style.border = '1px solid #22c55e';
+                status.innerHTML = `✅ ${adminInfo}`;
+                
+                // Habilitar continuar
+                document.getElementById('btnContinuar').disabled = false;
+                document.getElementById('btnContinuar').style.opacity = '1';
+                document.getElementById('btnContinuar').style.cursor = 'pointer';
+                
+            } catch (error) {
+                console.error('Error cargando datos admin:', error);
+                const status = document.getElementById('uploadStatus');
+                status.style.display = 'block';
+                status.style.background = 'rgba(239, 68, 68, 0.1)';
+                status.style.color = '#ef4444';
+                status.style.border = '1px solid #ef4444';
+                status.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+        
+        function descargarExcelBCRA() {
+            if (!window.bcraFileData) {
+                alert('No hay datos para descargar');
+                return;
+            }
+            
+            const { fechas, saldos } = window.bcraFileData;
+            const fileName = window.bcraFileName || 'base_monetaria.xlsx';
+            const source = window.bcraFileSource || 'usuario';
+            
+            // Crear workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Preparar datos para la hoja
+            const data = [
+                ['Fecha', 'Base Monetaria (millones $)']
+            ];
+            
+            for (let i = 0; i < fechas.length; i++) {
+                const fecha = new Date(fechas[i]);
+                const fechaFormateada = fecha.toLocaleDateString('es-AR');
+                data.push([fechaFormateada, saldos[i]]);
+            }
+            
+            // Crear hoja
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Agregar hoja al workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Base Monetaria");
+            
+            // Descargar
+            const downloadName = source === 'admin' ? 'base_monetaria_admin.xlsx' : fileName;
+            XLSX.writeFile(wb, downloadName);
+            
+            console.log(`✅ Excel descargado: ${downloadName}`);
         }
 
         function usarDatosEjemplo() {
@@ -1022,124 +1171,8 @@
         }
 
         // ==========================================
-        // SISTEMA DE CÓDIGOS COMPARTIBLES
+        // FUNCIONES SIMPLIFICADAS (SIN CÓDIGOS)
         // ==========================================
-        
-        function generarCodigo() {
-            // Genera código basado en la fecha actual: DD/MM/YYYY
-            const ahora = new Date();
-            const dia = String(ahora.getDate()).padStart(2, '0');
-            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-            const anio = ahora.getFullYear();
-            return `${dia}/${mes}/${anio}`;
-        }
-
-        function mostrarModalCodigo(codigo, info) {
-            document.getElementById('codigoGenerado').textContent = codigo;
-            document.getElementById('codigoInfo').textContent = info;
-            document.getElementById('modalCodigo').style.display = 'flex';
-            window.bcraDataLoaded = true;
-        }
-
-        function cerrarModalCodigo() {
-            document.getElementById('modalCodigo').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restaurar scroll
-            cerrarModalUpload();
-        }
-
-        function copiarCodigo() {
-            const codigo = document.getElementById('codigoGenerado').textContent;
-            navigator.clipboard.writeText(codigo).then(() => {
-                const btn = event.target;
-                const textoOriginal = btn.textContent;
-                btn.textContent = '✅ Copiado!';
-                setTimeout(() => {
-                    btn.textContent = textoOriginal;
-                }, 2000);
-            }).catch(err => {
-                alert('Código: ' + codigo);
-            });
-        }
-
-        function cargarDesdeCodigo() {
-            const codigoInput = document.getElementById('codigoInput').value.trim();
-            const status = document.getElementById('uploadStatus');
-            
-            if (!codigoInput) {
-                status.style.display = 'block';
-                status.style.background = 'rgba(239, 68, 68, 0.1)';
-                status.style.color = '#ef4444';
-                status.style.border = '1px solid #ef4444';
-                status.innerHTML = '❌ Por favor ingresa un código';
-                return;
-            }
-
-            status.style.display = 'block';
-            status.style.background = 'rgba(59, 130, 246, 0.1)';
-            status.style.color = '#3b82f6';
-            status.style.border = '1px solid #3b82f6';
-            status.innerHTML = '⏳ Cargando datos...';
-
-            try {
-                // Buscar el código en localStorage
-                const datosComprimidos = localStorage.getItem('codigo_' + codigoInput);
-                
-                if (!datosComprimidos) {
-                    throw new Error('Código no válido o no existe');
-                }
-
-                // Descomprimir datos
-                const datosJSON = LZString.decompressFromUTF16(datosComprimidos);
-                const datos = JSON.parse(datosJSON);
-
-                // Verificar expiración (30 días)
-                const ahora = new Date().getTime();
-                const diasTranscurridos = (ahora - datos.timestamp) / (1000 * 60 * 60 * 24);
-                
-                if (diasTranscurridos > 30) {
-                    throw new Error('Código expirado (más de 30 días)');
-                }
-
-                // Cargar datos
-                fechasBCRA = datos.fechas;
-                baseMonetaria = datos.saldos;
-                window.bcraDataLoaded = true;
-
-                // Actualizar gráfico si existe
-                if (chartBcra) {
-                    crearChartBCRA();
-                }
-
-                // Actualizar mensaje
-                const primerFecha = new Date(fechasBCRA[0]).toLocaleDateString('es-AR');
-                const ultimaFecha = new Date(fechasBCRA[fechasBCRA.length-1]).toLocaleDateString('es-AR');
-                document.getElementById('lastUpdate').textContent = 
-                    `✅ Cargado con código ${codigoInput}: ${primerFecha} - ${ultimaFecha}`;
-
-                // Actualizar tarjeta
-                const ultimoValor = (baseMonetaria[baseMonetaria.length-1] / 1_000_000).toFixed(1);
-                const tarjetaBcra = document.querySelector('.stat-card[onclick="showSection(\'bcra\')"] .value');
-                if (tarjetaBcra) tarjetaBcra.textContent = `${ultimoValor}B`;
-
-                // Mostrar éxito
-                status.style.background = 'rgba(34, 197, 94, 0.1)';
-                status.style.color = '#22c55e';
-                status.style.border = '1px solid #22c55e';
-                status.innerHTML = `✅ Datos cargados: ${datos.info}`;
-
-                // Habilitar continuar
-                document.getElementById('btnContinuar').disabled = false;
-                document.getElementById('btnContinuar').style.opacity = '1';
-                document.getElementById('btnContinuar').style.cursor = 'pointer';
-
-            } catch (error) {
-                console.error('Error cargando código:', error);
-                status.style.background = 'rgba(239, 68, 68, 0.1)';
-                status.style.color = '#ef4444';
-                status.style.border = '1px solid #ef4444';
-                status.innerHTML = `❌ ${error.message}`;
-            }
-        }
 
         async function procesarExcelBCRA(event) {
             const file = event.target.files[0];
@@ -1203,48 +1236,32 @@
                 fechasBCRA = ultimos60Fechas;
                 baseMonetaria = ultimos60Saldos;
                 window.bcraDataLoaded = true;
+                
+                // Guardar info del archivo para descarga posterior
+                window.bcraFileData = {
+                    fechas: ultimos60Fechas,
+                    saldos: ultimos60Saldos
+                };
+                window.bcraFileName = file.name;
+                window.bcraFileSource = currentUser;
 
-                // Variables para el código (admin)
-                let codigo = null;
-                let infoParaCodigo = null;
-
-                // SI ES USUARIO ADMIN, GENERAR CÓDIGO COMPARTIBLE
-                const currentUser = window.currentUser;
+                // SI ES USUARIO ADMIN, GUARDAR PARA TODOS
                 if (currentUser === 'admin') {
                     const primerFecha = new Date(ultimos60Fechas[0]).toLocaleDateString('es-AR');
                     const ultimaFecha = new Date(ultimos60Fechas[ultimos60Fechas.length-1]).toLocaleDateString('es-AR');
-                    infoParaCodigo = `${ultimos60Fechas.length} días: ${primerFecha} - ${ultimaFecha}`;
+                    const info = `${ultimos60Fechas.length} días: ${primerFecha} - ${ultimaFecha}`;
                     
-                    status.innerHTML = '⏳ Generando código...';
-                    
-                    // Generar código único
-                    codigo = generarCodigo();
-                    
-                    // Preparar datos para comprimir
-                    const datosParaGuardar = {
+                    const dataToSave = {
                         fechas: ultimos60Fechas,
-                        saldos: ultimos60Saldos,
-                        info: infoParaCodigo,
-                        timestamp: new Date().getTime(),
-                        uploadedBy: currentUser
+                        saldos: ultimos60Saldos
                     };
                     
-                    // Comprimir datos con LZ-String
-                    const datosJSON = JSON.stringify(datosParaGuardar);
-                    const datosComprimidos = LZString.compressToUTF16(datosJSON);
+                    localStorage.setItem('bcra_admin_data', JSON.stringify(dataToSave));
+                    localStorage.setItem('bcra_admin_date', new Date().toISOString());
+                    localStorage.setItem('bcra_admin_info', info);
+                    localStorage.setItem('bcra_admin_file', file.name);
                     
-                    // Guardar con el código como key
-                    localStorage.setItem('codigo_' + codigo, datosComprimidos);
-                    
-                    console.log(`✅ Código generado: ${codigo}`);
-                    console.log(`📊 Tamaño original: ${datosJSON.length} bytes`);
-                    console.log(`📦 Tamaño comprimido: ${datosComprimidos.length} bytes`);
-                    console.log(`🎯 Compresión: ${((1 - datosComprimidos.length / datosJSON.length) * 100).toFixed(1)}%`);
-                }
-
-                // Actualizar gráfico si ya existe
-                if (chartBcra) {
-                    crearChartBCRA();
+                    console.log('✅ Datos guardados para todos los usuarios');
                 }
 
                 // Actualizar mensaje
@@ -1253,27 +1270,29 @@
                 document.getElementById('lastUpdate').textContent = 
                     `✅ Actualizado: ${primerFecha} - ${ultimaFecha} (${fechasBCRA.length} días)`;
 
-                // Actualizar tarjeta del resumen
-                const ultimoValor = (baseMonetaria[baseMonetaria.length-1] / 1_000_000).toFixed(1);
-                const tarjetaBcra = document.querySelector('.stat-card[onclick="showSection(\'bcra\')"] .value');
-                if (tarjetaBcra) tarjetaBcra.textContent = `${ultimoValor}B`;
+                document.getElementById('infoDescarga').textContent = 
+                    `Archivo subido por ${currentUser}: ${file.name}`;
+
+                // Habilitar botón de descarga
+                const btnDescargar = document.getElementById('btnDescargarBCRA');
+                btnDescargar.disabled = false;
+                btnDescargar.style.opacity = '1';
+                btnDescargar.style.cursor = 'pointer';
 
                 // Mostrar éxito
                 status.style.background = 'rgba(34, 197, 94, 0.1)';
                 status.style.color = '#22c55e';
                 status.style.border = '1px solid #22c55e';
+                status.innerHTML = `✅ ${fechasBCRA.length} días cargados (${primerFecha} - ${ultimaFecha})`;
                 
-                if (currentUser === 'admin' && codigo) {
-                    // Ocultar status y mostrar modal con código
-                    status.style.display = 'none';
-                    mostrarModalCodigo(codigo, infoParaCodigo);
-                } else {
-                    status.innerHTML = `✅ ${fechasBCRA.length} días cargados (${primerFecha} - ${ultimaFecha})`;
-                    // Habilitar botón continuar
-                    document.getElementById('btnContinuar').disabled = false;
-                    document.getElementById('btnContinuar').style.opacity = '1';
-                    document.getElementById('btnContinuar').style.cursor = 'pointer';
+                if (currentUser === 'admin') {
+                    status.innerHTML += ' - Guardado para todos';
                 }
+                
+                // Habilitar botón continuar
+                document.getElementById('btnContinuar').disabled = false;
+                document.getElementById('btnContinuar').style.opacity = '1';
+                document.getElementById('btnContinuar').style.cursor = 'pointer';
 
             } catch (error) {
                 console.error('Error:', error);
@@ -1327,25 +1346,6 @@
             document.getElementById('password').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') login();
             });
-            
-            // Enter en el input de código
-            const codigoInput = document.getElementById('codigoInput');
-            if (codigoInput) {
-                codigoInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') cargarDesdeCodigo();
-                });
-                // Auto-formatear código como fecha DD/MM/YYYY
-                codigoInput.addEventListener('input', function(e) {
-                    let valor = e.target.value.replace(/[^0-9]/g, ''); // Solo números
-                    if (valor.length >= 2) {
-                        valor = valor.substring(0, 2) + '/' + valor.substring(2);
-                    }
-                    if (valor.length >= 5) {
-                        valor = valor.substring(0, 5) + '/' + valor.substring(5, 9);
-                    }
-                    e.target.value = valor;
-                });
-            }
         });
 
         async function descargarExcel() {

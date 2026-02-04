@@ -1146,7 +1146,8 @@
                 const { data, error } = await supabaseClient
                     .from('base_monetaria')
                     .select('*')
-                    .order('fecha', { ascending: true });
+                    .order('fecha', { ascending: true })
+                    .limit(5000); // Aumentar límite para cargar todos los datos
                 
                 if (error) throw error;
                 

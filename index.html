@@ -1142,23 +1142,39 @@
             try {
                 console.log('Cargando dashboard BCRA...');
                 
-                // Cargar datos de Supabase
-                const { data, error } = await supabaseClient
-                    .from('base_monetaria')
-                    .select('*')
-                    .order('fecha', { ascending: true })
-                    .limit(5000); // Aumentar límite para cargar todos los datos
+                // Cargar TODOS los datos de Supabase con paginación
+                console.log('Cargando datos con paginación...');
+                datosBM = [];
+                let offset = 0;
+                const pageSize = 1000;
+                let hasMore = true;
                 
-                if (error) throw error;
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('base_monetaria')
+                        .select('*')
+                        .order('fecha', { ascending: true })
+                        .range(offset, offset + pageSize - 1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        datosBM = datosBM.concat(data);
+                        console.log(`Página cargada: ${data.length} registros (total: ${datosBM.length})`);
+                        offset += pageSize;
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                }
                 
-                if (!data || data.length === 0) {
+                if (datosBM.length === 0) {
                     console.log('No hay datos disponibles');
                     cargandoBCRA = false;
                     return;
                 }
                 
-                datosBM = data;
-                console.log(`Datos cargados: ${datosBM.length} registros`);
+                console.log(`✅ Total datos cargados: ${datosBM.length} registros`);
                 
                 // Actualizar card con último valor
                 const ultimoDato = datosBM[datosBM.length - 1];

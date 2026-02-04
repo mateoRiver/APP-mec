@@ -548,7 +548,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- SheetJS para leer Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div id="loginScreen" class="login-container">
@@ -968,8 +968,15 @@
             try {
                 console.log('Procesando Excel BCRA...');
                 
+                // Verificar que XLSX esté disponible
+                if (typeof XLSX === 'undefined') {
+                    throw new Error('La librería XLSX no se cargó correctamente. Recarga la página.');
+                }
+                
                 const arrayBuffer = await file.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                
+                console.log('Hojas disponibles:', workbook.SheetNames);
                 
                 // Buscar hoja BASE MONETARIA
                 const sheetName = workbook.SheetNames.find(name => 
@@ -977,40 +984,82 @@
                 );
                 
                 if (!sheetName) {
-                    throw new Error('No se encontró la hoja BASE MONETARIA');
+                    throw new Error('No se encontró la hoja BASE MONETARIA. Hojas: ' + workbook.SheetNames.join(', '));
                 }
                 
-                const worksheet = workbook.Sheets[sheetName];
-                const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                console.log('Hoja encontrada:', sheetName);
                 
-                // Encontrar la fila de inicio (donde está "Fecha" y datos válidos)
+                const worksheet = workbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: null });
+                
+                console.log('Total de filas:', data.length);
+                console.log('Primeras 5 filas:', data.slice(0, 5));
+                
+                // Encontrar la fila de inicio - buscar una fecha que empiece con "20"
                 let startRow = -1;
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i][0] && typeof data[i][0] === 'string' && data[i][0].includes('2003')) {
+                for (let i = 0; i < Math.min(data.length, 50); i++) {
+                    const primeraColumna = data[i][0];
+                    if (primeraColumna && typeof primeraColumna === 'string' && 
+                        (primeraColumna.startsWith('20') || primeraColumna.includes('2003') || primeraColumna.includes('2017'))) {
                         startRow = i;
+                        console.log('Primera fila de datos encontrada en:', i, 'Valor:', primeraColumna);
                         break;
+                    }
+                    // También intentar parsear como fecha
+                    if (primeraColumna) {
+                        const fecha = new Date(primeraColumna);
+                        if (!isNaN(fecha.getTime()) && fecha.getFullYear() >= 2000 && fecha.getFullYear() <= 2030) {
+                            startRow = i;
+                            console.log('Primera fila de datos (fecha parseada) encontrada en:', i, 'Fecha:', fecha);
+                            break;
+                        }
                     }
                 }
                 
                 if (startRow === -1) {
-                    throw new Error('No se encontró el inicio de datos');
+                    console.error('No se encontró inicio de datos. Primeras 20 filas:', data.slice(0, 20));
+                    throw new Error('No se encontró el inicio de datos. Revisa el formato del archivo.');
                 }
+                
+                console.log('Columna AF (índice 31) de fila', startRow, ':', data[startRow][31]);
                 
                 // Extraer datos desde 2017 (columna AF = índice 31)
                 const datosBase = [];
+                let errores = 0;
+                
                 for (let i = startRow; i < data.length; i++) {
                     const fechaStr = data[i][0];
                     const valorAF = data[i][31]; // Columna AF
                     
-                    if (!fechaStr || !valorAF) continue;
+                    if (!fechaStr || !valorAF) {
+                        if (i < startRow + 10) {
+                            console.log('Fila', i, 'sin datos:', fechaStr, valorAF);
+                        }
+                        continue;
+                    }
                     
                     const fecha = new Date(fechaStr);
-                    if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
+                    if (isNaN(fecha.getTime())) {
+                        errores++;
+                        if (errores < 5) console.log('Fecha inválida en fila', i, ':', fechaStr);
+                        continue;
+                    }
+                    
+                    if (fecha.getFullYear() < 2017) continue;
                     
                     const pbi = obtenerPBI(fecha);
-                    if (!pbi) continue;
+                    if (!pbi) {
+                        if (datosBase.length < 5) console.log('Sin PBI para fecha:', fecha);
+                        continue;
+                    }
                     
-                    const valor = parseFloat(valorAF);
+                    const valor = parseFloat(String(valorAF).replace(/,/g, ''));
+                    if (isNaN(valor)) {
+                        errores++;
+                        if (errores < 5) console.log('Valor inválido en fila', i, ':', valorAF);
+                        continue;
+                    }
+                    
                     const porcentaje = (valor / pbi) * 100;
                     
                     datosBase.push({
@@ -1020,7 +1069,13 @@
                     });
                 }
                 
-                console.log(`Datos extraídos: ${datosBase.length} registros desde 2017`);
+                console.log(`✅ Datos extraídos: ${datosBase.length} registros desde 2017`);
+                console.log('Primeros 3 registros:', datosBase.slice(0, 3));
+                console.log('Últimos 3 registros:', datosBase.slice(-3));
+                
+                if (datosBase.length === 0) {
+                    throw new Error('No se extrajeron datos. Revisa el formato del archivo.');
+                }
                 
                 // Guardar en Supabase
                 await guardarBaseMonerariaSupabase(datosBase);
@@ -1274,13 +1329,24 @@
         
         async function cargarDatosBCRA() {
             try {
+                // Verificar si XLSX está disponible
+                if (typeof XLSX === 'undefined') {
+                    console.error('XLSX no está disponible aún');
+                    // Mostrar modal de upload
+                    mostrarModalUpload();
+                    return;
+                }
+                
                 // Verificar si hay datos en Supabase
                 const { data, error } = await supabaseClient
                     .from('base_monetaria')
                     .select('id')
                     .limit(1);
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('Error verificando datos:', error.message);
+                    throw error;
+                }
                 
                 if (data && data.length > 0) {
                     // Hay datos, mostrar dashboard
@@ -1290,7 +1356,7 @@
                     mostrarModalUpload();
                 }
             } catch (error) {
-                console.error('Error verificando datos:', error);
+                console.error('Error verificando datos:', error.message || error);
                 // En caso de error, mostrar modal
                 mostrarModalUpload();
             }
@@ -1787,16 +1853,6 @@
             link.href = window.archivoActual.contenido;
             link.download = window.archivoActual.nombre;
             link.click();
-        }
-
-        function cargarSheetJS() {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
         }
 
         // Drag and drop

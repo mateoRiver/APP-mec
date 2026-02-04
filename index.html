@@ -499,6 +499,8 @@
         .nav-item .label {
             font-size: 11px;
             font-weight: 600;
+            white-space: nowrap;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -509,6 +511,9 @@
             .chart-detail { padding: 20px 12px; }
             .chart-detail h2 { font-size: 18px; margin-bottom: 16px; }
             .date-filter { padding: 16px; }
+            .bottom-nav { display: flex; }
+            .nav-item { padding: 8px 10px; }
+            .nav-item .label { font-size: 10px; }
         }
 
         @media (max-width: 480px) {
@@ -684,15 +689,19 @@
         <div id="bcraSection" class="section">
             <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
             
-            <div class="chart-detail">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-                    <h2 style="margin: 0;">Dashboard BCRA</h2>
-                    <button class="btn btn-secondary" onclick="mostrarModalUpload()" style="padding: 8px 16px; font-size: 13px;">
-                        <span>📊</span>
-                        <span>Actualizar Datos</span>
-                    </button>
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <select id="fechaDesdeBCRA"></select>
                 </div>
-                
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <select id="fechaHastaBCRA"></select>
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroBCRA()">Aplicar</button>
+            </div>
+            
+            <div class="chart-detail">
                 <!-- Card Base Monetaria -->
                 <div id="cardBaseMon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
@@ -707,33 +716,11 @@
                             </div>
                         </div>
                     </div>
-                    <button onclick="mostrarGraficoBM()" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                        📈 Ver Gráfico Histórico
-                    </button>
                 </div>
                 
-                <!-- Modal Gráfico -->
-                <div id="modalGraficoBM" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; backdrop-filter: blur(8px);">
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px;">
-                        <div style="background: #1e293b; border-radius: 16px; padding: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
-                            <button onclick="cerrarGraficoBM()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 20px;">×</button>
-                            
-                            <h3 style="margin: 0 0 20px 0; color: white;">Base Monetaria (% PBI)</h3>
-                            
-                            <!-- Selector de rango -->
-                            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-                                <button class="rango-btn active" data-rango="all" onclick="cambiarRango('all')">Todo</button>
-                                <button class="rango-btn" data-rango="1y" onclick="cambiarRango('1y')">1 Año</button>
-                                <button class="rango-btn" data-rango="6m" onclick="cambiarRango('6m')">6 Meses</button>
-                                <button class="rango-btn" data-rango="3m" onclick="cambiarRango('3m')">3 Meses</button>
-                                <button class="rango-btn" data-rango="1m" onclick="cambiarRango('1m')">1 Mes</button>
-                            </div>
-                            
-                            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
-                                <canvas id="chartBM" style="max-height: 500px;"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                <h2>Base Monetaria (% PBI)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="chartBM"></canvas>
                 </div>
                 
                 <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdateBCRA">
@@ -1131,8 +1118,9 @@
         // ==========================================
         let chartBM = null;
         let datosBM = [];
-        let rangoActual = 'all';
-        let cargandoBCRA = false; // Bandera para evitar cargas múltiples
+        let cargandoBCRA = false;
+        let filtroBCRADesde = 2017;
+        let filtroBCRAHasta = 2028;
         
         async function mostrarDashboardBCRA() {
             if (cargandoBCRA) {
@@ -1203,6 +1191,9 @@
                 document.getElementById('lastUpdateBCRA').textContent = 
                     `Última actualización: ${new Date(ultimoDato.updated_at).toLocaleString('es-AR')}`;
                 
+                // Inicializar selectores de años
+                inicializarSelectorBCRA();
+                
                 // Mostrar sección BCRA directamente (sin loop)
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById('bcraSection').classList.add('active');
@@ -1210,6 +1201,13 @@
                 document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
                 const navItems = document.querySelectorAll('.nav-item');
                 navItems[4].classList.add('active'); // BCRA es el índice 4
+                
+                // Inicializar gráfico
+                if (!chartsInitialized) {
+                    initCharts();
+                    chartsInitialized = true;
+                }
+                inicializarChartBCRA();
                 
             } catch (error) {
                 console.error('Error cargando dashboard:', error);
@@ -1219,56 +1217,74 @@
             }
         }
         
-        function mostrarGraficoBM() {
-            document.getElementById('modalGraficoBM').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+        function inicializarSelectorBCRA() {
+            // Obtener años únicos de los datos
+            const años = [...new Set(datosBM.map(d => new Date(d.fecha).getFullYear()))].sort();
             
-            // Inicializar gráfico si no existe
-            if (!chartBM) {
-                inicializarGraficoBM();
-            }
-        }
-        
-        function cerrarGraficoBM() {
-            document.getElementById('modalGraficoBM').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-        
-        function cambiarRango(rango) {
-            rangoActual = rango;
+            const selectDesde = document.getElementById('fechaDesdeBCRA');
+            const selectHasta = document.getElementById('fechaHastaBCRA');
             
-            // Actualizar botones
-            document.querySelectorAll('.rango-btn').forEach(btn => {
-                btn.classList.remove('active');
+            selectDesde.innerHTML = '';
+            selectHasta.innerHTML = '';
+            
+            años.forEach(año => {
+                const optionDesde = document.createElement('option');
+                optionDesde.value = año;
+                optionDesde.textContent = año;
+                selectDesde.appendChild(optionDesde);
+                
+                const optionHasta = document.createElement('option');
+                optionHasta.value = año;
+                optionHasta.textContent = año;
+                selectHasta.appendChild(optionHasta);
             });
-            document.querySelector(`[data-rango="${rango}"]`).classList.add('active');
             
-            // Actualizar gráfico
-            actualizarGraficoBM(rango);
+            // Seleccionar últimos 2 años por defecto
+            filtroBCRADesde = años[0];
+            filtroBCRAHasta = años[años.length - 1];
+            selectDesde.value = filtroBCRADesde;
+            selectHasta.value = filtroBCRAHasta;
         }
         
-        function inicializarGraficoBM() {
-            const ctx = document.getElementById('chartBM').getContext('2d');
+        function aplicarFiltroBCRA() {
+            filtroBCRADesde = parseInt(document.getElementById('fechaDesdeBCRA').value);
+            filtroBCRAHasta = parseInt(document.getElementById('fechaHastaBCRA').value);
             
-            const datosFiltrados = filtrarDatosPorRango(datosBM, rangoActual);
+            if (filtroBCRADesde > filtroBCRAHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
             
-            chartBM = new Chart(ctx, {
+            actualizarChartBCRA();
+        }
+        
+        function inicializarChartBCRA() {
+            const ctx = document.getElementById('chartBM');
+            if (!ctx) return;
+            
+            const datosFiltrados = filtrarDatosBCRAPorAño();
+            
+            if (chartBM) {
+                chartBM.destroy();
+            }
+            
+            chartBM = new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: datosFiltrados.map(d => new Date(d.fecha).toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })),
+                    labels: datosFiltrados.map(d => new Date(d.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })),
                     datasets: [{
                         label: 'Base Monetaria (% PBI)',
                         data: datosFiltrados.map(d => d.porcentaje_pbi),
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        borderWidth: 2,
+                        borderWidth: 3,
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
-                        pointHoverRadius: 6,
+                        pointHoverRadius: 8,
                         pointBackgroundColor: '#667eea',
                         pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 3
                     }]
                 },
                 options: {
@@ -1283,12 +1299,14 @@
                             display: false
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            titleColor: '#fff',
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 16,
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 16, weight: '700' },
+                            titleColor: '#94a3b8',
                             bodyColor: '#fff',
                             borderColor: '#667eea',
-                            borderWidth: 1,
+                            borderWidth: 2,
                             displayColors: false,
                             callbacks: {
                                 label: function(context) {
@@ -1300,24 +1318,24 @@
                     scales: {
                         y: {
                             beginAtZero: false,
-                            grid: {
-                                display: false
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
+                                font: { size: 13 },
                                 callback: function(value) {
                                     return value.toFixed(1) + '%';
                                 }
                             }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            },
+                            grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
+                                font: { size: 12 },
                                 maxRotation: 45,
-                                minRotation: 45
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 20
                             }
                         }
                     }
@@ -1325,42 +1343,23 @@
             });
         }
         
-        function actualizarGraficoBM(rango) {
+        function filtrarDatosBCRAPorAño() {
+            return datosBM.filter(d => {
+                const año = new Date(d.fecha).getFullYear();
+                return año >= filtroBCRADesde && año <= filtroBCRAHasta;
+            });
+        }
+        
+        function actualizarChartBCRA() {
             if (!chartBM) return;
             
-            const datosFiltrados = filtrarDatosPorRango(datosBM, rango);
+            const datosFiltrados = filtrarDatosBCRAPorAño();
             
             chartBM.data.labels = datosFiltrados.map(d => 
-                new Date(d.fecha).toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })
+                new Date(d.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
             );
             chartBM.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
             chartBM.update();
-        }
-        
-        function filtrarDatosPorRango(datos, rango) {
-            if (rango === 'all') return datos;
-            
-            const ahora = new Date();
-            let fechaLimite;
-            
-            switch(rango) {
-                case '1m':
-                    fechaLimite = new Date(ahora.setMonth(ahora.getMonth() - 1));
-                    break;
-                case '3m':
-                    fechaLimite = new Date(ahora.setMonth(ahora.getMonth() - 3));
-                    break;
-                case '6m':
-                    fechaLimite = new Date(ahora.setMonth(ahora.getMonth() - 6));
-                    break;
-                case '1y':
-                    fechaLimite = new Date(ahora.setFullYear(ahora.getFullYear() - 1));
-                    break;
-                default:
-                    return datos;
-            }
-            
-            return datos.filter(d => new Date(d.fecha) >= fechaLimite);
         }
         
         async function cargarDatosBCRA() {

@@ -1129,8 +1129,16 @@
         let chartBM = null;
         let datosBM = [];
         let rangoActual = 'all';
+        let cargandoBCRA = false; // Bandera para evitar cargas múltiples
         
         async function mostrarDashboardBCRA() {
+            if (cargandoBCRA) {
+                console.log('Ya se está cargando el dashboard, esperando...');
+                return;
+            }
+            
+            cargandoBCRA = true;
+            
             try {
                 console.log('Cargando dashboard BCRA...');
                 
@@ -1144,6 +1152,7 @@
                 
                 if (!data || data.length === 0) {
                     console.log('No hay datos disponibles');
+                    cargandoBCRA = false;
                     return;
                 }
                 
@@ -1174,12 +1183,19 @@
                 document.getElementById('lastUpdateBCRA').textContent = 
                     `Última actualización: ${new Date(ultimoDato.updated_at).toLocaleString('es-AR')}`;
                 
-                // Mostrar sección BCRA
-                showSection('bcra');
+                // Mostrar sección BCRA directamente (sin loop)
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById('bcraSection').classList.add('active');
+                
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems[4].classList.add('active'); // BCRA es el índice 4
                 
             } catch (error) {
                 console.error('Error cargando dashboard:', error);
                 alert('Error al cargar los datos: ' + error.message);
+            } finally {
+                cargandoBCRA = false;
             }
         }
         
@@ -1329,14 +1345,6 @@
         
         async function cargarDatosBCRA() {
             try {
-                // Verificar si XLSX está disponible
-                if (typeof XLSX === 'undefined') {
-                    console.error('XLSX no está disponible aún');
-                    // Mostrar modal de upload
-                    mostrarModalUpload();
-                    return;
-                }
-                
                 // Verificar si hay datos en Supabase
                 const { data, error } = await supabaseClient
                     .from('base_monetaria')
@@ -1345,7 +1353,8 @@
                 
                 if (error) {
                     console.error('Error verificando datos:', error.message);
-                    throw error;
+                    mostrarModalUpload();
+                    return;
                 }
                 
                 if (data && data.length > 0) {
@@ -1353,6 +1362,7 @@
                     await mostrarDashboardBCRA();
                 } else {
                     // No hay datos, mostrar modal de upload
+                    console.log('No hay datos en Supabase, mostrando modal de upload');
                     mostrarModalUpload();
                 }
             } catch (error) {

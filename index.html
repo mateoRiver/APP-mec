@@ -520,9 +520,35 @@
             .date-filter { padding: 12px; }
             .filter-group { min-width: 100%; }
         }
+        
+        /* Botones de rango de fechas */
+        .rango-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .rango-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .rango-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
     </style>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- SheetJS para leer Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div id="loginScreen" class="login-container">
@@ -659,24 +685,58 @@
             <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
             
             <div class="chart-detail">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-                    <h2 style="margin: 0;">Archivo Compartido</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+                    <h2 style="margin: 0;">Dashboard BCRA</h2>
                     <button class="btn btn-secondary" onclick="mostrarModalUpload()" style="padding: 8px 16px; font-size: 13px;">
-                        <span>📁</span>
-                        <span>Subir Archivo</span>
+                        <span>📊</span>
+                        <span>Actualizar Datos</span>
                     </button>
                 </div>
                 
-                <!-- Visor de archivo -->
-                <div id="visorArchivo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 40px 20px;">
-                    <div style="font-size: 64px; margin-bottom: 20px;">📄</div>
-                    <h3 style="color: white; margin: 0 0 12px 0; font-size: 24px;">Sin archivos</h3>
-                    <p style="color: #94a3b8; margin: 0 0 24px 0; text-align: center; max-width: 400px;" id="infoArchivo">
-                        No hay archivos cargados
-                    </p>
+                <!-- Card Base Monetaria -->
+                <div id="cardBaseMon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Base Monetaria + Cuasimonedas</div>
+                            <div style="font-size: 36px; font-weight: 700; margin-bottom: 4px;" id="valorActualBM">--</div>
+                            <div style="font-size: 13px; opacity: 0.8;" id="fechaActualBM">--</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="variacionBM" style="font-size: 20px; font-weight: 600; padding: 8px 12px; background: rgba(255,255,255,0.2); border-radius: 8px;">
+                                --
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="mostrarGraficoBM()" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                        📈 Ver Gráfico Histórico
+                    </button>
                 </div>
                 
-                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdate">
+                <!-- Modal Gráfico -->
+                <div id="modalGraficoBM" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; backdrop-filter: blur(8px);">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px;">
+                        <div style="background: #1e293b; border-radius: 16px; padding: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
+                            <button onclick="cerrarGraficoBM()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 20px;">×</button>
+                            
+                            <h3 style="margin: 0 0 20px 0; color: white;">Base Monetaria + Cuasimonedas (% del PBI)</h3>
+                            
+                            <!-- Selector de rango -->
+                            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                                <button class="rango-btn active" data-rango="all" onclick="cambiarRango('all')">Todo</button>
+                                <button class="rango-btn" data-rango="1y" onclick="cambiarRango('1y')">1 Año</button>
+                                <button class="rango-btn" data-rango="6m" onclick="cambiarRango('6m')">6 Meses</button>
+                                <button class="rango-btn" data-rango="3m" onclick="cambiarRango('3m')">3 Meses</button>
+                                <button class="rango-btn" data-rango="1m" onclick="cambiarRango('1m')">1 Mes</button>
+                            </div>
+                            
+                            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                                <canvas id="chartBM" style="max-height: 500px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdateBCRA">
                     Sin datos cargados
                 </p>
             </div>
@@ -881,6 +941,362 @@
         }
 
         // ==========================================
+        // DATOS DE PBI (HARDCODEADOS - TRIMESTRAL)
+        // ==========================================
+        const PBI_DATA = {
+            "2017-Q1": 9028957, "2017-Q2": 10305341, "2017-Q3": 11116422, "2017-Q4": 11739254,
+            "2018-Q1": 12483179, "2018-Q2": 13846662, "2018-Q3": 15126493, "2018-Q4": 16129841,
+            "2019-Q1": 18030028, "2019-Q2": 19842176, "2019-Q3": 22129779, "2019-Q4": 24265026,
+            "2020-Q1": 27095595, "2020-Q2": 29105634, "2020-Q3": 32548092, "2020-Q4": 36061948,
+            "2021-Q1": 41256652, "2021-Q2": 44902447, "2021-Q3": 49861556, "2021-Q4": 55479847,
+            "2022-Q1": 63945882, "2022-Q2": 69766421, "2022-Q3": 78267234, "2022-Q4": 90045664,
+            "2023-Q1": 109065890, "2023-Q2": 119305821, "2023-Q3": 133668419, "2023-Q4": 153862606,
+            "2024-Q1": 191582945, "2024-Q2": 209163820, "2024-Q3": 234564198, "2024-Q4": 270057328,
+            "2025-Q1": 336326580, "2025-Q2": 367245328, "2025-Q3": 411846729, "2025-Q4": 474168540,
+            "2026-Q1": 590210675
+        };
+        
+        function obtenerPBI(fecha) {
+            const year = fecha.getFullYear();
+            const month = fecha.getMonth() + 1;
+            const quarter = Math.ceil(month / 3);
+            const key = `${year}-Q${quarter}`;
+            return PBI_DATA[key] || null;
+        }
+        
+        async function procesarExcelBCRA(file) {
+            try {
+                console.log('Procesando Excel BCRA...');
+                
+                const arrayBuffer = await file.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                
+                // Buscar hoja BASE MONETARIA
+                const sheetName = workbook.SheetNames.find(name => 
+                    name.toUpperCase().includes('BASE') && name.toUpperCase().includes('MONET')
+                );
+                
+                if (!sheetName) {
+                    throw new Error('No se encontró la hoja BASE MONETARIA');
+                }
+                
+                const worksheet = workbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                
+                // Encontrar la fila de inicio (donde está "Fecha" y datos válidos)
+                let startRow = -1;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i][0] && typeof data[i][0] === 'string' && data[i][0].includes('2003')) {
+                        startRow = i;
+                        break;
+                    }
+                }
+                
+                if (startRow === -1) {
+                    throw new Error('No se encontró el inicio de datos');
+                }
+                
+                // Extraer datos desde 2017 (columna AF = índice 31)
+                const datosBase = [];
+                for (let i = startRow; i < data.length; i++) {
+                    const fechaStr = data[i][0];
+                    const valorAF = data[i][31]; // Columna AF
+                    
+                    if (!fechaStr || !valorAF) continue;
+                    
+                    const fecha = new Date(fechaStr);
+                    if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
+                    
+                    const pbi = obtenerPBI(fecha);
+                    if (!pbi) continue;
+                    
+                    const valor = parseFloat(valorAF);
+                    const porcentaje = (valor / pbi) * 100;
+                    
+                    datosBase.push({
+                        fecha: fecha.toISOString().split('T')[0],
+                        valor: valor,
+                        porcentaje_pbi: porcentaje
+                    });
+                }
+                
+                console.log(`Datos extraídos: ${datosBase.length} registros desde 2017`);
+                
+                // Guardar en Supabase
+                await guardarBaseMonerariaSupabase(datosBase);
+                
+                return datosBase;
+                
+            } catch (error) {
+                console.error('Error procesando Excel BCRA:', error);
+                throw error;
+            }
+        }
+        
+        async function guardarBaseMonerariaSupabase(datos) {
+            try {
+                console.log('Guardando datos en Supabase...');
+                
+                // Eliminar datos anteriores
+                const { error: deleteError } = await supabaseClient
+                    .from('base_monetaria')
+                    .delete()
+                    .gte('id', 0);
+                
+                // Insertar nuevos datos en lotes de 1000
+                const batchSize = 1000;
+                for (let i = 0; i < datos.length; i += batchSize) {
+                    const batch = datos.slice(i, i + batchSize);
+                    const { error } = await supabaseClient
+                        .from('base_monetaria')
+                        .insert(batch);
+                    
+                    if (error) {
+                        console.error('Error insertando batch:', error);
+                        throw error;
+                    }
+                    
+                    console.log(`Batch ${Math.floor(i/batchSize) + 1} insertado (${batch.length} registros)`);
+                }
+                
+                console.log('✅ Datos guardados en Supabase');
+                return true;
+                
+            } catch (error) {
+                console.error('Error guardando en Supabase:', error);
+                throw error;
+            }
+        }
+        
+        // ==========================================
+        // DASHBOARD BCRA - BASE MONETARIA
+        // ==========================================
+        let chartBM = null;
+        let datosBM = [];
+        let rangoActual = 'all';
+        
+        async function mostrarDashboardBCRA() {
+            try {
+                console.log('Cargando dashboard BCRA...');
+                
+                // Cargar datos de Supabase
+                const { data, error } = await supabaseClient
+                    .from('base_monetaria')
+                    .select('*')
+                    .order('fecha', { ascending: true });
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    console.log('No hay datos disponibles');
+                    return;
+                }
+                
+                datosBM = data;
+                console.log(`Datos cargados: ${datosBM.length} registros`);
+                
+                // Actualizar card con último valor
+                const ultimoDato = datosBM[datosBM.length - 1];
+                const penultimoDato = datosBM[datosBM.length - 2];
+                
+                document.getElementById('valorActualBM').textContent = 
+                    ultimoDato.porcentaje_pbi.toFixed(2) + '% del PBI';
+                
+                document.getElementById('fechaActualBM').textContent = 
+                    new Date(ultimoDato.fecha).toLocaleDateString('es-AR');
+                
+                // Calcular variación
+                if (penultimoDato) {
+                    const variacion = ultimoDato.porcentaje_pbi - penultimoDato.porcentaje_pbi;
+                    const variacionPct = (variacion / penultimoDato.porcentaje_pbi) * 100;
+                    const icono = variacion >= 0 ? '▲' : '▼';
+                    const color = variacion >= 0 ? '#22c55e' : '#ef4444';
+                    
+                    document.getElementById('variacionBM').innerHTML = 
+                        `<span style="color: ${color}">${icono} ${Math.abs(variacionPct).toFixed(2)}%</span>`;
+                }
+                
+                document.getElementById('lastUpdateBCRA').textContent = 
+                    `Última actualización: ${new Date(ultimoDato.updated_at).toLocaleString('es-AR')}`;
+                
+                // Mostrar sección BCRA
+                showSection('bcra');
+                
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+                alert('Error al cargar los datos: ' + error.message);
+            }
+        }
+        
+        function mostrarGraficoBM() {
+            document.getElementById('modalGraficoBM').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Inicializar gráfico si no existe
+            if (!chartBM) {
+                inicializarGraficoBM();
+            }
+        }
+        
+        function cerrarGraficoBM() {
+            document.getElementById('modalGraficoBM').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        function cambiarRango(rango) {
+            rangoActual = rango;
+            
+            // Actualizar botones
+            document.querySelectorAll('.rango-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-rango="${rango}"]`).classList.add('active');
+            
+            // Actualizar gráfico
+            actualizarGraficoBM(rango);
+        }
+        
+        function inicializarGraficoBM() {
+            const ctx = document.getElementById('chartBM').getContext('2d');
+            
+            const datosFiltrados = filtrarDatosPorRango(datosBM, rangoActual);
+            
+            chartBM = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datosFiltrados.map(d => new Date(d.fecha).toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })),
+                    datasets: [{
+                        label: 'Base Monetaria (% del PBI)',
+                        data: datosFiltrados.map(d => d.porcentaje_pbi),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#667eea',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '% del PBI';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function actualizarGraficoBM(rango) {
+            if (!chartBM) return;
+            
+            const datosFiltrados = filtrarDatosPorRango(datosBM, rango);
+            
+            chartBM.data.labels = datosFiltrados.map(d => 
+                new Date(d.fecha).toLocaleDateString('es-AR', { month: 'short', year: 'numeric' })
+            );
+            chartBM.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
+            chartBM.update();
+        }
+        
+        function filtrarDatosPorRango(datos, rango) {
+            if (rango === 'all') return datos;
+            
+            const ahora = new Date();
+            let fechaLimite;
+            
+            switch(rango) {
+                case '1m':
+                    fechaLimite = new Date(ahora.setMonth(ahora.getMonth() - 1));
+                    break;
+                case '3m':
+                    fechaLimite = new Date(ahora.setMonth(ahora.getMonth() - 3));
+                    break;
+                case '6m':
+                    fechaLimite = new Date(ahora.setMonth(ahora.getMonth() - 6));
+                    break;
+                case '1y':
+                    fechaLimite = new Date(ahora.setFullYear(ahora.getFullYear() - 1));
+                    break;
+                default:
+                    return datos;
+            }
+            
+            return datos.filter(d => new Date(d.fecha) >= fechaLimite);
+        }
+        
+        async function cargarDatosBCRA() {
+            try {
+                // Verificar si hay datos en Supabase
+                const { data, error } = await supabaseClient
+                    .from('base_monetaria')
+                    .select('id')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    // Hay datos, mostrar dashboard
+                    await mostrarDashboardBCRA();
+                } else {
+                    // No hay datos, mostrar modal de upload
+                    mostrarModalUpload();
+                }
+            } catch (error) {
+                console.error('Error verificando datos:', error);
+                // En caso de error, mostrar modal
+                mostrarModalUpload();
+            }
+        }
+
+        // ==========================================
         // USUARIOS Y DATOS
         // ==========================================
         const validUsers = {'admin': 'argentina2025', 'usuario': '123456'};
@@ -1069,9 +1485,9 @@
         }
 
         function showSection(section) {
-            // Si intenta ir a BCRA, SIEMPRE mostrar modal (incluso si ya tiene datos)
+            // Si intenta ir a BCRA, intentar cargar datos
             if (section === 'bcra') {
-                mostrarModalUpload();
+                cargarDatosBCRA();
                 return;
             }
             
@@ -1203,6 +1619,38 @@
             status.style.border = '1px solid #3b82f6';
             status.innerHTML = '⏳ Subiendo archivo...';
             
+            // Detectar si es Excel del BCRA
+            const esExcelBCRA = file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xlsm');
+            
+            if (esExcelBCRA) {
+                // Procesar Excel del BCRA
+                status.innerHTML = '⏳ Procesando Excel del BCRA...';
+                
+                procesarExcelBCRA(file)
+                    .then(datos => {
+                        status.style.background = 'rgba(34, 197, 94, 0.1)';
+                        status.style.color = '#22c55e';
+                        status.style.border = '1px solid #22c55e';
+                        status.innerHTML = `✅ Excel procesado: ${datos.length} datos guardados 🌐`;
+                        
+                        // Cerrar modal y mostrar dashboard BCRA
+                        setTimeout(() => {
+                            cerrarModalUpload();
+                            mostrarDashboardBCRA();
+                        }, 1500);
+                    })
+                    .catch(error => {
+                        status.style.background = 'rgba(239, 68, 68, 0.1)';
+                        status.style.color = '#ef4444';
+                        status.style.border = '1px solid #ef4444';
+                        status.innerHTML = `❌ Error: ${error.message}`;
+                        console.error('Error:', error);
+                    });
+                
+                return;
+            }
+            
+            // Código original para otros archivos
             const reader = new FileReader();
             
             reader.onload = async function(e) {

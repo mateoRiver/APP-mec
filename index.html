@@ -506,22 +506,26 @@
         @media (max-width: 768px) {
             .header h1 { font-size: 22px; }
             .stat-card .value { font-size: 40px; }
-            .chart-wrapper { height: 300px; padding: 12px 8px 8px 8px; }
+            .chart-wrapper { height: 450px; padding: 12px 8px 8px 8px; }
             .stats-grid { grid-template-columns: 1fr; }
-            .chart-detail { padding: 20px 12px; }
-            .chart-detail h2 { font-size: 18px; margin-bottom: 16px; }
-            .date-filter { padding: 12px; }
+            .chart-detail { padding: 16px 12px; }
+            .chart-detail h2 { font-size: 18px; margin-bottom: 12px; }
+            .date-filter { padding: 8px 12px; margin-bottom: 8px; }
             .nav-item { padding: 8px 10px; }
             .nav-item .label { font-size: 10px; }
-            .filter-group label { font-size: 12px; }
-            .date-input { font-size: 13px; padding: 8px 10px; }
+            .filter-group { min-width: 120px; }
+            .filter-group label { font-size: 11px; margin-bottom: 4px; }
+            .date-input { font-size: 12px; padding: 8px 8px; }
             .btn-filter { font-size: 13px; padding: 8px 16px; }
         }
 
         @media (max-width: 480px) {
             .dashboard { padding: 12px; }
             .stat-card { padding: 24px; }
-            .chart-wrapper { height: 280px; padding: 10px 6px 6px 6px; }
+            .chart-wrapper { height: 420px; padding: 10px 6px 6px 6px; }
+            .filter-group { min-width: 100px; }
+            .date-input { font-size: 11px; padding: 6px 6px; }
+        }
             .chart-detail { padding: 16px 8px; }
             .chart-detail h2 { font-size: 16px; }
             .date-filter { padding: 12px; }
@@ -561,6 +565,7 @@
             font-size: 14px;
             font-family: 'Inter', sans-serif;
             width: 100%;
+            box-sizing: border-box;
             cursor: pointer;
         }
         
@@ -1340,11 +1345,11 @@
                             grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: isMobile ? 9 : 12 },
+                                font: { size: isMobile ? 8 : 12 },
                                 maxRotation: 45,
                                 minRotation: 45,
                                 autoSkip: true,
-                                maxTicksLimit: isMobile ? 8 : 20
+                                maxTicksLimit: isMobile ? 6 : 20
                             }
                         }
                     }
@@ -2216,7 +2221,24 @@
                         borderWidth: 3,
                         tension: 0.4,
                         fill: true,
-                        pointRadius: 5,
+                        pointRadius: function(context) {
+                            const dataIndex = context.dataIndex;
+                            const data = context.dataset.data;
+                            const totalPoints = data.length;
+                            
+                            // Mostrar punto solo donde hay etiqueta
+                            if (dataIndex === 0 || dataIndex === totalPoints - 1) return 5;
+                            
+                            // Valor máximo
+                            const maxValue = Math.max(...data);
+                            if (data[dataIndex] === maxValue) return 5;
+                            
+                            // Valor mínimo
+                            const minValue = Math.min(...data);
+                            if (data[dataIndex] === minValue) return 5;
+                            
+                            return 0; // Sin punto para el resto
+                        },
                         pointBackgroundColor: '#8b5cf6',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,
@@ -2319,7 +2341,38 @@
                         borderWidth: 3,
                         tension: 0.4,
                         fill: true,
-                        pointRadius: 5,
+                        pointRadius: function(context) {
+                            const dataIndex = context.dataIndex;
+                            const data = context.dataset.data;
+                            const value = data[dataIndex];
+                            
+                            // No mostrar si es null
+                            if (value === null || value === undefined) return 0;
+                            
+                            // Primer dato válido
+                            if (dataIndex === 0) return 5;
+                            
+                            // Encontrar el último índice válido
+                            let lastValidIndex = -1;
+                            for (let i = data.length - 1; i >= 0; i--) {
+                                if (data[i] !== null && data[i] !== undefined) {
+                                    lastValidIndex = i;
+                                    break;
+                                }
+                            }
+                            if (dataIndex === lastValidIndex) return 5;
+                            
+                            // Valor máximo
+                            const validData = data.filter(v => v !== null && v !== undefined);
+                            const maxValue = Math.max(...validData);
+                            if (value === maxValue) return 5;
+                            
+                            // Valor mínimo
+                            const minValue = Math.min(...validData);
+                            if (value === minValue) return 5;
+                            
+                            return 0; // Sin punto para el resto
+                        },
                         pointBackgroundColor: '#10b981',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,

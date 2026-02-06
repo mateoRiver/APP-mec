@@ -548,6 +548,30 @@
             background: #667eea;
             border-color: #667eea;
         }
+        
+        /* Inputs de fecha */
+        .date-input {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        
+        .date-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.08);
+        }
     </style>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -692,32 +716,16 @@
             <div class="date-filter">
                 <div class="filter-group">
                     <label>Desde</label>
-                    <select id="fechaDesdeBCRA"></select>
+                    <input type="date" id="fechaDesdeBCRA" class="date-input">
                 </div>
                 <div class="filter-group">
                     <label>Hasta</label>
-                    <select id="fechaHastaBCRA"></select>
+                    <input type="date" id="fechaHastaBCRA" class="date-input">
                 </div>
                 <button class="btn-filter" onclick="aplicarFiltroBCRA()">Aplicar</button>
             </div>
             
             <div class="chart-detail">
-                <!-- Card Base Monetaria -->
-                <div id="cardBaseMon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div>
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Base Monetaria (% PBI)</div>
-                            <div style="font-size: 36px; font-weight: 700; margin-bottom: 4px;" id="valorActualBM">--</div>
-                            <div style="font-size: 13px; opacity: 0.8;" id="fechaActualBM">--</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div id="variacionBM" style="font-size: 20px; font-weight: 600; padding: 8px 12px; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                                --
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <h2>Base Monetaria (% PBI)</h2>
                 <div class="chart-wrapper">
                     <canvas id="chartBM"></canvas>
@@ -928,29 +936,28 @@
         }
 
         // ==========================================
-        // DATOS DE PBI (HARDCODEADOS - TRIMESTRAL)
-        // Actualizado hasta 2028 para evitar errores futuros
+        // DATOS DE PBI MENSUAL (HARDCODEADOS)
+        // Actualizado hasta 2028 - Valores en millones $
         // ==========================================
         const PBI_DATA = {
-            "2017-Q1": 9028957, "2017-Q2": 9560122, "2017-Q3": 10878106, "2017-Q4": 11352880,
-            "2018-Q1": 11815091, "2018-Q2": 13100414, "2018-Q3": 14783299, "2018-Q4": 15957701,
-            "2019-Q1": 16769606, "2019-Q2": 18554765, "2019-Q3": 21875328, "2019-Q4": 23300656,
-            "2020-Q1": 25465257, "2020-Q2": 23590046, "2020-Q3": 25708635, "2020-Q4": 29055932,
-            "2021-Q1": 33421976, "2021-Q2": 40071185, "2021-Q3": 47049223, "2021-Q4": 49005068,
-            "2022-Q1": 55938095, "2022-Q2": 66175390, "2022-Q3": 81791692, "2022-Q4": 93157409,
-            "2023-Q1": 108631403, "2023-Q2": 131880124, "2023-Q3": 171360185, "2023-Q4": 228605972,
-            "2024-Q1": 327662071, "2024-Q2": 471761466, "2024-Q3": 591779084, "2024-Q4": 665664300,
-            "2025-Q1": 727074937, "2025-Q2": 789772739, "2025-Q3": 880689112, "2025-Q4": 899330411,
-            "2026-Q1": 902798834, "2026-Q2": 952999234, "2026-Q3": 1045422724, "2026-Q4": 1035557676,
-            "2027-Q1": 1046897303, "2027-Q2": 1094561724, "2027-Q3": 1186506298, "2027-Q4": 1152581207,
-            "2028-Q1": 1152452088, "2028-Q2": 1206466049, "2028-Q3": 1312504652, "2028-Q4": 1277390390
+            "2017-01": 662825, "2017-02": 641121, "2017-03": 740387, "2017-04": 737114, "2017-05": 816881, "2017-06": 781208, "2017-07": 729157, "2017-08": 724060, "2017-09": 710143, "2017-10": 724693, "2017-11": 737016, "2017-12": 712068,
+            "2018-01": 692457, "2018-02": 673427, "2018-03": 756087, "2018-04": 735068, "2018-05": 774082, "2018-06": 733134, "2018-07": 708091, "2018-08": 711983, "2018-09": 668229, "2018-10": 692954, "2018-11": 682035, "2018-12": 660977,
+            "2019-01": 652655, "2019-02": 641651, "2019-03": 703238, "2019-04": 727266, "2019-05": 796247, "2019-06": 731839, "2019-07": 712037, "2019-08": 685355, "2019-09": 654309, "2019-10": 687113, "2019-11": 668352, "2019-12": 658617,
+            "2020-01": 649526, "2020-02": 625670, "2020-03": 621971, "2020-04": 549611, "2020-05": 635644, "2020-06": 642884, "2020-07": 618345, "2020-08": 607286, "2020-09": 616945, "2020-10": 637176, "2020-11": 640685, "2020-12": 649347,
+            "2021-01": 638030, "2021-02": 612405, "2021-03": 708059, "2021-04": 714481, "2021-05": 733345, "2021-06": 722722, "2021-07": 690929, "2021-08": 683890, "2021-09": 685448, "2021-10": 676807, "2021-11": 697362, "2021-12": 714234,
+            "2022-01": 677404, "2022-02": 668728, "2022-03": 746741, "2022-04": 764840, "2022-05": 798933, "2022-06": 783241, "2022-07": 739535, "2022-08": 734783, "2022-09": 723667, "2022-10": 710957, "2022-11": 718118, "2022-12": 709145,
+            "2023-01": 693861, "2023-02": 665878, "2023-03": 752222, "2023-04": 727775, "2023-05": 745973, "2023-06": 740077, "2023-07": 728754, "2023-08": 737093, "2023-09": 720067, "2023-10": 715578, "2023-11": 710012, "2023-12": 675938,
+            "2024-01": 667256, "2024-02": 648294, "2024-03": 691622, "2024-04": 714405, "2024-05": 760547, "2024-06": 714890, "2024-07": 726205, "2024-08": 714708, "2024-09": 702659, "2024-10": 717944, "2024-11": 718306, "2024-12": 720723,
+            "2025-01": 709704, "2025-02": 684993, "2025-03": 729643, "2025-04": 770073, "2025-05": 799846, "2025-06": 759666, "2025-07": 746824, "2025-08": 730420, "2025-09": 736359, "2025-10": 741112, "2025-11": 716068, "2025-12": 726779,
+            "2026-01": 719540, "2026-02": 691625, "2026-03": 756080, "2026-04": 790036, "2026-05": 818663, "2026-06": 786736, "2026-07": 780205, "2026-08": 773011, "2026-09": 762584, "2026-10": 779857, "2026-11": 773797, "2026-12": 770896,
+            "2027-01": 760722, "2027-02": 728970, "2027-03": 797525, "2027-04": 834425, "2027-05": 866556, "2027-06": 829032, "2027-07": 822195, "2027-08": 809295, "2027-09": 796444, "2027-10": 811989, "2027-11": 804786, "2027-12": 801792,
+            "2028-01": 792393, "2028-02": 760454, "2028-03": 833214, "2028-04": 873069, "2028-05": 908044, "2028-06": 870022, "2028-07": 864137, "2028-08": 851850, "2028-09": 839577, "2028-10": 857243, "2028-11": 850909, "2028-12": 849011
         };
         
         function obtenerPBI(fecha) {
             const year = fecha.getFullYear();
             const month = fecha.getMonth() + 1;
-            const quarter = Math.ceil(month / 3);
-            const key = `${year}-Q${quarter}`;
+            const key = `${year}-${month.toString().padStart(2, '0')}`;
             return PBI_DATA[key] || null;
         }
         
@@ -1119,8 +1126,8 @@
         let chartBM = null;
         let datosBM = [];
         let cargandoBCRA = false;
-        let filtroBCRADesde = 2017;
-        let filtroBCRAHasta = 2028;
+        let fechaDesdeBCRA = null;
+        let fechaHastaBCRA = null;
         
         async function mostrarDashboardBCRA() {
             if (cargandoBCRA) {
@@ -1167,32 +1174,13 @@
                 
                 console.log(`✅ Total datos cargados: ${datosBM.length} registros`);
                 
-                // Actualizar card con último valor
+                // Inicializar selectores de fechas
+                inicializarSelectoresFechasBCRA();
+                
+                // Actualizar info de última actualización
                 const ultimoDato = datosBM[datosBM.length - 1];
-                const penultimoDato = datosBM[datosBM.length - 2];
-                
-                document.getElementById('valorActualBM').textContent = 
-                    ultimoDato.porcentaje_pbi.toFixed(2) + '% del PBI';
-                
-                document.getElementById('fechaActualBM').textContent = 
-                    new Date(ultimoDato.fecha).toLocaleDateString('es-AR');
-                
-                // Calcular variación
-                if (penultimoDato) {
-                    const variacion = ultimoDato.porcentaje_pbi - penultimoDato.porcentaje_pbi;
-                    const variacionPct = (variacion / penultimoDato.porcentaje_pbi) * 100;
-                    const icono = variacion >= 0 ? '▲' : '▼';
-                    const color = variacion >= 0 ? '#22c55e' : '#ef4444';
-                    
-                    document.getElementById('variacionBM').innerHTML = 
-                        `<span style="color: ${color}">${icono} ${Math.abs(variacionPct).toFixed(2)}%</span>`;
-                }
-                
                 document.getElementById('lastUpdateBCRA').textContent = 
                     `Última actualización: ${new Date(ultimoDato.updated_at).toLocaleString('es-AR')}`;
-                
-                // Inicializar selectores de años
-                inicializarSelectorBCRA();
                 
                 // Mostrar sección BCRA directamente (sin loop)
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1217,40 +1205,48 @@
             }
         }
         
-        function inicializarSelectorBCRA() {
-            // Obtener años únicos de los datos
-            const años = [...new Set(datosBM.map(d => new Date(d.fecha).getFullYear()))].sort();
+        function inicializarSelectoresFechasBCRA() {
+            // Obtener primera y última fecha de los datos
+            const primeraFecha = new Date(datosBM[0].fecha);
+            const ultimaFecha = new Date(datosBM[datosBM.length - 1].fecha);
             
-            const selectDesde = document.getElementById('fechaDesdeBCRA');
-            const selectHasta = document.getElementById('fechaHastaBCRA');
+            // Calcular fecha hace 1 año desde la última fecha
+            const haceUnAño = new Date(ultimaFecha);
+            haceUnAño.setFullYear(haceUnAño.getFullYear() - 1);
             
-            selectDesde.innerHTML = '';
-            selectHasta.innerHTML = '';
+            // Usar la fecha más reciente entre hace 1 año y la primera fecha disponible
+            const fechaDesdeDefault = haceUnAño > primeraFecha ? haceUnAño : primeraFecha;
             
-            años.forEach(año => {
-                const optionDesde = document.createElement('option');
-                optionDesde.value = año;
-                optionDesde.textContent = año;
-                selectDesde.appendChild(optionDesde);
-                
-                const optionHasta = document.createElement('option');
-                optionHasta.value = año;
-                optionHasta.textContent = año;
-                selectHasta.appendChild(optionHasta);
-            });
+            // Formatear fechas para input (YYYY-MM-DD)
+            const inputDesde = document.getElementById('fechaDesdeBCRA');
+            const inputHasta = document.getElementById('fechaHastaBCRA');
             
-            // Seleccionar últimos 2 años por defecto
-            filtroBCRADesde = años[0];
-            filtroBCRAHasta = años[años.length - 1];
-            selectDesde.value = filtroBCRADesde;
-            selectHasta.value = filtroBCRAHasta;
+            inputDesde.value = fechaDesdeDefault.toISOString().split('T')[0];
+            inputHasta.value = ultimaFecha.toISOString().split('T')[0];
+            
+            // Establecer límites de los inputs
+            inputDesde.min = primeraFecha.toISOString().split('T')[0];
+            inputDesde.max = ultimaFecha.toISOString().split('T')[0];
+            inputHasta.min = primeraFecha.toISOString().split('T')[0];
+            inputHasta.max = ultimaFecha.toISOString().split('T')[0];
+            
+            fechaDesdeBCRA = fechaDesdeDefault;
+            fechaHastaBCRA = ultimaFecha;
         }
         
         function aplicarFiltroBCRA() {
-            filtroBCRADesde = parseInt(document.getElementById('fechaDesdeBCRA').value);
-            filtroBCRAHasta = parseInt(document.getElementById('fechaHastaBCRA').value);
+            const inputDesde = document.getElementById('fechaDesdeBCRA');
+            const inputHasta = document.getElementById('fechaHastaBCRA');
             
-            if (filtroBCRADesde > filtroBCRAHasta) {
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            fechaDesdeBCRA = new Date(inputDesde.value + 'T00:00:00');
+            fechaHastaBCRA = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesdeBCRA > fechaHastaBCRA) {
                 alert('La fecha "Desde" debe ser anterior a "Hasta"');
                 return;
             }
@@ -1262,7 +1258,7 @@
             const ctx = document.getElementById('chartBM');
             if (!ctx) return;
             
-            const datosFiltrados = filtrarDatosBCRAPorAño();
+            const datosFiltrados = filtrarDatosBCRAPorFechas();
             
             if (chartBM) {
                 chartBM.destroy();
@@ -1271,18 +1267,21 @@
             chartBM = new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: datosFiltrados.map(d => new Date(d.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })),
+                    labels: datosFiltrados.map(d => {
+                        const fecha = new Date(d.fecha);
+                        return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+                    }),
                     datasets: [{
                         label: 'Base Monetaria (% PBI)',
                         data: datosFiltrados.map(d => d.porcentaje_pbi),
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
                         pointHoverRadius: 8,
-                        pointBackgroundColor: '#667eea',
+                        pointBackgroundColor: '#3b82f6',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 3
                     }]
@@ -1305,10 +1304,14 @@
                             bodyFont: { size: 16, weight: '700' },
                             titleColor: '#94a3b8',
                             bodyColor: '#fff',
-                            borderColor: '#667eea',
+                            borderColor: '#3b82f6',
                             borderWidth: 2,
                             displayColors: false,
                             callbacks: {
+                                title: function(context) {
+                                    const fecha = new Date(datosFiltrados[context[0].dataIndex].fecha);
+                                    return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                                },
                                 label: function(context) {
                                     return context.parsed.y.toFixed(2) + '% del PBI';
                                 }
@@ -1343,21 +1346,55 @@
             });
         }
         
-        function filtrarDatosBCRAPorAño() {
-            return datosBM.filter(d => {
-                const año = new Date(d.fecha).getFullYear();
-                return año >= filtroBCRADesde && año <= filtroBCRAHasta;
-            });
+        function filtrarDatosBCRAPorFechas() {
+            if (!fechaDesdeBCRA || !fechaHastaBCRA) {
+                return datosBM;
+            }
+            
+            // Encontrar el índice del primer dato >= fechaDesde
+            let indiceDesde = datosBM.findIndex(d => new Date(d.fecha) >= fechaDesdeBCRA);
+            
+            // Si no hay dato exacto, buscar el más cercano anterior
+            if (indiceDesde === -1) {
+                // Todas las fechas son menores, usar la última
+                indiceDesde = datosBM.length - 1;
+            } else if (indiceDesde > 0 && new Date(datosBM[indiceDesde].fecha) > fechaDesdeBCRA) {
+                // Si el dato encontrado es posterior a la fecha buscada, incluir el anterior
+                indiceDesde = indiceDesde - 1;
+            }
+            
+            // Encontrar el índice del último dato <= fechaHasta
+            let indiceHasta = -1;
+            for (let i = datosBM.length - 1; i >= 0; i--) {
+                if (new Date(datosBM[i].fecha) <= fechaHastaBCRA) {
+                    indiceHasta = i;
+                    break;
+                }
+            }
+            
+            // Si no hay dato exacto, buscar el más cercano anterior
+            if (indiceHasta === -1) {
+                // Todas las fechas son posteriores, no hay datos para mostrar
+                return [];
+            }
+            
+            return datosBM.slice(indiceDesde, indiceHasta + 1);
         }
         
         function actualizarChartBCRA() {
             if (!chartBM) return;
             
-            const datosFiltrados = filtrarDatosBCRAPorAño();
+            const datosFiltrados = filtrarDatosBCRAPorFechas();
             
-            chartBM.data.labels = datosFiltrados.map(d => 
-                new Date(d.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
-            );
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            chartBM.data.labels = datosFiltrados.map(d => {
+                const fecha = new Date(d.fecha);
+                return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+            });
             chartBM.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
             chartBM.update();
         }

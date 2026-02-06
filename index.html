@@ -506,20 +506,22 @@
         @media (max-width: 768px) {
             .header h1 { font-size: 22px; }
             .stat-card .value { font-size: 40px; }
-            .chart-wrapper { height: 550px; padding: 25px 16px 16px 16px; }
+            .chart-wrapper { height: 300px; padding: 12px 8px 8px 8px; }
             .stats-grid { grid-template-columns: 1fr; }
             .chart-detail { padding: 20px 12px; }
             .chart-detail h2 { font-size: 18px; margin-bottom: 16px; }
-            .date-filter { padding: 16px; }
-            .bottom-nav { display: flex; }
+            .date-filter { padding: 12px; }
             .nav-item { padding: 8px 10px; }
             .nav-item .label { font-size: 10px; }
+            .filter-group label { font-size: 12px; }
+            .date-input { font-size: 13px; padding: 8px 10px; }
+            .btn-filter { font-size: 13px; padding: 8px 16px; }
         }
 
         @media (max-width: 480px) {
             .dashboard { padding: 12px; }
             .stat-card { padding: 24px; }
-            .chart-wrapper { height: 500px; padding: 20px 12px 12px 12px; }
+            .chart-wrapper { height: 280px; padding: 10px 6px 6px 6px; }
             .chart-detail { padding: 16px 8px; }
             .chart-detail h2 { font-size: 16px; }
             .date-filter { padding: 12px; }
@@ -1264,6 +1266,9 @@
                 chartBM.destroy();
             }
             
+            // Detectar si es móvil
+            const isMobile = window.innerWidth <= 768;
+            
             chartBM = new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
@@ -1276,11 +1281,11 @@
                         data: datosFiltrados.map(d => d.porcentaje_pbi),
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
+                        borderWidth: isMobile ? 2 : 3,
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
-                        pointHoverRadius: 8,
+                        pointHoverRadius: isMobile ? 0 : 8,
                         pointBackgroundColor: '#3b82f6',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 3
@@ -1291,13 +1296,14 @@
                     maintainAspectRatio: true,
                     interaction: {
                         intersect: false,
-                        mode: 'index'
+                        mode: isMobile ? 'nearest' : 'index'
                     },
                     plugins: {
                         legend: {
                             display: false
                         },
                         tooltip: {
+                            enabled: !isMobile,
                             backgroundColor: 'rgba(15, 23, 42, 0.95)',
                             padding: 16,
                             titleFont: { size: 14, weight: '600' },
@@ -1324,7 +1330,7 @@
                             grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: 13 },
+                                font: { size: isMobile ? 10 : 13 },
                                 callback: function(value) {
                                     return value.toFixed(1) + '%';
                                 }
@@ -1334,11 +1340,11 @@
                             grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: 12 },
+                                font: { size: isMobile ? 9 : 12 },
                                 maxRotation: 45,
                                 minRotation: 45,
                                 autoSkip: true,
-                                maxTicksLimit: 20
+                                maxTicksLimit: isMobile ? 8 : 20
                             }
                         }
                     }

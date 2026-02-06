@@ -506,28 +506,44 @@
         @media (max-width: 768px) {
             .header h1 { font-size: 22px; }
             .stat-card .value { font-size: 40px; }
-            .chart-wrapper { height: 550px; padding: 12px 8px 8px 8px; }
+            .chart-wrapper { height: 550px; padding: 16px 8px 8px 8px; }
             .stats-grid { grid-template-columns: 1fr; }
             .chart-detail { padding: 16px 12px; }
-            .chart-detail h2 { font-size: 18px; margin-bottom: 12px; }
-            .date-filter { padding: 8px 12px; margin-bottom: 8px; }
+            .chart-detail h2 { font-size: 16px; margin-bottom: 8px; }
+            .date-filter { padding: 6px 10px; margin-bottom: 6px; gap: 8px; }
             .nav-item { padding: 8px 10px; }
             .nav-item .label { font-size: 10px; }
-            .filter-group { min-width: 120px; }
-            .filter-group label { font-size: 11px; margin-bottom: 4px; }
-            .date-input { font-size: 12px; padding: 8px 8px; }
-            .btn-filter { font-size: 13px; padding: 8px 16px; }
-            .btn-primary { font-size: 11px !important; padding: 6px 12px !important; }
-            .btn-primary span { font-size: 11px; }
+            .filter-group { min-width: 110px; flex: 1; }
+            .filter-group label { font-size: 10px; margin-bottom: 3px; }
+            .date-input { font-size: 11px; padding: 6px 6px; }
+            .btn-filter { font-size: 12px; padding: 6px 12px; }
+            .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
+            .btn-primary span { font-size: 10px; }
+            
+            /* Gráfico BCRA específico - MÁS ALTO */
+            #bcraSection .chart-wrapper { 
+                height: calc(100vh - 320px) !important; 
+                min-height: 500px !important;
+            }
         }
 
         @media (max-width: 480px) {
-            .dashboard { padding: 12px; }
-            .stat-card { padding: 24px; }
-            .chart-wrapper { height: 520px; padding: 10px 6px 6px 6px; }
+            .dashboard { padding: 10px; }
+            .stat-card { padding: 20px; }
+            .chart-wrapper { height: 520px; padding: 12px 6px 6px 6px; }
+            .chart-detail { padding: 12px 8px; }
+            .date-filter { gap: 6px; }
             .filter-group { min-width: 100px; }
-            .date-input { font-size: 11px; padding: 6px 6px; }
-            .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
+            .filter-group label { font-size: 9px; }
+            .date-input { font-size: 10px; padding: 5px 5px; }
+            .btn-filter { font-size: 11px; padding: 5px 10px; }
+            .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
+            
+            /* Gráfico BCRA específico - MÁS ALTO */
+            #bcraSection .chart-wrapper { 
+                height: calc(100vh - 280px) !important;
+                min-height: 480px !important;
+            }
         }
             .chart-detail { padding: 16px 8px; }
             .chart-detail h2 { font-size: 16px; }
@@ -2349,7 +2365,7 @@
                     interaction: { mode: null },
                     layout: {
                         padding: {
-                            top: 45,
+                            top: 55,
                             right: 20,
                             bottom: 10,
                             left: 10
@@ -2486,7 +2502,7 @@
                             top: 30,
                             right: 20,
                             bottom: 10,
-                            left: 20
+                            left: 35
                         }
                     },
                     plugins: {
@@ -2495,7 +2511,9 @@
                             labels: {
                                 color: '#cbd5e1',
                                 font: { size: 13, weight: '600' },
-                                padding: 20
+                                padding: 20,
+                                boxWidth: 15,
+                                boxHeight: 15
                             }
                         },
                         tooltip: { enabled: false },

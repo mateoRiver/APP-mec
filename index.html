@@ -506,7 +506,7 @@
         @media (max-width: 768px) {
             .header h1 { font-size: 22px; }
             .stat-card .value { font-size: 40px; }
-            .chart-wrapper { height: 450px; padding: 12px 8px 8px 8px; }
+            .chart-wrapper { height: 500px; padding: 12px 8px 8px 8px; }
             .stats-grid { grid-template-columns: 1fr; }
             .chart-detail { padding: 16px 12px; }
             .chart-detail h2 { font-size: 18px; margin-bottom: 12px; }
@@ -517,14 +517,17 @@
             .filter-group label { font-size: 11px; margin-bottom: 4px; }
             .date-input { font-size: 12px; padding: 8px 8px; }
             .btn-filter { font-size: 13px; padding: 8px 16px; }
+            .btn-primary { font-size: 11px !important; padding: 6px 12px !important; }
+            .btn-primary span { font-size: 11px; }
         }
 
         @media (max-width: 480px) {
             .dashboard { padding: 12px; }
             .stat-card { padding: 24px; }
-            .chart-wrapper { height: 420px; padding: 10px 6px 6px 6px; }
+            .chart-wrapper { height: 480px; padding: 10px 6px 6px 6px; }
             .filter-group { min-width: 100px; }
             .date-input { font-size: 11px; padding: 6px 6px; }
+            .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
         }
             .chart-detail { padding: 16px 8px; }
             .chart-detail h2 { font-size: 16px; }
@@ -733,7 +736,12 @@
             </div>
             
             <div class="chart-detail">
-                <h2>Base Monetaria (% PBI)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="margin: 0;">Base Monetaria (% PBI)</h2>
+                    <button class="btn btn-primary" onclick="descargarExcelBCRA()" style="padding: 8px 16px; font-size: 13px;">
+                        <span>📥</span><span>Descargar Excel</span>
+                    </button>
+                </div>
                 <div class="chart-wrapper">
                     <canvas id="chartBM"></canvas>
                 </div>
@@ -1335,7 +1343,7 @@
                             grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: isMobile ? 10 : 13 },
+                                font: { size: isMobile ? 9 : 13 },
                                 callback: function(value) {
                                     return value.toFixed(1) + '%';
                                 }
@@ -1345,7 +1353,7 @@
                             grid: { display: false },
                             ticks: {
                                 color: '#94a3b8',
-                                font: { size: isMobile ? 8 : 12 },
+                                font: { size: isMobile ? 7 : 12 },
                                 maxRotation: 45,
                                 minRotation: 45,
                                 autoSkip: true,
@@ -2010,6 +2018,95 @@
             }
         }
 
+        async function descargarExcelBCRA() {
+            const btn = event.target.closest('.btn-primary');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span><span>Generando...</span>';
+            
+            try {
+                if (datosBM.length === 0) {
+                    alert('No hay datos de Base Monetaria cargados');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                if (typeof ExcelJS === 'undefined') {
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js');
+                }
+                
+                const workbook = new ExcelJS.Workbook();
+                const ws = workbook.addWorksheet('Base Monetaria');
+                
+                // Headers
+                ws.addRow(['Fecha', 'Base Monetaria (millones $)', 'PBI (millones $)', '% PBI']);
+                
+                // Data
+                for (const dato of datosBM) {
+                    const fecha = new Date(dato.fecha);
+                    const fechaStr = fecha.toLocaleDateString('es-AR');
+                    
+                    // Obtener PBI correspondiente
+                    const pbi = obtenerPBI(fecha);
+                    
+                    ws.addRow([
+                        fechaStr,
+                        dato.valor,
+                        pbi,
+                        dato.porcentaje_pbi
+                    ]);
+                }
+                
+                // Formato
+                const headerRow = ws.getRow(1);
+                headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3b82f6' } };
+                headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+                
+                ws.getColumn(1).width = 12;
+                ws.getColumn(2).width = 28;
+                ws.getColumn(3).width = 20;
+                ws.getColumn(4).width = 12;
+                
+                // Formatear números
+                for (let i = 2; i <= ws.rowCount; i++) {
+                    ws.getCell(i, 2).numFmt = '#,##0'; // Base Monetaria
+                    ws.getCell(i, 2).alignment = { horizontal: 'right' };
+                    
+                    ws.getCell(i, 3).numFmt = '#,##0'; // PBI
+                    ws.getCell(i, 3).alignment = { horizontal: 'right' };
+                    
+                    ws.getCell(i, 4).numFmt = '0.00"%"'; // % PBI
+                    ws.getCell(i, 4).alignment = { horizontal: 'center' };
+                }
+                
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const fechaActual = new Date().toISOString().split('T')[0];
+                a.download = `base_monetaria_${fechaActual}.xlsx`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                btn.innerHTML = '<span>✅</span><span>Descargado!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            } catch (error) {
+                console.error('Error:', error);
+                btn.innerHTML = '<span>❌</span><span>Error</span>';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
         function formatWorksheet(worksheet) {
             const headerRow = worksheet.getRow(1);
             headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -2251,7 +2348,7 @@
                     interaction: { mode: null },
                     layout: {
                         padding: {
-                            top: 30,
+                            top: 45,
                             right: 20,
                             bottom: 10,
                             left: 10
@@ -2388,7 +2485,7 @@
                             top: 30,
                             right: 20,
                             bottom: 10,
-                            left: 10
+                            left: 20
                         }
                     },
                     plugins: {

@@ -1434,17 +1434,17 @@
                 for (let i = startRowBM; i < dataBM.length; i++) {
                     const fechaStr = dataBM[i][0];
                     const valorAF = dataBM[i][31]; // Columna AF
-                    const valorPBI = dataBM[i][24]; // Columna Y
                     
-                    if (!fechaStr || !valorAF || !valorPBI) continue;
+                    if (!fechaStr || !valorAF) continue;
                     
                     const fecha = new Date(fechaStr);
                     if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
                     
-                    const valor = parseFloat(String(valorAF).replace(/,/g, ''));
-                    const pbi = parseFloat(String(valorPBI).replace(/,/g, ''));
+                    const pbi = obtenerPBI(fecha);
+                    if (!pbi) continue;
                     
-                    if (isNaN(valor) || isNaN(pbi) || pbi === 0) continue;
+                    const valor = parseFloat(String(valorAF).replace(/,/g, ''));
+                    if (isNaN(valor)) continue;
                     
                     datosBaseMon.push({
                         fecha: fecha.toISOString().split('T')[0],
@@ -1474,7 +1474,7 @@
                     for (let i = 0; i < Math.min(dataDEP.length, 50); i++) {
                         const primeraColumna = dataDEP[i][0];
                         if (primeraColumna && typeof primeraColumna === 'string' && 
-                            (primeraColumna.startsWith('20') || primeraColumna.includes('2003'))) {
+                            (primeraColumna.startsWith('20') || primeraColumna.includes('2002'))) {
                             startRowDEP = i;
                             break;
                         }
@@ -1490,21 +1490,23 @@
                     if (startRowDEP === -1) {
                         console.warn('No se encontró inicio de datos en DEPÓSITOS');
                     } else {
+                        console.log('Primera fila de datos en DEPÓSITOS:', startRowDEP);
+                        
                         const datosDepositos = [];
                         for (let i = startRowDEP; i < dataDEP.length; i++) {
                             const fechaStr = dataDEP[i][0];
-                            const valorX = dataDEP[i][23]; // Columna X (Depósitos Totales)
-                            const valorPBI = dataDEP[i][24]; // Columna Y
+                            const valorX = dataDEP[i][23]; // Columna X (idx 23) - Depósitos Totales Sector Privado
                             
-                            if (!fechaStr || !valorX || !valorPBI) continue;
+                            if (!fechaStr || !valorX) continue;
                             
                             const fecha = new Date(fechaStr);
                             if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
                             
-                            const valor = parseFloat(String(valorX).replace(/,/g, ''));
-                            const pbi = parseFloat(String(valorPBI).replace(/,/g, ''));
+                            const pbi = obtenerPBI(fecha);
+                            if (!pbi) continue;
                             
-                            if (isNaN(valor) || isNaN(pbi) || pbi === 0) continue;
+                            const valor = parseFloat(String(valorX).replace(/,/g, ''));
+                            if (isNaN(valor)) continue;
                             
                             datosDepositos.push({
                                 fecha: fecha.toISOString().split('T')[0],
@@ -1514,6 +1516,8 @@
                         }
                         
                         console.log(`✅ Depósitos Totales: ${datosDepositos.length} registros`);
+                        console.log('Primeros 3:', datosDepositos.slice(0, 3));
+                        console.log('Últimos 3:', datosDepositos.slice(-3));
                         
                         if (datosDepositos.length > 0) {
                             await guardarDatosSupabase('depositos_totales', datosDepositos);
@@ -1527,7 +1531,7 @@
                 }
                 
                 console.log('\n✅ EXCEL PROCESADO EXITOSAMENTE');
-                return { base_monetaria: datosBaseMon.length };
+                return { base_monetaria: datosBaseMon.length, depositos: datosDepositos ? datosDepositos.length : 0 };
                 
             } catch (error) {
                 console.error('Error procesando Excel BCRA:', error);

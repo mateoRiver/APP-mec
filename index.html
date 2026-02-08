@@ -833,6 +833,13 @@
 
         <!-- SECCIÓN BCRA - RESUMEN -->
         <div id="bcraSection" class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin: 0; font-size: 20px; color: #cbd5e1;">Datos BCRA</h2>
+                <button class="btn btn-primary" onclick="mostrarModalUpload()" style="padding: 8px 16px; font-size: 13px;">
+                    <span>📥</span><span>Actualizar Datos</span>
+                </button>
+            </div>
+            
             <div class="date-filter">
                 <div class="filter-group">
                     <label>Desde</label>
@@ -956,7 +963,7 @@
             <div class="label">IPC & EMAE</div>
         </button>
         <button class="nav-item" onclick="showSection('bcra')">
-            <div class="icon">💰</div>
+            <div class="icon">🏦</div>
             <div class="label">BCRA</div>
         </button>
     </div>
@@ -1339,13 +1346,20 @@
                 
                 console.log(`✅ Total datos cargados: ${datosBM.length} registros`);
                 
-                // Inicializar selectores de fechas
-                inicializarSelectoresFechasBCRA();
-                
                 // Actualizar info de última actualización
                 const ultimoDato = datosBM[datosBM.length - 1];
                 document.getElementById('lastUpdateBCRA').textContent = 
                     `Última actualización: ${new Date(ultimoDato.updated_at).toLocaleString('es-AR')}`;
+                
+                // PRIMERO: Inicializar selectores de fechas del gráfico (configura fechaDesdeBCRA y fechaHastaBCRA)
+                inicializarSelectoresFechasBCRA();
+                
+                // SEGUNDO: Inicializar gráfico (usa las fechas configuradas arriba)
+                if (!chartsInitialized) {
+                    initCharts();
+                    chartsInitialized = true;
+                }
+                inicializarChartBCRA();
                 
                 // Mostrar sección BCRA resumen
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1354,6 +1368,13 @@
                 document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
                 const navItems = document.querySelectorAll('.nav-item');
                 navItems[1].classList.add('active'); // BCRA es ahora el índice 1
+                
+                // Calcular fechas para el resumen
+                const primeraFecha = new Date(datosBM[0].fecha);
+                const ultimaFecha = new Date(datosBM[datosBM.length - 1].fecha);
+                
+                // Default: diciembre 2023 hasta última fecha
+                const fechaDesdeDefault = new Date('2023-12-01');
                 
                 // Inicializar selectores de fechas del resumen
                 const inputDesdeResumen = document.getElementById('fechaDesdeBCRAResumen');
@@ -1369,13 +1390,6 @@
                 // Calcular estadísticas iniciales
                 aplicarFiltroResumenBCRA();
                 
-                // Inicializar gráfico (aunque no se muestre todavía)
-                if (!chartsInitialized) {
-                    initCharts();
-                    chartsInitialized = true;
-                }
-                inicializarChartBCRA();
-                
             } catch (error) {
                 console.error('Error cargando dashboard:', error);
                 alert('Error al cargar los datos: ' + error.message);
@@ -1389,12 +1403,8 @@
             const primeraFecha = new Date(datosBM[0].fecha);
             const ultimaFecha = new Date(datosBM[datosBM.length - 1].fecha);
             
-            // Calcular fecha hace 1 año desde la última fecha
-            const haceUnAño = new Date(ultimaFecha);
-            haceUnAño.setFullYear(haceUnAño.getFullYear() - 1);
-            
-            // Usar la fecha más reciente entre hace 1 año y la primera fecha disponible
-            const fechaDesdeDefault = haceUnAño > primeraFecha ? haceUnAño : primeraFecha;
+            // Default: diciembre 2023 hasta última fecha
+            const fechaDesdeDefault = new Date('2023-12-01');
             
             // Formatear fechas para input (YYYY-MM-DD)
             const inputDesde = document.getElementById('fechaDesdeBCRA');

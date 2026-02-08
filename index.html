@@ -1656,11 +1656,25 @@
                 });
                 
                 canvas.addEventListener('touchend', function(e) {
-                    // Ocultar tooltip después de 500ms de dejar de tocar
+                    // Ocultar tooltip y punto inmediatamente al dejar de tocar
                     touchTimeout = setTimeout(() => {
+                        if (chartBM) {
+                            // Limpiar tooltip y elementos activos
+                            chartBM.tooltip.setActiveElements([]);
+                            chartBM.setActiveElements([]);
+                            chartBM.update('none'); // Sin animación
+                        }
+                    }, 300);
+                });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    // También manejar touchcancel
+                    clearTimeout(touchTimeout);
+                    if (chartBM) {
                         chartBM.tooltip.setActiveElements([]);
-                        chartBM.update();
-                    }, 500);
+                        chartBM.setActiveElements([]);
+                        chartBM.update('none');
+                    }
                 });
             }
         }

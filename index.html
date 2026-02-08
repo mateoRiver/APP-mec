@@ -520,10 +520,24 @@
             .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
             .btn-primary span { font-size: 10px; }
             
-            /* Gráfico BCRA específico - MÁS ALTO */
+            /* Filtros BCRA - No se salen */
+            #bcraSection .date-filter {
+                padding: 8px;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+            #bcraSection .filter-group {
+                min-width: 95px;
+                flex: 1;
+            }
+            
+            /* Gráfico BCRA específico - MUCHO MÁS ALTO */
             #bcraSection .chart-wrapper { 
-                height: calc(100vh - 320px) !important; 
-                min-height: 500px !important;
+                height: calc(100vh - 240px) !important; 
+                min-height: 550px !important;
+            }
+            #bcraSection .chart-detail {
+                padding: 12px 8px 8px 8px;
             }
         }
 
@@ -539,16 +553,24 @@
             .btn-filter { font-size: 11px; padding: 5px 10px; }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
             
-            /* Gráfico BCRA específico - MÁS ALTO */
-            #bcraSection .chart-wrapper { 
-                height: calc(100vh - 280px) !important;
-                min-height: 480px !important;
+            /* Filtros BCRA - No se salen */
+            #bcraSection .date-filter {
+                padding: 6px;
+                gap: 4px;
             }
-        }
-            .chart-detail { padding: 16px 8px; }
-            .chart-detail h2 { font-size: 16px; }
-            .date-filter { padding: 12px; }
-            .filter-group { min-width: 100%; }
+            #bcraSection .filter-group {
+                min-width: 90px;
+                flex: 1;
+            }
+            
+            /* Gráfico BCRA específico - MUCHO MÁS ALTO */
+            #bcraSection .chart-wrapper { 
+                height: calc(100vh - 220px) !important;
+                min-height: 520px !important;
+            }
+            #bcraSection .chart-detail {
+                padding: 8px 6px 6px 6px;
+            }
         }
         
         /* Botones de rango de fechas */

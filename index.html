@@ -897,38 +897,213 @@
             </div>
             
             <!-- Botón Base Monetaria con estadísticas dentro -->
-            <div class="bcra-metric-card" onclick="showSection('bcra-chart')">
+            <div class="bcra-metric-card" onclick="showSection('bcra-bm')">
                 <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">Base Monetaria (% PBI)</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
                     <div class="metric-item">
                         <div class="metric-label">Primer Dato</div>
-                        <div class="metric-value" id="bcra-primero">-</div>
-                        <div class="metric-date" id="bcra-primero-fecha">-</div>
+                        <div class="metric-value" id="bm-primero">-</div>
+                        <div class="metric-date" id="bm-primero-fecha">-</div>
                     </div>
                     
                     <div class="metric-item">
                         <div class="metric-label">Último Dato</div>
-                        <div class="metric-value" id="bcra-ultimo">-</div>
-                        <div class="metric-date" id="bcra-ultimo-fecha">-</div>
+                        <div class="metric-value" id="bm-ultimo">-</div>
+                        <div class="metric-date" id="bm-ultimo-fecha">-</div>
                     </div>
                     
                     <div class="metric-item">
                         <div class="metric-label">Promedio</div>
-                        <div class="metric-value" id="bcra-promedio">-</div>
+                        <div class="metric-value" id="bm-promedio">-</div>
                         <div class="metric-date">Del período</div>
                     </div>
                     
                     <div class="metric-item">
                         <div class="metric-label">Máximo</div>
-                        <div class="metric-value" id="bcra-maximo">-</div>
-                        <div class="metric-date" id="bcra-maximo-fecha">-</div>
+                        <div class="metric-value" id="bm-maximo">-</div>
+                        <div class="metric-date" id="bm-maximo-fecha">-</div>
                     </div>
                     
                     <div class="metric-item">
                         <div class="metric-label">Mínimo</div>
-                        <div class="metric-value" id="bcra-minimo">-</div>
-                        <div class="metric-date" id="bcra-minimo-fecha">-</div>
+                        <div class="metric-value" id="bm-minimo">-</div>
+                        <div class="metric-date" id="bm-minimo-fecha">-</div>
+                    </div>
+                </div>
+                
+                <div class="view-more" style="margin-top: 16px;">Ver gráfico →</div>
+            </div>
+            
+            <!-- Botón Depósitos Totales -->
+            <div class="bcra-metric-card" onclick="showSection('bcra-depositos')">
+                <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">Depósitos Totales Sector Privado (% PBI)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="metric-item">
+                        <div class="metric-label">Primer Dato</div>
+                        <div class="metric-value" id="dep-primero">-</div>
+                        <div class="metric-date" id="dep-primero-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Último Dato</div>
+                        <div class="metric-value" id="dep-ultimo">-</div>
+                        <div class="metric-date" id="dep-ultimo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Promedio</div>
+                        <div class="metric-value" id="dep-promedio">-</div>
+                        <div class="metric-date">Del período</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Máximo</div>
+                        <div class="metric-value" id="dep-maximo">-</div>
+                        <div class="metric-date" id="dep-maximo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Mínimo</div>
+                        <div class="metric-value" id="dep-minimo">-</div>
+                        <div class="metric-date" id="dep-minimo-fecha">-</div>
+                    </div>
+                </div>
+                
+                <div class="view-more" style="margin-top: 16px;">Ver gráfico →</div>
+            </div>
+            
+            <!-- Botón M2 Transaccional -->
+            <div class="bcra-metric-card" onclick="showSection('bcra-m2')">
+                <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">M2 Transaccional Sector Privado (% PBI)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="metric-item">
+                        <div class="metric-label">Primer Dato</div>
+                        <div class="metric-value" id="m2-primero">-</div>
+                        <div class="metric-date" id="m2-primero-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Último Dato</div>
+                        <div class="metric-value" id="m2-ultimo">-</div>
+                        <div class="metric-date" id="m2-ultimo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Promedio</div>
+                        <div class="metric-value" id="m2-promedio">-</div>
+                        <div class="metric-date">Del período</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Máximo</div>
+                        <div class="metric-value" id="m2-maximo">-</div>
+                        <div class="metric-date" id="m2-maximo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Mínimo</div>
+                        <div class="metric-value" id="m2-minimo">-</div>
+                        <div class="metric-date" id="m2-minimo-fecha">-</div>
+                    </div>
+                </div>
+                
+                <div class="view-more" style="margin-top: 16px;">Ver gráfico →</div>
+            </div>
+            
+            <!-- Botón Préstamos en Pesos -->
+            <div class="bcra-metric-card" onclick="showSection('bcra-prestamos-pesos')">
+                <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">Préstamos en Pesos Sector Privado (% PBI)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="metric-item">
+                        <div class="metric-label">Primer Dato</div>
+                        <div class="metric-value" id="pp-primero">-</div>
+                        <div class="metric-date" id="pp-primero-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Último Dato</div>
+                        <div class="metric-value" id="pp-ultimo">-</div>
+                        <div class="metric-date" id="pp-ultimo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Promedio</div>
+                        <div class="metric-value" id="pp-promedio">-</div>
+                        <div class="metric-date">Del período</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Máximo</div>
+                        <div class="metric-value" id="pp-maximo">-</div>
+                        <div class="metric-date" id="pp-maximo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Mínimo</div>
+                        <div class="metric-value" id="pp-minimo">-</div>
+                        <div class="metric-date" id="pp-minimo-fecha">-</div>
+                    </div>
+                </div>
+                
+                <div class="view-more" style="margin-top: 16px;">Ver gráfico →</div>
+            </div>
+            
+            <!-- Botón Préstamos en Dólares -->
+            <div class="bcra-metric-card" onclick="showSection('bcra-prestamos-dolares')">
+                <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">Préstamos en Dólares Sector Privado (% PBI)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="metric-item">
+                        <div class="metric-label">Primer Dato</div>
+                        <div class="metric-value" id="pd-primero">-</div>
+                        <div class="metric-date" id="pd-primero-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Último Dato</div>
+                        <div class="metric-value" id="pd-ultimo">-</div>
+                        <div class="metric-date" id="pd-ultimo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Promedio</div>
+                        <div class="metric-value" id="pd-promedio">-</div>
+                        <div class="metric-date">Del período</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Máximo</div>
+                        <div class="metric-value" id="pd-maximo">-</div>
+                        <div class="metric-date" id="pd-maximo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Mínimo</div>
+                        <div class="metric-value" id="pd-minimo">-</div>
+                        <div class="metric-date" id="pd-minimo-fecha">-</div>
+                    </div>
+                </div>
+                
+                <div class="view-more" style="margin-top: 16px;">Ver gráfico →</div>
+            </div>
+            
+            <!-- Botón Préstamos Totales -->
+            <div class="bcra-metric-card" onclick="showSection('bcra-prestamos-totales')">
+                <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">Préstamos Totales Sector Privado (% PBI)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="metric-item">
+                        <div class="metric-label">Primer Dato</div>
+                        <div class="metric-value" id="pt-primero">-</div>
+                        <div class="metric-date" id="pt-primero-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Último Dato</div>
+                        <div class="metric-value" id="pt-ultimo">-</div>
+                        <div class="metric-date" id="pt-ultimo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Promedio</div>
+                        <div class="metric-value" id="pt-promedio">-</div>
+                        <div class="metric-date">Del período</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Máximo</div>
+                        <div class="metric-value" id="pt-maximo">-</div>
+                        <div class="metric-date" id="pt-maximo-fecha">-</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Mínimo</div>
+                        <div class="metric-value" id="pt-minimo">-</div>
+                        <div class="metric-date" id="pt-minimo-fecha">-</div>
                     </div>
                 </div>
                 
@@ -959,6 +1134,34 @@
                 </div>
                 
                 <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdateBCRA">
+                    Sin datos cargados
+                </p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN BCRA - GRÁFICO DEPÓSITOS TOTALES -->
+        <div id="bcra-depositosSection" class="section">
+            <button class="back-btn" onclick="showSection('bcra')">← Volver</button>
+            
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <input type="date" id="fechaDesdeDEP" class="date-input">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <input type="date" id="fechaHastaDEP" class="date-input">
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroDEP()">Aplicar</button>
+            </div>
+            
+            <div class="chart-detail">
+                <h2>Depósitos Totales Sector Privado (% PBI)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="chartDEP"></canvas>
+                </div>
+                
+                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdateDEP">
                     Sin datos cargados
                 </p>
             </div>
@@ -1179,9 +1382,8 @@
         
         async function procesarExcelBCRA(file) {
             try {
-                console.log('Procesando Excel BCRA...');
+                console.log('Procesando Excel BCRA (Base Monetaria + Depósitos)...');
                 
-                // Verificar que XLSX esté disponible
                 if (typeof XLSX === 'undefined') {
                     throw new Error('La librería XLSX no se cargó correctamente. Recarga la página.');
                 }
@@ -1191,114 +1393,179 @@
                 
                 console.log('Hojas disponibles:', workbook.SheetNames);
                 
-                // Buscar hoja BASE MONETARIA
-                const sheetName = workbook.SheetNames.find(name => 
+                // ============================================
+                // PROCESAR BASE MONETARIA
+                // ============================================
+                console.log('\n=== PROCESANDO BASE MONETARIA ===');
+                const sheetBM = workbook.SheetNames.find(name => 
                     name.toUpperCase().includes('BASE') && name.toUpperCase().includes('MONET')
                 );
                 
-                if (!sheetName) {
-                    throw new Error('No se encontró la hoja BASE MONETARIA. Hojas: ' + workbook.SheetNames.join(', '));
+                if (!sheetBM) {
+                    throw new Error('No se encontró la hoja BASE MONETARIA');
                 }
                 
-                console.log('Hoja encontrada:', sheetName);
+                console.log('Hoja BASE MONETARIA:', sheetBM);
+                const worksheetBM = workbook.Sheets[sheetBM];
+                const dataBM = XLSX.utils.sheet_to_json(worksheetBM, { header: 1, raw: false, defval: null });
                 
-                const worksheet = workbook.Sheets[sheetName];
-                const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: null });
-                
-                console.log('Total de filas:', data.length);
-                console.log('Primeras 5 filas:', data.slice(0, 5));
-                
-                // Encontrar la fila de inicio - buscar una fecha que empiece con "20"
-                let startRow = -1;
-                for (let i = 0; i < Math.min(data.length, 50); i++) {
-                    const primeraColumna = data[i][0];
+                let startRowBM = -1;
+                for (let i = 0; i < Math.min(dataBM.length, 50); i++) {
+                    const primeraColumna = dataBM[i][0];
                     if (primeraColumna && typeof primeraColumna === 'string' && 
-                        (primeraColumna.startsWith('20') || primeraColumna.includes('2003') || primeraColumna.includes('2017'))) {
-                        startRow = i;
-                        console.log('Primera fila de datos encontrada en:', i, 'Valor:', primeraColumna);
+                        (primeraColumna.startsWith('20') || primeraColumna.includes('2003'))) {
+                        startRowBM = i;
                         break;
                     }
-                    // También intentar parsear como fecha
                     if (primeraColumna) {
                         const fecha = new Date(primeraColumna);
                         if (!isNaN(fecha.getTime()) && fecha.getFullYear() >= 2000 && fecha.getFullYear() <= 2030) {
-                            startRow = i;
-                            console.log('Primera fila de datos (fecha parseada) encontrada en:', i, 'Fecha:', fecha);
+                            startRowBM = i;
                             break;
                         }
                     }
                 }
                 
-                if (startRow === -1) {
-                    console.error('No se encontró inicio de datos. Primeras 20 filas:', data.slice(0, 20));
-                    throw new Error('No se encontró el inicio de datos. Revisa el formato del archivo.');
+                if (startRowBM === -1) {
+                    throw new Error('No se encontró inicio de datos en BASE MONETARIA');
                 }
                 
-                console.log('Columna AF (índice 31) de fila', startRow, ':', data[startRow][31]);
-                
-                // Extraer datos desde 2017 (columna AF = índice 31)
-                const datosBase = [];
-                let errores = 0;
-                
-                for (let i = startRow; i < data.length; i++) {
-                    const fechaStr = data[i][0];
-                    const valorAF = data[i][31]; // Columna AF
+                const datosBaseMon = [];
+                for (let i = startRowBM; i < dataBM.length; i++) {
+                    const fechaStr = dataBM[i][0];
+                    const valorAF = dataBM[i][31]; // Columna AF
+                    const valorPBI = dataBM[i][24]; // Columna Y
                     
-                    if (!fechaStr || !valorAF) {
-                        if (i < startRow + 10) {
-                            console.log('Fila', i, 'sin datos:', fechaStr, valorAF);
-                        }
-                        continue;
-                    }
+                    if (!fechaStr || !valorAF || !valorPBI) continue;
                     
                     const fecha = new Date(fechaStr);
-                    if (isNaN(fecha.getTime())) {
-                        errores++;
-                        if (errores < 5) console.log('Fecha inválida en fila', i, ':', fechaStr);
-                        continue;
-                    }
-                    
-                    if (fecha.getFullYear() < 2017) continue;
-                    
-                    const pbi = obtenerPBI(fecha);
-                    if (!pbi) {
-                        if (datosBase.length < 5) console.log('Sin PBI para fecha:', fecha);
-                        continue;
-                    }
+                    if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
                     
                     const valor = parseFloat(String(valorAF).replace(/,/g, ''));
-                    if (isNaN(valor)) {
-                        errores++;
-                        if (errores < 5) console.log('Valor inválido en fila', i, ':', valorAF);
-                        continue;
-                    }
+                    const pbi = parseFloat(String(valorPBI).replace(/,/g, ''));
                     
-                    const porcentaje = (valor / pbi) * 100;
+                    if (isNaN(valor) || isNaN(pbi) || pbi === 0) continue;
                     
-                    datosBase.push({
+                    datosBaseMon.push({
                         fecha: fecha.toISOString().split('T')[0],
-                        valor: valor,
-                        porcentaje_pbi: porcentaje
+                        valor_millones: valor,
+                        porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
                     });
                 }
                 
-                console.log(`✅ Datos extraídos: ${datosBase.length} registros desde 2017`);
-                console.log('Primeros 3 registros:', datosBase.slice(0, 3));
-                console.log('Últimos 3 registros:', datosBase.slice(-3));
+                console.log(`✅ Base Monetaria: ${datosBaseMon.length} registros`);
                 
-                if (datosBase.length === 0) {
-                    throw new Error('No se extrajeron datos. Revisa el formato del archivo.');
+                // ============================================
+                // PROCESAR DEPÓSITOS TOTALES
+                // ============================================
+                console.log('\n=== PROCESANDO DEPÓSITOS TOTALES ===');
+                const sheetDEP = workbook.SheetNames.find(name => 
+                    name.toUpperCase().includes('DEP')
+                );
+                
+                if (!sheetDEP) {
+                    console.warn('No se encontró hoja DEPÓSITOS');
+                } else {
+                    console.log('Hoja DEPÓSITOS:', sheetDEP);
+                    const worksheetDEP = workbook.Sheets[sheetDEP];
+                    const dataDEP = XLSX.utils.sheet_to_json(worksheetDEP, { header: 1, raw: false, defval: null });
+                    
+                    let startRowDEP = -1;
+                    for (let i = 0; i < Math.min(dataDEP.length, 50); i++) {
+                        const primeraColumna = dataDEP[i][0];
+                        if (primeraColumna && typeof primeraColumna === 'string' && 
+                            (primeraColumna.startsWith('20') || primeraColumna.includes('2003'))) {
+                            startRowDEP = i;
+                            break;
+                        }
+                        if (primeraColumna) {
+                            const fecha = new Date(primeraColumna);
+                            if (!isNaN(fecha.getTime()) && fecha.getFullYear() >= 2000 && fecha.getFullYear() <= 2030) {
+                                startRowDEP = i;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (startRowDEP === -1) {
+                        console.warn('No se encontró inicio de datos en DEPÓSITOS');
+                    } else {
+                        const datosDepositos = [];
+                        for (let i = startRowDEP; i < dataDEP.length; i++) {
+                            const fechaStr = dataDEP[i][0];
+                            const valorX = dataDEP[i][23]; // Columna X (Depósitos Totales)
+                            const valorPBI = dataDEP[i][24]; // Columna Y
+                            
+                            if (!fechaStr || !valorX || !valorPBI) continue;
+                            
+                            const fecha = new Date(fechaStr);
+                            if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
+                            
+                            const valor = parseFloat(String(valorX).replace(/,/g, ''));
+                            const pbi = parseFloat(String(valorPBI).replace(/,/g, ''));
+                            
+                            if (isNaN(valor) || isNaN(pbi) || pbi === 0) continue;
+                            
+                            datosDepositos.push({
+                                fecha: fecha.toISOString().split('T')[0],
+                                valor_millones: valor,
+                                porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
+                            });
+                        }
+                        
+                        console.log(`✅ Depósitos Totales: ${datosDepositos.length} registros`);
+                        
+                        if (datosDepositos.length > 0) {
+                            await guardarDatosSupabase('depositos_totales', datosDepositos);
+                        }
+                    }
                 }
                 
-                // Guardar en Supabase
-                await guardarBaseMonerariaSupabase(datosBase);
+                // Guardar Base Monetaria
+                if (datosBaseMon.length > 0) {
+                    await guardarDatosSupabase('base_monetaria', datosBaseMon);
+                }
                 
-                return datosBase;
+                console.log('\n✅ EXCEL PROCESADO EXITOSAMENTE');
+                return { base_monetaria: datosBaseMon.length };
                 
             } catch (error) {
                 console.error('Error procesando Excel BCRA:', error);
                 throw error;
             }
+        }
+        
+        async function guardarDatosSupabase(tabla, datos) {
+            console.log(`\nGuardando ${datos.length} registros en ${tabla}...`);
+            
+            // Eliminar datos anteriores
+            const { error: deleteError } = await supabaseClient
+                .from(tabla)
+                .delete()
+                .gte('id', 0);
+            
+            if (deleteError) {
+                console.error(`Error eliminando ${tabla}:`, deleteError);
+                throw deleteError;
+            }
+            
+            // Insertar en lotes de 1000
+            const batchSize = 1000;
+            for (let i = 0; i < datos.length; i += batchSize) {
+                const batch = datos.slice(i, i + batchSize);
+                const { error } = await supabaseClient
+                    .from(tabla)
+                    .insert(batch);
+                
+                if (error) {
+                    console.error(`Error insertando batch en ${tabla}:`, error);
+                    throw error;
+                }
+                
+                console.log(`  Batch ${Math.floor(i/batchSize) + 1} guardado`);
+            }
+            
+            console.log(`✅ ${tabla} guardado exitosamente`);
         }
         
         async function guardarBaseMonerariaSupabase(datos) {
@@ -1345,6 +1612,12 @@
         let fechaDesdeBCRA = null;
         let fechaHastaBCRA = null;
         
+        // DEPÓSITOS TOTALES
+        let chartDEP = null;
+        let datosDEP = [];
+        let fechaDesdeDEP = null;
+        let fechaHastaDEP = null;
+        
         async function mostrarDashboardBCRA() {
             if (cargandoBCRA) {
                 console.log('Ya se está cargando el dashboard, esperando...');
@@ -1390,6 +1663,14 @@
                 
                 console.log(`✅ Total datos cargados: ${datosBM.length} registros`);
                 
+                // Cargar Depósitos Totales
+                try {
+                    await cargarDatosDEP();
+                    console.log(`✅ Depósitos Totales cargados: ${datosDEP.length} registros`);
+                } catch (error) {
+                    console.error('Error cargando Depósitos:', error);
+                }
+                
                 // Actualizar info de última actualización
                 const ultimoDato = datosBM[datosBM.length - 1];
                 document.getElementById('lastUpdateBCRA').textContent = 
@@ -1433,6 +1714,11 @@
                 
                 // Calcular estadísticas iniciales
                 aplicarFiltroResumenBCRA();
+                
+                // Aplicar filtro de Depósitos si hay datos
+                if (datosDEP.length > 0) {
+                    aplicarFiltroResumenDEP();
+                }
                 
             } catch (error) {
                 console.error('Error cargando dashboard:', error);
@@ -1650,31 +1936,60 @@
             if (isMobile) {
                 const canvas = ctx;
                 let touchTimeout;
+                let isTouch = false;
                 
                 canvas.addEventListener('touchstart', function(e) {
                     clearTimeout(touchTimeout);
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    isTouch = true;
                 });
                 
                 canvas.addEventListener('touchend', function(e) {
-                    // Ocultar tooltip y punto inmediatamente al dejar de tocar
+                    if (!isTouch) return;
+                    
+                    // Ocultar TODO inmediatamente al dejar de tocar
                     touchTimeout = setTimeout(() => {
-                        if (chartBM) {
-                            // Limpiar tooltip y elementos activos
+                        if (chartBM && chartBM.data && chartBM.data.datasets[0]) {
+                            // Forzar ocultación de puntos
+                            chartBM.data.datasets[0].pointRadius = 0;
+                            chartBM.data.datasets[0].pointHoverRadius = 0;
+                            
+                            // Limpiar elementos activos
                             chartBM.tooltip.setActiveElements([]);
                             chartBM.setActiveElements([]);
-                            chartBM.update('none'); // Sin animación
+                            chartBM.update('none');
+                            
+                            // Restaurar configuración después de 100ms
+                            setTimeout(() => {
+                                if (chartBM && chartBM.data && chartBM.data.datasets[0]) {
+                                    chartBM.data.datasets[0].pointRadius = 0;
+                                    chartBM.data.datasets[0].pointHoverRadius = 8;
+                                }
+                            }, 100);
                         }
-                    }, 300);
+                        isTouch = false;
+                    }, 200);
                 });
                 
                 canvas.addEventListener('touchcancel', function(e) {
-                    // También manejar touchcancel
                     clearTimeout(touchTimeout);
-                    if (chartBM) {
+                    if (chartBM && chartBM.data && chartBM.data.datasets[0]) {
+                        chartBM.data.datasets[0].pointRadius = 0;
+                        chartBM.data.datasets[0].pointHoverRadius = 0;
                         chartBM.tooltip.setActiveElements([]);
                         chartBM.setActiveElements([]);
                         chartBM.update('none');
+                        setTimeout(() => {
+                            if (chartBM && chartBM.data && chartBM.data.datasets[0]) {
+                                chartBM.data.datasets[0].pointRadius = 0;
+                                chartBM.data.datasets[0].pointHoverRadius = 8;
+                            }
+                        }, 100);
                     }
+                    isTouch = false;
                 });
             }
         }
@@ -1759,6 +2074,344 @@
                 // En caso de error, mostrar modal
                 mostrarModalUpload();
             }
+        }
+
+        // ==========================================
+        // DEPÓSITOS TOTALES - FUNCIONES
+        // ==========================================
+        
+        async function cargarDatosDEP() {
+            try {
+                console.log('Cargando Depósitos Totales desde Supabase...');
+                
+                datosDEP = [];
+                let offset = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+                
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('depositos_totales')
+                        .select('*')
+                        .order('fecha', { ascending: true })
+                        .range(offset, offset + pageSize - 1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        datosDEP = datosDEP.concat(data);
+                        console.log(`DEP - Página cargada: ${data.length} registros (total: ${datosDEP.length})`);
+                        offset += pageSize;
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                console.log(`✅ Depósitos Totales cargados: ${datosDEP.length} registros`);
+                return datosDEP;
+                
+            } catch (error) {
+                console.error('Error cargando Depósitos Totales:', error);
+                throw error;
+            }
+        }
+        
+        function aplicarFiltroResumenDEP() {
+            const inputDesde = document.getElementById('fechaDesdeBCRAResumen');
+            const inputHasta = document.getElementById('fechaHastaBCRAResumen');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            const fechaDesde = new Date(inputDesde.value + 'T00:00:00');
+            const fechaHasta = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesde > fechaHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            const datosFiltrados = datosDEP.filter(d => {
+                const fecha = new Date(d.fecha);
+                return fecha >= fechaDesde && fecha <= fechaHasta;
+            });
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            const valores = datosFiltrados.map(d => d.porcentaje_pbi);
+            const primero = datosFiltrados[0];
+            const ultimo = datosFiltrados[datosFiltrados.length - 1];
+            const promedio = (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(2);
+            
+            let maximo = datosFiltrados[0];
+            let minimo = datosFiltrados[0];
+            datosFiltrados.forEach(d => {
+                if (d.porcentaje_pbi > maximo.porcentaje_pbi) maximo = d;
+                if (d.porcentaje_pbi < minimo.porcentaje_pbi) minimo = d;
+            });
+            
+            const formatearFecha = (fecha) => {
+                const f = new Date(fecha);
+                return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
+            };
+            
+            document.getElementById('dep-primero').textContent = primero.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('dep-primero-fecha').textContent = formatearFecha(primero.fecha);
+            
+            document.getElementById('dep-ultimo').textContent = ultimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('dep-ultimo-fecha').textContent = formatearFecha(ultimo.fecha);
+            
+            document.getElementById('dep-promedio').textContent = promedio + '%';
+            
+            document.getElementById('dep-maximo').textContent = maximo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('dep-maximo-fecha').textContent = formatearFecha(maximo.fecha);
+            
+            document.getElementById('dep-minimo').textContent = minimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('dep-minimo-fecha').textContent = formatearFecha(minimo.fecha);
+        }
+        
+        function inicializarSelectoresFechasDEP() {
+            const primeraFecha = new Date(datosDEP[0].fecha);
+            const ultimaFecha = new Date(datosDEP[datosDEP.length - 1].fecha);
+            const fechaDesdeDefault = new Date('2023-12-01');
+            
+            const inputDesde = document.getElementById('fechaDesdeDEP');
+            const inputHasta = document.getElementById('fechaHastaDEP');
+            
+            inputDesde.value = fechaDesdeDefault.toISOString().split('T')[0];
+            inputHasta.value = ultimaFecha.toISOString().split('T')[0];
+            
+            inputDesde.min = primeraFecha.toISOString().split('T')[0];
+            inputDesde.max = ultimaFecha.toISOString().split('T')[0];
+            inputHasta.min = primeraFecha.toISOString().split('T')[0];
+            inputHasta.max = ultimaFecha.toISOString().split('T')[0];
+            
+            fechaDesdeDEP = fechaDesdeDefault;
+            fechaHastaDEP = ultimaFecha;
+        }
+        
+        function filtrarDatosDEPPorFechas() {
+            if (!fechaDesdeDEP || !fechaHastaDEP) {
+                return datosDEP;
+            }
+            
+            let indiceDesde = datosDEP.findIndex(d => new Date(d.fecha) >= fechaDesdeDEP);
+            
+            if (indiceDesde === -1) {
+                indiceDesde = datosDEP.length - 1;
+            } else if (indiceDesde > 0 && new Date(datosDEP[indiceDesde].fecha) > fechaDesdeDEP) {
+                indiceDesde = indiceDesde - 1;
+            }
+            
+            let indiceHasta = -1;
+            for (let i = datosDEP.length - 1; i >= 0; i--) {
+                if (new Date(datosDEP[i].fecha) <= fechaHastaDEP) {
+                    indiceHasta = i;
+                    break;
+                }
+            }
+            
+            if (indiceHasta === -1) {
+                return [];
+            }
+            
+            return datosDEP.slice(indiceDesde, indiceHasta + 1);
+        }
+        
+        function inicializarChartDEP() {
+            const ctx = document.getElementById('chartDEP');
+            if (!ctx) return;
+            
+            const datosFiltrados = filtrarDatosDEPPorFechas();
+            
+            if (chartDEP) {
+                chartDEP.destroy();
+            }
+            
+            const isMobile = window.innerWidth <= 768;
+            
+            chartDEP = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datosFiltrados.map(d => {
+                        const fecha = new Date(d.fecha);
+                        return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+                    }),
+                    datasets: [{
+                        label: 'Depósitos Totales (% PBI)',
+                        data: datosFiltrados.map(d => d.porcentaje_pbi),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: isMobile ? 2 : 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 16,
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 16, weight: '700' },
+                            titleColor: '#94a3b8',
+                            bodyColor: '#fff',
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const fecha = new Date(datosFiltrados[context[0].dataIndex].fecha);
+                                    return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                                },
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '% del PBI';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 10 : 13 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 9 : 12 },
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: isMobile ? 6 : 20
+                            }
+                        }
+                    }
+                }
+            });
+            
+            if (isMobile) {
+                const canvas = ctx;
+                let touchTimeout;
+                let isTouch = false;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    clearTimeout(touchTimeout);
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    if (!isTouch) return;
+                    
+                    touchTimeout = setTimeout(() => {
+                        if (chartDEP && chartDEP.data && chartDEP.data.datasets[0]) {
+                            chartDEP.data.datasets[0].pointRadius = 0;
+                            chartDEP.data.datasets[0].pointHoverRadius = 0;
+                            chartDEP.tooltip.setActiveElements([]);
+                            chartDEP.setActiveElements([]);
+                            chartDEP.update('none');
+                            
+                            setTimeout(() => {
+                                if (chartDEP && chartDEP.data && chartDEP.data.datasets[0]) {
+                                    chartDEP.data.datasets[0].pointRadius = 0;
+                                    chartDEP.data.datasets[0].pointHoverRadius = 8;
+                                }
+                            }, 100);
+                        }
+                        isTouch = false;
+                    }, 200);
+                });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    clearTimeout(touchTimeout);
+                    if (chartDEP && chartDEP.data && chartDEP.data.datasets[0]) {
+                        chartDEP.data.datasets[0].pointRadius = 0;
+                        chartDEP.data.datasets[0].pointHoverRadius = 0;
+                        chartDEP.tooltip.setActiveElements([]);
+                        chartDEP.setActiveElements([]);
+                        chartDEP.update('none');
+                        setTimeout(() => {
+                            if (chartDEP && chartDEP.data && chartDEP.data.datasets[0]) {
+                                chartDEP.data.datasets[0].pointRadius = 0;
+                                chartDEP.data.datasets[0].pointHoverRadius = 8;
+                            }
+                        }, 100);
+                    }
+                    isTouch = false;
+                });
+            }
+        }
+        
+        function aplicarFiltroDEP() {
+            const inputDesde = document.getElementById('fechaDesdeDEP');
+            const inputHasta = document.getElementById('fechaHastaDEP');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            fechaDesdeDEP = new Date(inputDesde.value + 'T00:00:00');
+            fechaHastaDEP = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesdeDEP > fechaHastaDEP) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            actualizarChartDEP();
+        }
+        
+        function actualizarChartDEP() {
+            if (!chartDEP) return;
+            
+            const datosFiltrados = filtrarDatosDEPPorFechas();
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            chartDEP.data.labels = datosFiltrados.map(d => {
+                const fecha = new Date(d.fecha);
+                return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+            });
+            
+            chartDEP.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
+            
+            chartDEP.update();
         }
 
         // ==========================================
@@ -1964,6 +2617,16 @@
                 }
             }
             
+            // Si va a bcra-depositos, inicializar
+            if (section === 'bcra-depositos') {
+                if (datosDEP.length === 0) {
+                    alert('Primero debes cargar los datos de BCRA');
+                    return;
+                }
+                inicializarSelectoresFechasDEP();
+                inicializarChartDEP();
+            }
+            
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(section + 'Section').classList.add('active');
             
@@ -1975,13 +2638,14 @@
                 'interanual': 0,
                 'emae': 0,
                 'bcra': 1,
-                'bcra-chart': 1  // BCRA gráfico activa tab BCRA
+                'bcra-chart': 1,  // BCRA gráfico activa tab BCRA
+                'bcra-depositos': 1  // Depósitos activa tab BCRA
             };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
             
-            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-chart')) {
+            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-chart' || section === 'bcra-depositos')) {
                 initCharts();
                 chartsInitialized = true;
             }

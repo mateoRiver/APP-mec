@@ -727,13 +727,17 @@
             padding: 10px 12px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
             width: 100%;
             box-sizing: border-box;
             cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            -webkit-border-radius: 12px;
         }
         
         .date-input::-webkit-calendar-picker-indicator {
@@ -1581,7 +1585,7 @@
                         fill: true,
                         tension: 0.4,
                         pointRadius: 0,
-                        pointHoverRadius: isMobile ? 0 : 8,
+                        pointHoverRadius: 8,
                         pointBackgroundColor: '#3b82f6',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 3
@@ -1592,14 +1596,14 @@
                     maintainAspectRatio: false,
                     interaction: {
                         intersect: false,
-                        mode: isMobile ? 'nearest' : 'index'
+                        mode: 'index'
                     },
                     plugins: {
                         legend: {
                             display: false
                         },
                         tooltip: {
-                            enabled: !isMobile,
+                            enabled: true,
                             backgroundColor: 'rgba(15, 23, 42, 0.95)',
                             padding: 16,
                             titleFont: { size: 14, weight: '600' },
@@ -1646,6 +1650,24 @@
                     }
                 }
             });
+            
+            // Agregar eventos touch para móvil (ocultar tooltip al dejar de tocar)
+            if (isMobile) {
+                const canvas = ctx;
+                let touchTimeout;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    clearTimeout(touchTimeout);
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    // Ocultar tooltip después de 500ms de dejar de tocar
+                    touchTimeout = setTimeout(() => {
+                        chartBM.tooltip.setActiveElements([]);
+                        chartBM.update();
+                    }, 500);
+                });
+            }
         }
         
         function filtrarDatosBCRAPorFechas() {

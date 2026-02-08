@@ -510,20 +510,29 @@
             .stats-grid { grid-template-columns: 1fr; }
             .chart-detail { padding: 16px 12px; }
             .chart-detail h2 { font-size: 16px; margin-bottom: 8px; }
-            .date-filter { padding: 6px 10px; margin-bottom: 6px; gap: 8px; }
+            .date-filter { 
+                padding: 6px 10px; 
+                margin-bottom: 6px; 
+                gap: 8px;
+                flex-wrap: wrap;
+                align-items: flex-end;
+            }
             .nav-item { padding: 8px 10px; }
             .nav-item .label { font-size: 10px; }
-            .filter-group { min-width: 110px; flex: 1; }
+            .filter-group { 
+                min-width: 110px; 
+                flex: 1;
+            }
             .filter-group label { font-size: 10px; margin-bottom: 3px; }
-            .date-input { font-size: 11px; padding: 6px 6px; }
+            .date-input { 
+                font-size: 11px; 
+                padding: 6px 6px;
+                width: 100%;
+                box-sizing: border-box;
+            }
             .btn-filter { font-size: 12px; padding: 6px 12px; }
             .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
             .btn-primary span { font-size: 10px; }
-            
-            /* GRÁFICO BCRA: Más alto en tablet */
-            #bcraSection .chart-wrapper {
-                height: 800px !important;
-            }
         }
 
         @media (max-width: 480px) {
@@ -531,24 +540,30 @@
             .stat-card { padding: 20px; }
             .chart-wrapper { height: 520px; padding: 12px 6px 6px 6px; }
             .chart-detail { padding: 12px 8px; }
-            .date-filter { gap: 6px; }
-            .filter-group { min-width: 100px; }
+            .date-filter { 
+                gap: 8px; 
+                padding: 8px;
+                flex-wrap: wrap;
+                align-items: flex-end;
+            }
+            .filter-group { 
+                min-width: 100px;
+                flex: 1 1 calc(50% - 4px);
+            }
             .filter-group label { font-size: 9px; }
-            .date-input { font-size: 10px; padding: 5px 5px; }
-            .btn-filter { font-size: 11px; padding: 5px 10px; }
+            .date-input { 
+                font-size: 10px; 
+                padding: 5px 5px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .btn-filter { 
+                font-size: 11px; 
+                padding: 5px 10px;
+                flex: 1 1 100%;
+                width: 100%;
+            }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
-            
-            /* BCRA: Reducir padding para maximizar espacio */
-            #bcraSection .chart-detail {
-                padding: 8px 6px !important;
-            }
-            
-            /* GRÁFICO BCRA: Ocupa casi toda la pantalla */
-            #bcraSection .chart-wrapper {
-                height: 900px !important;
-                max-height: none !important;
-                padding: 8px 4px 4px 4px !important;
-            }
         }
         
         /* Botones de rango de fechas */
@@ -660,13 +675,6 @@
                     <div class="value">152.4</div>
                     <div class="description">Desestacionalizado</div>
                     <div class="change neutral">Base 2004=100</div>
-                    <div class="view-more">Ver serie →</div>
-                </div>
-                <div class="stat-card" onclick="showSection('bcra')">
-                    <h3>Base Monetaria</h3>
-                    <div class="value">41.9B</div>
-                    <div class="description">27 Enero 2026</div>
-                    <div class="change neutral">Millones de pesos</div>
                     <div class="view-more">Ver serie →</div>
                 </div>
             </div>

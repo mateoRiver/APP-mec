@@ -1459,6 +1459,8 @@
                 // PROCESAR DEPÓSITOS TOTALES
                 // ============================================
                 console.log('\n=== PROCESANDO DEPÓSITOS TOTALES ===');
+                let datosDepositos = []; // Declarar aquí para que esté disponible en todo el scope
+                
                 const sheetDEP = workbook.SheetNames.find(name => 
                     name.toUpperCase().includes('DEP')
                 );
@@ -1492,7 +1494,7 @@
                     } else {
                         console.log('Primera fila de datos en DEPÓSITOS:', startRowDEP);
                         
-                        const datosDepositos = [];
+                        datosDepositos = []; // Ya declarado arriba, solo reiniciar
                         for (let i = startRowDEP; i < dataDEP.length; i++) {
                             const fechaStr = dataDEP[i][0];
                             const valorX = dataDEP[i][23]; // Columna X (idx 23) - Depósitos Totales Sector Privado

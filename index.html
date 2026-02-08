@@ -608,26 +608,25 @@
             .chart-wrapper { height: 520px; padding: 12px 6px 6px 6px; }
             .chart-detail { padding: 12px 8px; }
             .date-filter { 
-                gap: 8px; 
-                padding: 8px;
-                flex-wrap: wrap;
-                align-items: flex-end;
+                gap: 10px; 
+                padding: 10px;
+                flex-direction: column;
+                align-items: stretch;
             }
             .filter-group { 
-                min-width: 100px;
-                flex: 1 1 calc(50% - 4px);
+                width: 100%;
+                flex: none;
             }
-            .filter-group label { font-size: 9px; }
+            .filter-group label { font-size: 10px; margin-bottom: 4px; }
             .date-input { 
-                font-size: 10px; 
-                padding: 5px 5px;
+                font-size: 12px; 
+                padding: 8px 10px;
                 width: 100%;
                 box-sizing: border-box;
             }
             .btn-filter { 
-                font-size: 11px; 
-                padding: 5px 10px;
-                flex: 1 1 100%;
+                font-size: 13px; 
+                padding: 10px 16px;
                 width: 100%;
             }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
@@ -1961,8 +1960,8 @@
         function cerrarModalSinCargar() {
             document.getElementById('modalUploadBCRA').style.display = 'none';
             document.body.style.overflow = 'auto';
-            // Volver a la sección anterior (resumen)
-            showSection('resumen');
+            // Volver a la sección IPC & EMAE
+            showSection('ipc-emae');
         }
         
         function cerrarModalUpload() {

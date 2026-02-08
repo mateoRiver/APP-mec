@@ -503,279 +503,35 @@
             text-align: center;
         }
 
-        /* ============================================
-           RESPONSIVE MOBILE-FIRST: BASE (móvil)
-           ============================================ */
-        
-        /* Mobile-first: Diseño base para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 22px; }
+            .stat-card .value { font-size: 40px; }
+            .chart-wrapper { height: 550px; padding: 16px 8px 8px 8px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .chart-detail { padding: 16px 12px; }
+            .chart-detail h2 { font-size: 16px; margin-bottom: 8px; }
+            .date-filter { padding: 6px 10px; margin-bottom: 6px; gap: 8px; }
+            .nav-item { padding: 8px 10px; }
+            .nav-item .label { font-size: 10px; }
+            .filter-group { min-width: 110px; flex: 1; }
+            .filter-group label { font-size: 10px; margin-bottom: 3px; }
+            .date-input { font-size: 11px; padding: 6px 6px; }
+            .btn-filter { font-size: 12px; padding: 6px 12px; }
+            .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
+            .btn-primary span { font-size: 10px; }
+        }
+
         @media (max-width: 480px) {
-            /* Contenedor principal */
-            .dashboard { 
-                padding: 8px; 
-            }
-            
-            /* Sección BCRA específica */
-            #bcraSection {
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
-                padding-bottom: 70px; /* Espacio para nav inferior */
-            }
-            
-            /* Botón volver compacto */
-            #bcraSection .back-btn {
-                margin-bottom: 8px;
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-            
-            /* FILTROS: Grid vertical sin superposición */
-            #bcraSection .date-filter {
-                padding: 8px;
-                gap: 8px;
-                margin-bottom: 8px;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 12px;
-            }
-            
-            #bcraSection .filter-group {
-                min-width: 0; /* Permite shrink */
-                flex: none;
-            }
-            
-            #bcraSection .filter-group label {
-                font-size: 10px;
-                margin-bottom: 4px;
-            }
-            
-            #bcraSection .date-input {
-                font-size: 11px;
-                padding: 6px 4px;
-                width: 100%;
-                box-sizing: border-box;
-            }
-            
-            #bcraSection .btn-filter {
-                grid-column: 1 / -1; /* Ocupa ambas columnas */
-                font-size: 12px;
-                padding: 8px;
-                width: 100%;
-            }
-            
-            /* CONTENEDOR DEL GRÁFICO: Flex-grow para ocupar espacio */
-            #bcraSection .chart-detail {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                padding: 8px;
-                margin: 0;
-                min-height: 0; /* Permite shrink */
-            }
-            
-            /* Título compacto */
-            #bcraSection .chart-detail h2 {
-                font-size: 14px;
-                margin: 0 0 6px 0;
-                padding: 0;
-            }
-            
-            /* Botón descargar compacto */
-            #bcraSection .chart-detail .btn-primary {
-                font-size: 9px !important;
-                padding: 4px 8px !important;
-            }
-            
-            /* WRAPPER DEL CHART: Altura dinámica 50vh */
-            #bcraSection .chart-wrapper {
-                flex: 1;
-                height: 50vh !important;
-                min-height: 320px !important;
-                max-height: 60vh !important;
-                padding: 8px 4px 4px 4px !important;
-                margin: 0;
-            }
-            
-            /* Texto última actualización */
-            #bcraSection #lastUpdateBCRA {
-                font-size: 9px;
-                margin-top: 4px;
-            }
-            
-            /* Otros gráficos también ajustados */
-            .chart-wrapper { 
-                height: 420px; 
-                padding: 12px 6px 6px 6px; 
-            }
-            .chart-detail { 
-                padding: 10px 8px; 
-            }
-            .stat-card { 
-                padding: 18px; 
-            }
-            .date-filter { 
-                gap: 6px; 
-            }
-            .filter-group { 
-                min-width: 100px; 
-            }
-            .filter-group label { 
-                font-size: 9px; 
-            }
-            .date-input { 
-                font-size: 10px; 
-                padding: 5px 5px; 
-            }
-            .btn-filter { 
-                font-size: 11px; 
-                padding: 5px 10px; 
-            }
-            .btn-primary { 
-                font-size: 9px !important; 
-                padding: 4px 8px !important; 
-            }
-        }
-        
-        /* ============================================
-           TABLET: 481px - 767px
-           ============================================ */
-        
-        @media (min-width: 481px) and (max-width: 767px) {
-            .dashboard { 
-                padding: 12px; 
-            }
-            
-            #bcraSection {
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
-                padding-bottom: 70px;
-            }
-            
-            #bcraSection .date-filter {
-                padding: 10px;
-                gap: 10px;
-                display: flex;
-                flex-wrap: wrap;
-                align-items: flex-end;
-            }
-            
-            #bcraSection .filter-group {
-                flex: 1;
-                min-width: 140px;
-            }
-            
-            #bcraSection .filter-group label {
-                font-size: 11px;
-            }
-            
-            #bcraSection .date-input {
-                font-size: 12px;
-                padding: 7px 8px;
-            }
-            
-            #bcraSection .btn-filter {
-                font-size: 13px;
-                padding: 8px 16px;
-                flex: none;
-            }
-            
-            #bcraSection .chart-detail {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                padding: 12px;
-            }
-            
-            #bcraSection .chart-detail h2 {
-                font-size: 16px;
-                margin-bottom: 8px;
-            }
-            
-            #bcraSection .chart-wrapper {
-                flex: 1;
-                height: 55vh !important;
-                min-height: 400px !important;
-                max-height: 65vh !important;
-                padding: 12px 8px 8px 8px !important;
-            }
-            
-            .chart-wrapper { 
-                height: 480px; 
-            }
-            .btn-primary { 
-                font-size: 10px !important; 
-                padding: 5px 10px !important; 
-            }
-        }
-        
-        /* ============================================
-           DESKTOP: >= 768px
-           ============================================ */
-        
-        @media (min-width: 768px) {
-            .header h1 { 
-                font-size: 22px; 
-            }
-            .stat-card .value { 
-                font-size: 40px; 
-            }
-            .chart-wrapper { 
-                height: 550px; 
-                padding: 16px 8px 8px 8px; 
-            }
-            .stats-grid { 
-                grid-template-columns: 1fr; 
-            }
-            .chart-detail { 
-                padding: 16px 12px; 
-            }
-            .chart-detail h2 { 
-                font-size: 16px; 
-                margin-bottom: 8px; 
-            }
-            .date-filter { 
-                padding: 6px 10px; 
-                margin-bottom: 6px; 
-                gap: 8px; 
-            }
-            .nav-item { 
-                padding: 8px 10px; 
-            }
-            .nav-item .label { 
-                font-size: 10px; 
-            }
-            .filter-group { 
-                min-width: 110px; 
-                flex: 1; 
-            }
-            .filter-group label { 
-                font-size: 10px; 
-                margin-bottom: 3px; 
-            }
-            .date-input { 
-                font-size: 11px; 
-                padding: 6px 6px; 
-            }
-            .btn-filter { 
-                font-size: 12px; 
-                padding: 6px 12px; 
-            }
-            .btn-primary { 
-                font-size: 10px !important; 
-                padding: 5px 10px !important; 
-            }
-            .btn-primary span { 
-                font-size: 10px; 
-            }
-            
-            /* BCRA en desktop: también optimizado */
-            #bcraSection .chart-wrapper {
-                height: 600px !important;
-                min-height: 500px !important;
-            }
+            .dashboard { padding: 10px; }
+            .stat-card { padding: 20px; }
+            .chart-wrapper { height: 520px; padding: 12px 6px 6px 6px; }
+            .chart-detail { padding: 12px 8px; }
+            .date-filter { gap: 6px; }
+            .filter-group { min-width: 100px; }
+            .filter-group label { font-size: 9px; }
+            .date-input { font-size: 10px; padding: 5px 5px; }
+            .btn-filter { font-size: 11px; padding: 5px 10px; }
+            .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
         }
         
         /* Botones de rango de fechas */
@@ -803,9 +559,9 @@
         
         /* Inputs de fecha */
         .date-input {
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             color: white;
             font-size: 14px;
@@ -823,7 +579,7 @@
         .date-input:focus {
             outline: none;
             border-color: #3b82f6;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.15);
         }
     </style>
     <!-- Supabase JS -->
@@ -979,12 +735,7 @@
             </div>
             
             <div class="chart-detail">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 style="margin: 0;">Base Monetaria (% PBI)</h2>
-                    <button class="btn btn-primary" onclick="descargarExcelBCRA()" style="padding: 8px 16px; font-size: 13px;">
-                        <span>📥</span><span>Descargar Excel</span>
-                    </button>
-                </div>
+                <h2>Base Monetaria (% PBI)</h2>
                 <div class="chart-wrapper">
                     <canvas id="chartBM"></canvas>
                 </div>

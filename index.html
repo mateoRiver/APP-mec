@@ -654,34 +654,34 @@
             </div>
         </div>
 
-        <div id="resumenSection" class="section active">
+        <div id="ipc-emaeSection" class="section active">
             <div class="stats-grid">
                 <div class="stat-card" onclick="showSection('mensual')">
                     <h3>Inflación Diciembre 2025</h3>
                     <div class="value">2.8%</div>
                     <div class="description">Último dato mensual</div>
                     <div class="change neutral">Año 2025: 31.5%</div>
-                    <div class="view-more">Ver evolución →</div>
+                    <div class="view-more">Ver gráfico →</div>
                 </div>
                 <div class="stat-card" onclick="showSection('interanual')">
                     <h3>Inflación Interanual</h3>
                     <div class="value">31.5%</div>
                     <div class="description">Dic 2025 vs Dic 2024</div>
                     <div class="change negative">↓ Menor desde 2017</div>
-                    <div class="view-more">Ver evolución →</div>
+                    <div class="view-more">Ver gráfico →</div>
                 </div>
                 <div class="stat-card" onclick="showSection('emae')">
                     <h3>EMAE Noviembre 2025</h3>
                     <div class="value">152.4</div>
                     <div class="description">Desestacionalizado</div>
                     <div class="change neutral">Base 2004=100</div>
-                    <div class="view-more">Ver serie →</div>
+                    <div class="view-more">Ver gráfico →</div>
                 </div>
             </div>
         </div>
 
         <div id="mensualSection" class="section">
-            <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <button class="back-btn" onclick="showSection('ipc-emae')">← Volver</button>
             <div class="date-filter">
                 <div class="filter-group">
                     <label>Desde</label>
@@ -702,7 +702,7 @@
         </div>
 
         <div id="interanualSection" class="section">
-            <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <button class="back-btn" onclick="showSection('ipc-emae')">← Volver</button>
             <div class="date-filter">
                 <div class="filter-group">
                     <label>Desde</label>
@@ -723,7 +723,7 @@
         </div>
 
         <div id="emaeSection" class="section">
-            <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <button class="back-btn" onclick="showSection('ipc-emae')">← Volver</button>
             <div class="date-filter">
                 <div class="filter-group">
                     <label>Desde</label>
@@ -743,9 +743,62 @@
             </div>
         </div>
 
-        <!-- SECCIÓN BCRA -->
+        <!-- SECCIÓN BCRA - RESUMEN -->
         <div id="bcraSection" class="section">
-            <button class="back-btn" onclick="showSection('resumen')">← Volver</button>
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <input type="date" id="fechaDesdeBCRAResumen" class="date-input">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <input type="date" id="fechaHastaBCRAResumen" class="date-input">
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroResumenBCRA()">Aplicar</button>
+            </div>
+            
+            <div class="stats-grid" id="bcraStatsGrid">
+                <div class="stat-card" onclick="showSection('bcra-chart')">
+                    <h3>Primer Dato</h3>
+                    <div class="value" id="bcra-primero">-</div>
+                    <div class="description" id="bcra-primero-fecha">-</div>
+                    <div class="change neutral">Base Monetaria % PBI</div>
+                    <div class="view-more">Ver gráfico →</div>
+                </div>
+                <div class="stat-card" onclick="showSection('bcra-chart')">
+                    <h3>Último Dato</h3>
+                    <div class="value" id="bcra-ultimo">-</div>
+                    <div class="description" id="bcra-ultimo-fecha">-</div>
+                    <div class="change neutral">Base Monetaria % PBI</div>
+                    <div class="view-more">Ver gráfico →</div>
+                </div>
+                <div class="stat-card" onclick="showSection('bcra-chart')">
+                    <h3>Promedio</h3>
+                    <div class="value" id="bcra-promedio">-</div>
+                    <div class="description">Del período seleccionado</div>
+                    <div class="change neutral">Base Monetaria % PBI</div>
+                    <div class="view-more">Ver gráfico →</div>
+                </div>
+                <div class="stat-card" onclick="showSection('bcra-chart')">
+                    <h3>Máximo</h3>
+                    <div class="value" id="bcra-maximo">-</div>
+                    <div class="description" id="bcra-maximo-fecha">-</div>
+                    <div class="change positive">↑ Mayor valor</div>
+                    <div class="view-more">Ver gráfico →</div>
+                </div>
+                <div class="stat-card" onclick="showSection('bcra-chart')">
+                    <h3>Mínimo</h3>
+                    <div class="value" id="bcra-minimo">-</div>
+                    <div class="description" id="bcra-minimo-fecha">-</div>
+                    <div class="change negative">↓ Menor valor</div>
+                    <div class="view-more">Ver gráfico →</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN BCRA - GRÁFICO -->
+        <div id="bcra-chartSection" class="section">
+            <button class="back-btn" onclick="showSection('bcra')">← Volver</button>
             
             <div class="date-filter">
                 <div class="filter-group">
@@ -809,24 +862,12 @@
     </div>
 
     <div id="bottomNav" class="bottom-nav">
-        <button class="nav-item active" onclick="showSection('resumen')">
+        <button class="nav-item active" onclick="showSection('ipc-emae')">
             <div class="icon">📊</div>
-            <div class="label">Resumen</div>
-        </button>
-        <button class="nav-item" onclick="showSection('mensual')">
-            <div class="icon">📈</div>
-            <div class="label">Mensual</div>
-        </button>
-        <button class="nav-item" onclick="showSection('interanual')">
-            <div class="icon">📉</div>
-            <div class="label">Interanual</div>
-        </button>
-        <button class="nav-item" onclick="showSection('emae')">
-            <div class="icon">📊</div>
-            <div class="label">EMAE</div>
+            <div class="label">IPC & EMAE</div>
         </button>
         <button class="nav-item" onclick="showSection('bcra')">
-            <div class="icon">🏦</div>
+            <div class="icon">💰</div>
             <div class="label">BCRA</div>
         </button>
     </div>
@@ -1217,15 +1258,29 @@
                 document.getElementById('lastUpdateBCRA').textContent = 
                     `Última actualización: ${new Date(ultimoDato.updated_at).toLocaleString('es-AR')}`;
                 
-                // Mostrar sección BCRA directamente (sin loop)
+                // Mostrar sección BCRA resumen
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById('bcraSection').classList.add('active');
                 
                 document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
                 const navItems = document.querySelectorAll('.nav-item');
-                navItems[4].classList.add('active'); // BCRA es el índice 4
+                navItems[1].classList.add('active'); // BCRA es ahora el índice 1
                 
-                // Inicializar gráfico
+                // Inicializar selectores de fechas del resumen
+                const inputDesdeResumen = document.getElementById('fechaDesdeBCRAResumen');
+                const inputHastaResumen = document.getElementById('fechaHastaBCRAResumen');
+                
+                inputDesdeResumen.value = fechaDesdeDefault.toISOString().split('T')[0];
+                inputHastaResumen.value = ultimaFecha.toISOString().split('T')[0];
+                inputDesdeResumen.min = primeraFecha.toISOString().split('T')[0];
+                inputDesdeResumen.max = ultimaFecha.toISOString().split('T')[0];
+                inputHastaResumen.min = primeraFecha.toISOString().split('T')[0];
+                inputHastaResumen.max = ultimaFecha.toISOString().split('T')[0];
+                
+                // Calcular estadísticas iniciales
+                aplicarFiltroResumenBCRA();
+                
+                // Inicializar gráfico (aunque no se muestre todavía)
                 if (!chartsInitialized) {
                     initCharts();
                     chartsInitialized = true;
@@ -1287,6 +1342,70 @@
             }
             
             actualizarChartBCRA();
+        }
+        
+        function aplicarFiltroResumenBCRA() {
+            const inputDesde = document.getElementById('fechaDesdeBCRAResumen');
+            const inputHasta = document.getElementById('fechaHastaBCRAResumen');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            const fechaDesde = new Date(inputDesde.value + 'T00:00:00');
+            const fechaHasta = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesde > fechaHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            // Filtrar datos
+            const datosFiltrados = datosBM.filter(d => {
+                const fecha = new Date(d.fecha);
+                return fecha >= fechaDesde && fecha <= fechaHasta;
+            });
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            // Calcular estadísticas
+            const valores = datosFiltrados.map(d => d.porcentaje_pbi);
+            
+            const primero = datosFiltrados[0];
+            const ultimo = datosFiltrados[datosFiltrados.length - 1];
+            const promedio = (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(2);
+            
+            let maximo = datosFiltrados[0];
+            let minimo = datosFiltrados[0];
+            datosFiltrados.forEach(d => {
+                if (d.porcentaje_pbi > maximo.porcentaje_pbi) maximo = d;
+                if (d.porcentaje_pbi < minimo.porcentaje_pbi) minimo = d;
+            });
+            
+            // Función auxiliar para formatear fecha
+            const formatearFecha = (fecha) => {
+                const f = new Date(fecha);
+                return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
+            };
+            
+            // Actualizar tarjetas
+            document.getElementById('bcra-primero').textContent = primero.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('bcra-primero-fecha').textContent = formatearFecha(primero.fecha);
+            
+            document.getElementById('bcra-ultimo').textContent = ultimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('bcra-ultimo-fecha').textContent = formatearFecha(ultimo.fecha);
+            
+            document.getElementById('bcra-promedio').textContent = promedio + '%';
+            
+            document.getElementById('bcra-maximo').textContent = maximo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('bcra-maximo-fecha').textContent = formatearFecha(maximo.fecha);
+            
+            document.getElementById('bcra-minimo').textContent = minimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('bcra-minimo-fecha').textContent = formatearFecha(minimo.fecha);
         }
         
         function inicializarChartBCRA() {
@@ -1656,10 +1775,18 @@
         }
 
         function showSection(section) {
-            // Si intenta ir a BCRA, intentar cargar datos
+            // Si intenta ir a BCRA resumen, intentar cargar datos
             if (section === 'bcra') {
                 cargarDatosBCRA();
                 return;
+            }
+            
+            // Si va a bcra-chart, asegurarse que los datos estén cargados
+            if (section === 'bcra-chart') {
+                if (datosBM.length === 0) {
+                    alert('Primero debes cargar los datos de BCRA');
+                    return;
+                }
             }
             
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1667,12 +1794,19 @@
             
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             const navItems = document.querySelectorAll('.nav-item');
-            const sectionMap = { 'resumen': 0, 'mensual': 1, 'interanual': 2, 'emae': 3, 'bcra': 4 };
+            const sectionMap = { 
+                'ipc-emae': 0, 
+                'mensual': 0,  // IPC gráficos activan tab IPC
+                'interanual': 0,
+                'emae': 0,
+                'bcra': 1,
+                'bcra-chart': 1  // BCRA gráfico activa tab BCRA
+            };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
             
-            if (!chartsInitialized && section !== 'resumen') {
+            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-chart')) {
                 initCharts();
                 chartsInitialized = true;
             }
@@ -2532,7 +2666,9 @@
                                 // Valor máximo (solo considerar valores no-null)
                                 const validValues = data.filter(v => v !== null && v !== undefined);
                                 const maxValue = Math.max(...validValues);
+                                const minValue = Math.min(...validValues);
                                 if (value === maxValue) return true;
+                                if (value === minValue) return true;
                                 
                                 return false;
                             },

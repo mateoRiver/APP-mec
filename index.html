@@ -519,6 +519,11 @@
             .btn-filter { font-size: 12px; padding: 6px 12px; }
             .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
             .btn-primary span { font-size: 10px; }
+            
+            /* GRÁFICO BCRA ESPECÍFICO: MÁS ALTO EN TABLET */
+            #bcraSection .chart-wrapper {
+                height: 650px !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -532,6 +537,12 @@
             .date-input { font-size: 10px; padding: 5px 5px; }
             .btn-filter { font-size: 11px; padding: 5px 10px; }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
+            
+            /* GRÁFICO BCRA ESPECÍFICO: MUY ALTO */
+            #bcraSection .chart-wrapper {
+                height: 650px !important;
+                max-height: none !important;
+            }
         }
         
         /* Botones de rango de fechas */

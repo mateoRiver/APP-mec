@@ -390,6 +390,73 @@
             gap: 4px;
         }
 
+        /* Estilos para tarjeta métrica BCRA */
+        .bcra-metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bcra-metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .bcra-metric-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .bcra-metric-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-label {
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .metric-date {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
         .chart-detail {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -564,6 +631,27 @@
                 width: 100%;
             }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
+            
+            /* Tarjeta métrica BCRA responsive */
+            .bcra-metric-card {
+                padding: 16px;
+            }
+            .bcra-metric-card h3 {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            .metric-item {
+                padding: 8px;
+            }
+            .metric-label {
+                font-size: 9px;
+            }
+            .metric-value {
+                font-size: 20px;
+            }
+            .metric-date {
+                font-size: 9px;
+            }
         }
         
         /* Botones de rango de fechas */
@@ -757,42 +845,43 @@
                 <button class="btn-filter" onclick="aplicarFiltroResumenBCRA()">Aplicar</button>
             </div>
             
-            <div class="stats-grid" id="bcraStatsGrid">
-                <div class="stat-card" onclick="showSection('bcra-chart')">
-                    <h3>Primer Dato</h3>
-                    <div class="value" id="bcra-primero">-</div>
-                    <div class="description" id="bcra-primero-fecha">-</div>
-                    <div class="change neutral">Base Monetaria % PBI</div>
-                    <div class="view-more">Ver gráfico →</div>
+            <!-- Botón Base Monetaria con estadísticas dentro -->
+            <div class="bcra-metric-card" onclick="showSection('bcra-chart')">
+                <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">Base Monetaria (% PBI)</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <div class="metric-item">
+                        <div class="metric-label">Primer Dato</div>
+                        <div class="metric-value" id="bcra-primero">-</div>
+                        <div class="metric-date" id="bcra-primero-fecha">-</div>
+                    </div>
+                    
+                    <div class="metric-item">
+                        <div class="metric-label">Último Dato</div>
+                        <div class="metric-value" id="bcra-ultimo">-</div>
+                        <div class="metric-date" id="bcra-ultimo-fecha">-</div>
+                    </div>
+                    
+                    <div class="metric-item">
+                        <div class="metric-label">Promedio</div>
+                        <div class="metric-value" id="bcra-promedio">-</div>
+                        <div class="metric-date">Del período</div>
+                    </div>
+                    
+                    <div class="metric-item">
+                        <div class="metric-label">Máximo</div>
+                        <div class="metric-value" id="bcra-maximo">-</div>
+                        <div class="metric-date" id="bcra-maximo-fecha">-</div>
+                    </div>
+                    
+                    <div class="metric-item">
+                        <div class="metric-label">Mínimo</div>
+                        <div class="metric-value" id="bcra-minimo">-</div>
+                        <div class="metric-date" id="bcra-minimo-fecha">-</div>
+                    </div>
                 </div>
-                <div class="stat-card" onclick="showSection('bcra-chart')">
-                    <h3>Último Dato</h3>
-                    <div class="value" id="bcra-ultimo">-</div>
-                    <div class="description" id="bcra-ultimo-fecha">-</div>
-                    <div class="change neutral">Base Monetaria % PBI</div>
-                    <div class="view-more">Ver gráfico →</div>
-                </div>
-                <div class="stat-card" onclick="showSection('bcra-chart')">
-                    <h3>Promedio</h3>
-                    <div class="value" id="bcra-promedio">-</div>
-                    <div class="description">Del período seleccionado</div>
-                    <div class="change neutral">Base Monetaria % PBI</div>
-                    <div class="view-more">Ver gráfico →</div>
-                </div>
-                <div class="stat-card" onclick="showSection('bcra-chart')">
-                    <h3>Máximo</h3>
-                    <div class="value" id="bcra-maximo">-</div>
-                    <div class="description" id="bcra-maximo-fecha">-</div>
-                    <div class="change positive">↑ Mayor valor</div>
-                    <div class="view-more">Ver gráfico →</div>
-                </div>
-                <div class="stat-card" onclick="showSection('bcra-chart')">
-                    <h3>Mínimo</h3>
-                    <div class="value" id="bcra-minimo">-</div>
-                    <div class="description" id="bcra-minimo-fecha">-</div>
-                    <div class="change negative">↓ Menor valor</div>
-                    <div class="view-more">Ver gráfico →</div>
-                </div>
+                
+                <div class="view-more" style="margin-top: 16px;">Ver gráfico →</div>
             </div>
         </div>
 
@@ -1674,9 +1763,9 @@
                 // Guardar usuario actual
                 window.currentUser = username;
                 
-                // Volver a la sección de resumen
+                // Volver a la sección de IPC & EMAE
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById('resumenSection').classList.add('active');
+                document.getElementById('ipc-emaeSection').classList.add('active');
                 document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
                 document.querySelectorAll('.nav-item')[0].classList.add('active');
                 

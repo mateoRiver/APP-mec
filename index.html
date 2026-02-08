@@ -17,12 +17,19 @@
             box-sizing: border-box;
         }
 
+        html {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
             color: white;
             padding-bottom: 80px;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         .login-container {
@@ -603,37 +610,76 @@
         }
 
         @media (max-width: 480px) {
-            .dashboard { padding: 10px; }
+            .dashboard { 
+                padding: 10px;
+                overflow-x: hidden;
+                max-width: 100%;
+            }
             .stat-card { padding: 20px; }
             .chart-wrapper { height: 520px; padding: 12px 6px 6px 6px; }
             .chart-detail { padding: 12px 8px; }
+            .section { 
+                overflow-x: hidden;
+                max-width: 100%;
+            }
             .date-filter { 
                 gap: 10px; 
                 padding: 10px;
                 flex-direction: column;
                 align-items: stretch;
+                overflow: hidden;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .filter-group { 
                 width: 100%;
+                max-width: 100%;
                 flex: none;
+                overflow: hidden;
+                box-sizing: border-box;
             }
-            .filter-group label { font-size: 10px; margin-bottom: 4px; }
+            .filter-group label { 
+                font-size: 10px; 
+                margin-bottom: 4px;
+                display: block;
+            }
             .date-input { 
                 font-size: 12px; 
                 padding: 8px 10px;
                 width: 100%;
+                max-width: 100%;
                 box-sizing: border-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .btn-filter { 
                 font-size: 13px; 
                 padding: 10px 16px;
                 width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
+            
+            /* Header Datos BCRA en móvil */
+            #bcraSection > div:first-child {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            #bcraSection > div:first-child h2 {
+                font-size: 16px !important;
+            }
+            #bcraSection > div:first-child button {
+                font-size: 11px !important;
+                padding: 6px 12px !important;
+            }
             
             /* Tarjeta métrica BCRA responsive */
             .bcra-metric-card {
                 padding: 16px;
+                overflow: hidden;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .bcra-metric-card h3 {
                 font-size: 14px;

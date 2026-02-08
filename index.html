@@ -520,9 +520,9 @@
             .btn-primary { font-size: 10px !important; padding: 5px 10px !important; }
             .btn-primary span { font-size: 10px; }
             
-            /* GRÁFICO BCRA ESPECÍFICO: MÁS ALTO EN TABLET */
+            /* GRÁFICO BCRA: Más alto en tablet */
             #bcraSection .chart-wrapper {
-                height: 650px !important;
+                height: 800px !important;
             }
         }
 
@@ -538,10 +538,16 @@
             .btn-filter { font-size: 11px; padding: 5px 10px; }
             .btn-primary { font-size: 9px !important; padding: 4px 8px !important; }
             
-            /* GRÁFICO BCRA ESPECÍFICO: MUY ALTO */
+            /* BCRA: Reducir padding para maximizar espacio */
+            #bcraSection .chart-detail {
+                padding: 8px 6px !important;
+            }
+            
+            /* GRÁFICO BCRA: Ocupa casi toda la pantalla */
             #bcraSection .chart-wrapper {
-                height: 650px !important;
+                height: 900px !important;
                 max-height: none !important;
+                padding: 8px 4px 4px 4px !important;
             }
         }
         
@@ -1312,7 +1318,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     interaction: {
                         intersect: false,
                         mode: isMobile ? 'nearest' : 'index'

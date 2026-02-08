@@ -1448,7 +1448,7 @@
                     
                     datosBaseMon.push({
                         fecha: fecha.toISOString().split('T')[0],
-                        valor_millones: valor,
+                        valor: valor,
                         porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
                     });
                 }
@@ -1510,7 +1510,7 @@
                             
                             datosDepositos.push({
                                 fecha: fecha.toISOString().split('T')[0],
-                                valor_millones: valor,
+                                valor: valor,
                                 porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
                             });
                         }

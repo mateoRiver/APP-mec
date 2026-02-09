@@ -745,6 +745,85 @@
             border-color: #3b82f6;
             background: rgba(255, 255, 255, 0.15);
         }
+        
+        /* Loading Overlay con Bandera Argentina */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-flag {
+            width: 120px;
+            height: 80px;
+            position: relative;
+            animation: wave 1.5s ease-in-out infinite;
+        }
+        
+        .flag-stripe {
+            width: 100%;
+            height: 33.33%;
+        }
+        
+        .flag-celeste {
+            background: #75AADB;
+        }
+        
+        .flag-blanca {
+            background: #FFFFFF;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .flag-sol {
+            width: 24px;
+            height: 24px;
+            background: #F6B40E;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .flag-sol::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #F6B40E 40%, transparent 40%);
+            animation: rotate 2s linear infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: perspective(400px) rotateY(-15deg); }
+            50% { transform: perspective(400px) rotateY(15deg); }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: #cbd5e1;
+            font-size: 16px;
+            font-weight: 500;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
     </style>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1112,7 +1191,7 @@
         </div>
 
         <!-- SECCIÓN BCRA - GRÁFICO -->
-        <div id="bcra-chartSection" class="section">
+        <div id="bcra-bmSection" class="section">
             <button class="back-btn" onclick="showSection('bcra')">← Volver</button>
             
             <div class="date-filter">
@@ -1213,6 +1292,18 @@
             <div class="icon">🏦</div>
             <div class="label">BCRA</div>
         </button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loading-flag">
+            <div class="flag-stripe flag-celeste"></div>
+            <div class="flag-stripe flag-blanca">
+                <div class="flag-sol"></div>
+            </div>
+            <div class="flag-stripe flag-celeste"></div>
+        </div>
+        <div class="loading-text">Cargando datos BCRA...</div>
     </div>
 
     <script>
@@ -1630,6 +1721,10 @@
                 return;
             }
             
+            // Mostrar loading con bandera
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+            
             cargandoBCRA = true;
             
             try {
@@ -1731,6 +1826,9 @@
                 alert('Error al cargar los datos: ' + error.message);
             } finally {
                 cargandoBCRA = false;
+                // Ocultar loading
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.style.display = 'none';
             }
         }
         
@@ -2621,8 +2719,8 @@
                 return;
             }
             
-            // Si va a bcra-chart, asegurarse que los datos estén cargados
-            if (section === 'bcra-chart') {
+            // Si va a bcra-bm, asegurarse que los datos estén cargados
+            if (section === 'bcra-bm') {
                 if (datosBM.length === 0) {
                     alert('Primero debes cargar los datos de BCRA');
                     return;
@@ -2650,14 +2748,14 @@
                 'interanual': 0,
                 'emae': 0,
                 'bcra': 1,
-                'bcra-chart': 1,  // BCRA gráfico activa tab BCRA
+                'bcra-bm': 1,  // BCRA Base Monetaria activa tab BCRA
                 'bcra-depositos': 1  // Depósitos activa tab BCRA
             };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
             
-            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-chart' || section === 'bcra-depositos')) {
+            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos')) {
                 initCharts();
                 chartsInitialized = true;
             }
@@ -2981,6 +3079,17 @@
         });
 
         async function descargarExcel() {
+            // Detectar qué sección está activa
+            const seccionActiva = document.querySelector('.section.active');
+            const idSeccion = seccionActiva ? seccionActiva.id : 'ipc-emaeSection';
+            
+            // Si está en cualquier sección de BCRA, descargar Excel de BCRA
+            if (idSeccion === 'bcraSection' || idSeccion.startsWith('bcra-')) {
+                await descargarExcelBCRA();
+                return;
+            }
+            
+            // Si está en IPC/EMAE, descargar Excel de IPC
             const btn = event.target.closest('.btn-primary');
             const originalText = btn.innerHTML;
             btn.disabled = true;

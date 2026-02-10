@@ -1450,6 +1450,72 @@
             return PBI_DATA[key] || null;
         }
         
+        // Función para parsear fechas del Excel SIN problemas de zona horaria
+        function parseFechaExcel(fechaStr) {
+            // Si ya es un Date, devolverlo
+            if (fechaStr instanceof Date) {
+                // Crear fecha UTC a mediodía para evitar problemas de zona horaria
+                return new Date(Date.UTC(
+                    fechaStr.getFullYear(),
+                    fechaStr.getMonth(),
+                    fechaStr.getDate(),
+                    12, 0, 0
+                ));
+            }
+            
+            // Si es string, parsearlo
+            let fecha;
+            
+            // Intentar parsear diferentes formatos
+            if (typeof fechaStr === 'string') {
+                // Formato: "2026-02-04" o "2026/02/04"
+                if (fechaStr.match(/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/)) {
+                    const parts = fechaStr.split(/[-/]/);
+                    const year = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // Mes es 0-indexed
+                    const day = parseInt(parts[2]);
+                    return new Date(Date.UTC(year, month, day, 12, 0, 0));
+                }
+                
+                // Formato: "2/4/2026" o "02/04/2026" (mes/día/año)
+                if (fechaStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)) {
+                    const parts = fechaStr.split('/');
+                    const month = parseInt(parts[0]) - 1; // Mes es 0-indexed
+                    const day = parseInt(parts[1]);
+                    const year = parseInt(parts[2]);
+                    return new Date(Date.UTC(year, month, day, 12, 0, 0));
+                }
+                
+                // Fallback: crear fecha y ajustar a UTC mediodía
+                fecha = new Date(fechaStr);
+            } else {
+                // Si es número u otro tipo, usar constructor normal
+                fecha = new Date(fechaStr);
+            }
+            
+            // Ajustar a UTC mediodía para evitar problemas de zona horaria
+            return new Date(Date.UTC(
+                fecha.getFullYear(),
+                fecha.getMonth(),
+                fecha.getDate(),
+                12, 0, 0
+            ));
+        }
+        
+        // Función para convertir Date a string YYYY-MM-DD (sin problemas de zona horaria)
+        function fechaToString(fecha) {
+            const year = fecha.getUTCFullYear();
+            const month = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(fecha.getUTCDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Función para crear Date local desde string YYYY-MM-DD (para comparaciones y display)
+        function stringToFechaLocal(fechaStr) {
+            const [year, month, day] = fechaStr.split('-').map(n => parseInt(n));
+            return new Date(year, month - 1, day, 12, 0, 0);
+        }
+        
         async function procesarExcelBCRA(file) {
             try {
                 console.log('Procesando Excel BCRA (Base Monetaria + Depósitos)...');
@@ -1507,7 +1573,7 @@
                     
                     if (!fechaStr || !valorAF) continue;
                     
-                    const fecha = new Date(fechaStr);
+                    const fecha = parseFechaExcel(fechaStr);
                     if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
                     
                     const pbi = obtenerPBI(fecha);
@@ -1517,7 +1583,7 @@
                     if (isNaN(valor)) continue;
                     
                     datosBaseMon.push({
-                        fecha: fecha.toISOString().split('T')[0],
+                        fecha: fechaToString(fecha),
                         valor: valor,
                         porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
                     });
@@ -1571,7 +1637,7 @@
                             
                             if (!fechaStr || !valorX) continue;
                             
-                            const fecha = new Date(fechaStr);
+                            const fecha = parseFechaExcel(fechaStr);
                             if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
                             
                             const pbi = obtenerPBI(fecha);
@@ -1581,7 +1647,7 @@
                             if (isNaN(valor)) continue;
                             
                             datosDepositos.push({
-                                fecha: fecha.toISOString().split('T')[0],
+                                fecha: fechaToString(fecha),
                                 valor_millones: valor,
                                 porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
                             });
@@ -1812,28 +1878,29 @@
         }
         
         function inicializarSelectoresFechasBCRA() {
-            // Obtener primera y última fecha de los datos
-            const primeraFecha = new Date(datosBM[0].fecha);
-            const ultimaFecha = new Date(datosBM[datosBM.length - 1].fecha);
+            // Obtener primera y última fecha de los datos (ya son strings "YYYY-MM-DD")
+            const primeraFechaStr = datosBM[0].fecha;
+            const ultimaFechaStr = datosBM[datosBM.length - 1].fecha;
             
             // Default: diciembre 2023 hasta última fecha
-            const fechaDesdeDefault = new Date('2023-12-01');
+            const fechaDesdeDefaultStr = '2023-12-01';
             
-            // Formatear fechas para input (YYYY-MM-DD)
+            // Configurar inputs
             const inputDesde = document.getElementById('fechaDesdeBCRA');
             const inputHasta = document.getElementById('fechaHastaBCRA');
             
-            inputDesde.value = fechaDesdeDefault.toISOString().split('T')[0];
-            inputHasta.value = ultimaFecha.toISOString().split('T')[0];
+            inputDesde.value = fechaDesdeDefaultStr;
+            inputHasta.value = ultimaFechaStr;
             
             // Establecer límites de los inputs
-            inputDesde.min = primeraFecha.toISOString().split('T')[0];
-            inputDesde.max = ultimaFecha.toISOString().split('T')[0];
-            inputHasta.min = primeraFecha.toISOString().split('T')[0];
-            inputHasta.max = ultimaFecha.toISOString().split('T')[0];
+            inputDesde.min = primeraFechaStr;
+            inputDesde.max = ultimaFechaStr;
+            inputHasta.min = primeraFechaStr;
+            inputHasta.max = ultimaFechaStr;
             
-            fechaDesdeBCRA = fechaDesdeDefault;
-            fechaHastaBCRA = ultimaFecha;
+            // Guardar como objetos Date para filtros
+            fechaDesdeBCRA = stringToFechaLocal(fechaDesdeDefaultStr);
+            fechaHastaBCRA = stringToFechaLocal(ultimaFechaStr);
         }
         
         function aplicarFiltroBCRA() {
@@ -2266,23 +2333,24 @@
         }
         
         function inicializarSelectoresFechasDEP() {
-            const primeraFecha = new Date(datosDEP[0].fecha);
-            const ultimaFecha = new Date(datosDEP[datosDEP.length - 1].fecha);
-            const fechaDesdeDefault = new Date('2023-12-01');
+            // Obtener primera y última fecha de los datos (ya son strings "YYYY-MM-DD")
+            const primeraFechaStr = datosDEP[0].fecha;
+            const ultimaFechaStr = datosDEP[datosDEP.length - 1].fecha;
+            const fechaDesdeDefaultStr = '2023-12-01';
             
             const inputDesde = document.getElementById('fechaDesdeDEP');
             const inputHasta = document.getElementById('fechaHastaDEP');
             
-            inputDesde.value = fechaDesdeDefault.toISOString().split('T')[0];
-            inputHasta.value = ultimaFecha.toISOString().split('T')[0];
+            inputDesde.value = fechaDesdeDefaultStr;
+            inputHasta.value = ultimaFechaStr;
             
-            inputDesde.min = primeraFecha.toISOString().split('T')[0];
-            inputDesde.max = ultimaFecha.toISOString().split('T')[0];
-            inputHasta.min = primeraFecha.toISOString().split('T')[0];
-            inputHasta.max = ultimaFecha.toISOString().split('T')[0];
+            inputDesde.min = primeraFechaStr;
+            inputDesde.max = ultimaFechaStr;
+            inputHasta.min = primeraFechaStr;
+            inputHasta.max = ultimaFechaStr;
             
-            fechaDesdeDEP = fechaDesdeDefault;
-            fechaHastaDEP = ultimaFecha;
+            fechaDesdeDEP = stringToFechaLocal(fechaDesdeDefaultStr);
+            fechaHastaDEP = stringToFechaLocal(ultimaFechaStr);
         }
         
         function filtrarDatosDEPPorFechas() {
@@ -3145,7 +3213,9 @@
                 
                 // Data
                 for (const dato of datosBM) {
-                    const fecha = new Date(dato.fecha);
+                    // Parsear fecha correctamente (dato.fecha es "YYYY-MM-DD")
+                    const [year, month, day] = dato.fecha.split('-');
+                    const fecha = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
                     const fechaStr = fecha.toLocaleDateString('es-AR');
                     
                     // Obtener PBI correspondiente

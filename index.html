@@ -1840,12 +1840,12 @@
                 const navItems = document.querySelectorAll('.nav-item');
                 navItems[1].classList.add('active'); // BCRA es ahora el índice 1
                 
-                // Calcular fechas para el resumen
-                const primeraFecha = new Date(datosBM[0].fecha);
-                const ultimaFecha = new Date(datosBM[datosBM.length - 1].fecha);
+                // Calcular fechas para el resumen (usar stringToFechaLocal para evitar zona horaria)
+                const primeraFecha = stringToFechaLocal(datosBM[0].fecha);
+                const ultimaFecha = stringToFechaLocal(datosBM[datosBM.length - 1].fecha);
                 
                 // Default: diciembre 2023 hasta última fecha
-                const fechaDesdeDefault = new Date('2023-12-01');
+                const fechaDesdeDefault = stringToFechaLocal('2023-12-01');
                 
                 // Inicializar selectores de fechas del resumen
                 const inputDesdeResumen = document.getElementById('fechaDesdeBCRAResumen');
@@ -1942,7 +1942,7 @@
             
             // Filtrar datos
             const datosFiltrados = datosBM.filter(d => {
-                const fecha = new Date(d.fecha);
+                const fecha = stringToFechaLocal(d.fecha);
                 return fecha >= fechaDesde && fecha <= fechaHasta;
             });
             
@@ -1967,7 +1967,7 @@
             
             // Función auxiliar para formatear fecha
             const formatearFecha = (fecha) => {
-                const f = new Date(fecha);
+                const f = stringToFechaLocal(fecha);
                 return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
             };
             
@@ -2004,7 +2004,7 @@
                 type: 'line',
                 data: {
                     labels: datosFiltrados.map(d => {
-                        const fecha = new Date(d.fecha);
+                        const fecha = stringToFechaLocal(d.fecha);
                         return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
                     }),
                     datasets: [{
@@ -2046,7 +2046,7 @@
                             displayColors: false,
                             callbacks: {
                                 title: function(context) {
-                                    const fecha = new Date(datosFiltrados[context[0].dataIndex].fecha);
+                                    const fecha = stringToFechaLocal(datosFiltrados[context[0].dataIndex].fecha);
                                     return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
                                 },
                                 label: function(context) {
@@ -2150,13 +2150,13 @@
             }
             
             // Encontrar el índice del primer dato >= fechaDesde
-            let indiceDesde = datosBM.findIndex(d => new Date(d.fecha) >= fechaDesdeBCRA);
+            let indiceDesde = datosBM.findIndex(d => stringToFechaLocal(d.fecha) >= fechaDesdeBCRA);
             
             // Si no hay dato exacto, buscar el más cercano anterior
             if (indiceDesde === -1) {
                 // Todas las fechas son menores, usar la última
                 indiceDesde = datosBM.length - 1;
-            } else if (indiceDesde > 0 && new Date(datosBM[indiceDesde].fecha) > fechaDesdeBCRA) {
+            } else if (indiceDesde > 0 && stringToFechaLocal(datosBM[indiceDesde].fecha) > fechaDesdeBCRA) {
                 // Si el dato encontrado es posterior a la fecha buscada, incluir el anterior
                 indiceDesde = indiceDesde - 1;
             }
@@ -2164,7 +2164,7 @@
             // Encontrar el índice del último dato <= fechaHasta
             let indiceHasta = -1;
             for (let i = datosBM.length - 1; i >= 0; i--) {
-                if (new Date(datosBM[i].fecha) <= fechaHastaBCRA) {
+                if (stringToFechaLocal(datosBM[i].fecha) <= fechaHastaBCRA) {
                     indiceHasta = i;
                     break;
                 }
@@ -2190,7 +2190,7 @@
             }
             
             chartBM.data.labels = datosFiltrados.map(d => {
-                const fecha = new Date(d.fecha);
+                const fecha = stringToFechaLocal(d.fecha);
                 return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
             });
             chartBM.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
@@ -2291,7 +2291,7 @@
             }
             
             const datosFiltrados = datosDEP.filter(d => {
-                const fecha = new Date(d.fecha);
+                const fecha = stringToFechaLocal(d.fecha);
                 return fecha >= fechaDesde && fecha <= fechaHasta;
             });
             
@@ -2313,7 +2313,7 @@
             });
             
             const formatearFecha = (fecha) => {
-                const f = new Date(fecha);
+                const f = stringToFechaLocal(fecha);
                 return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
             };
             
@@ -2358,17 +2358,17 @@
                 return datosDEP;
             }
             
-            let indiceDesde = datosDEP.findIndex(d => new Date(d.fecha) >= fechaDesdeDEP);
+            let indiceDesde = datosDEP.findIndex(d => stringToFechaLocal(d.fecha) >= fechaDesdeDEP);
             
             if (indiceDesde === -1) {
                 indiceDesde = datosDEP.length - 1;
-            } else if (indiceDesde > 0 && new Date(datosDEP[indiceDesde].fecha) > fechaDesdeDEP) {
+            } else if (indiceDesde > 0 && stringToFechaLocal(datosDEP[indiceDesde].fecha) > fechaDesdeDEP) {
                 indiceDesde = indiceDesde - 1;
             }
             
             let indiceHasta = -1;
             for (let i = datosDEP.length - 1; i >= 0; i--) {
-                if (new Date(datosDEP[i].fecha) <= fechaHastaDEP) {
+                if (stringToFechaLocal(datosDEP[i].fecha) <= fechaHastaDEP) {
                     indiceHasta = i;
                     break;
                 }
@@ -2397,7 +2397,7 @@
                 type: 'line',
                 data: {
                     labels: datosFiltrados.map(d => {
-                        const fecha = new Date(d.fecha);
+                        const fecha = stringToFechaLocal(d.fecha);
                         return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
                     }),
                     datasets: [{
@@ -2439,7 +2439,7 @@
                             displayColors: false,
                             callbacks: {
                                 title: function(context) {
-                                    const fecha = new Date(datosFiltrados[context[0].dataIndex].fecha);
+                                    const fecha = stringToFechaLocal(datosFiltrados[context[0].dataIndex].fecha);
                                     return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
                                 },
                                 label: function(context) {
@@ -2562,7 +2562,7 @@
             }
             
             chartDEP.data.labels = datosFiltrados.map(d => {
-                const fecha = new Date(d.fecha);
+                const fecha = stringToFechaLocal(d.fecha);
                 return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
             });
             

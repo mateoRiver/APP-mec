@@ -6,6 +6,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>MECON Dashboard</title>
+    
+    <!-- Favicon y PWA -->
+    <link rel="icon" type="image/png" href="mecon-logo.png">
+    <link rel="apple-touch-icon" href="mecon-logo.png">
+    <link rel="shortcut icon" href="mecon-logo.png">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="msapplication-TileColor" content="#0f172a">
+    <meta name="msapplication-TileImage" content="mecon-logo.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -124,31 +133,6 @@
             font-size: 14px;
             font-weight: 500;
             display: none;
-        }
-
-        .credentials-info {
-            margin-top: 24px;
-            padding: 16px;
-            background: #f1f5f9;
-            border-radius: 12px;
-            font-size: 13px;
-            color: #64748b;
-            line-height: 1.6;
-        }
-
-        .credentials-info strong {
-            color: #0f172a;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .credentials-info code {
-            background: #e2e8f0;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #0f172a;
-            font-weight: 600;
         }
 
         .dashboard {
@@ -846,11 +830,6 @@
             </div>
             <button class="login-btn" onclick="login()">Ingresar</button>
             <div class="error-message" id="errorMessage">Usuario o contraseña incorrectos</div>
-            <div class="credentials-info">
-                <strong>Credenciales de prueba:</strong>
-                Usuario: <code>admin</code> / Contraseña: <code>argentina2025</code><br>
-                Usuario: <code>usuario</code> / Contraseña: <code>123456</code>
-            </div>
         </div>
     </div>
 
@@ -2527,7 +2506,13 @@
         // ==========================================
         // USUARIOS Y DATOS
         // ==========================================
-        const validUsers = {'admin': 'argentina2025', 'usuario': '123456'};
+        const validUsers = {
+            'admin': 'MECON2026!',
+            'usuario': 'MECON2026!',
+            'MartinVauthier': 'MECON2026!',
+            'FedericoFuriase': 'MECON2026!',
+            'FelipeNuñez': 'MECON2026!'
+        };
         let chartMensual, chartInteranual, chartEmae, chartBcra;
         let chartsInitialized = false;
 

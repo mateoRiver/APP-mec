@@ -1029,7 +1029,7 @@
             </div>
             
             <!-- Botón M2 Transaccional -->
-            <div class="bcra-metric-card" onclick="showSection('bcra-m2')">
+            <div class="bcra-metric-card" onclick="showSection('bcra-m2Section')">
                 <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">M2 Transaccional Sector Privado (% PBI)</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
@@ -1220,6 +1220,34 @@
                 </div>
                 
                 <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdateDEP">
+                    Sin datos cargados
+                </p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN M2 TRANSACCIONAL -->
+        <div id="bcra-m2Section" class="section">
+            <button class="back-btn" onclick="showSection('bcraSection')">← Volver</button>
+            
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <input type="date" id="fechaDesdeM2" class="date-input">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <input type="date" id="fechaHastaM2" class="date-input">
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroM2()">Aplicar</button>
+            </div>
+            
+            <div class="chart-detail">
+                <h2>M2 Transaccional Sector Privado (% PBI)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="chartM2"></canvas>
+                </div>
+                
+                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdateM2">
                     Sin datos cargados
                 </p>
             </div>
@@ -1660,6 +1688,41 @@
                         if (datosDepositos.length > 0) {
                             await guardarDatosSupabase('depositos_totales', datosDepositos);
                         }
+                        
+                        // ============================================
+                        // PROCESAR M2 TRANSACCIONAL (misma hoja)
+                        // ============================================
+                        console.log('\n=== PROCESANDO M2 TRANSACCIONAL ===');
+                        const datosM2 = [];
+                        for (let i = startRowDEP; i < dataDEP.length; i++) {
+                            const fechaStr = dataDEP[i][0];
+                            const valorAD = dataDEP[i][29]; // Columna AD (M2 Transaccional)
+                            
+                            if (!fechaStr || !valorAD) continue;
+                            
+                            const fecha = parseFechaExcel(fechaStr);
+                            if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
+                            
+                            const pbi = obtenerPBI(fecha);
+                            if (!pbi) continue;
+                            
+                            const valor = parseFloat(String(valorAD).replace(/,/g, ''));
+                            if (isNaN(valor)) continue;
+                            
+                            datosM2.push({
+                                fecha: fechaToString(fecha),
+                                valor_millones: valor,  // ⚠️ valor_millones, NO valor
+                                porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
+                            });
+                        }
+                        
+                        console.log(`✅ M2 Transaccional: ${datosM2.length} registros`);
+                        console.log('Primeros 3:', datosM2.slice(0, 3));
+                        console.log('Últimos 3:', datosM2.slice(-3));
+                        
+                        if (datosM2.length > 0) {
+                            await guardarDatosSupabase('m2_transaccional', datosM2);
+                        }
                     }
                 }
                 
@@ -1669,7 +1732,11 @@
                 }
                 
                 console.log('\n✅ EXCEL PROCESADO EXITOSAMENTE');
-                return { base_monetaria: datosBaseMon.length, depositos: datosDepositos.length };
+                return { 
+                    base_monetaria: datosBaseMon.length, 
+                    m2_transaccional: datosM2.length,
+                    depositos: datosDepositos.length 
+                };
                 
             } catch (error) {
                 console.error('Error procesando Excel BCRA:', error);
@@ -1760,6 +1827,14 @@
         let fechaDesdeDEP = null;
         let fechaHastaDEP = null;
         
+        // M2 TRANSACCIONAL
+        let chartM2 = null;
+        let datosM2 = [];
+        let fechaDesdeM2 = null;
+        let fechaHastaM2 = null;
+        
+        async function mostrarDashboardBCRA() { null;
+        
         async function mostrarDashboardBCRA() {
             if (cargandoBCRA) {
                 console.log('Ya se está cargando el dashboard, esperando...');
@@ -1817,6 +1892,14 @@
                     console.error('Error cargando Depósitos:', error);
                 }
                 
+                // Cargar M2 Transaccional
+                try {
+                    await cargarDatosM2();
+                    console.log(`✅ M2 Transaccional cargados: ${datosM2.length} registros`);
+                } catch (error) {
+                    console.error('Error cargando M2:', error);
+                }
+                
                 // Actualizar info de última actualización
                 const ultimoDato = datosBM[datosBM.length - 1];
                 document.getElementById('lastUpdateBCRA').textContent = 
@@ -1864,6 +1947,11 @@
                 // Aplicar filtro de Depósitos si hay datos
                 if (datosDEP.length > 0) {
                     aplicarFiltroResumenDEP();
+                }
+                
+                // Aplicar filtro de M2 si hay datos
+                if (datosM2.length > 0) {
+                    aplicarFiltroResumenM2();
                 }
                 
             } catch (error) {
@@ -2265,6 +2353,267 @@
                 console.error('Error cargando Depósitos Totales:', error);
                 throw error;
             }
+        }
+        
+        // ==========================================
+        // M2 TRANSACCIONAL - FUNCIONES
+        // ==========================================
+        
+        async function cargarDatosM2() {
+            try {
+                console.log('Cargando M2 Transaccional desde Supabase...');
+                
+                datosM2 = [];
+                let offset = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+                
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('m2_transaccional')
+                        .select('*')
+                        .order('fecha', { ascending: true })
+                        .range(offset, offset + pageSize - 1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        datosM2 = datosM2.concat(data);
+                        console.log(`M2 - Página cargada: ${data.length} registros (total: ${datosM2.length})`);
+                        offset += pageSize;
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                console.log(`✅ M2 Transaccional cargados: ${datosM2.length} registros`);
+                console.log('Primeros 3:', datosM2.slice(0, 3));
+                console.log('Últimos 3:', datosM2.slice(-3));
+                return datosM2;
+                
+            } catch (error) {
+                console.error('Error cargando M2 Transaccional:', error);
+                throw error;
+            }
+        }
+        
+        function aplicarFiltroResumenM2() {
+            if (!datosM2 || datosM2.length === 0) {
+                console.log('No hay datos de M2 para mostrar');
+                return;
+            }
+            
+            const inputDesde = document.getElementById('fechaDesdeBCRAResumen');
+            const inputHasta = document.getElementById('fechaHastaBCRAResumen');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            const fechaDesde = new Date(inputDesde.value + 'T00:00:00');
+            const fechaHasta = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesde > fechaHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            const datosFiltrados = datosM2.filter(d => {
+                const fecha = stringToFechaLocal(d.fecha);
+                return fecha >= fechaDesde && fecha <= fechaHasta;
+            });
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            const valores = datosFiltrados.map(d => d.porcentaje_pbi);
+            const primero = datosFiltrados[0];
+            const ultimo = datosFiltrados[datosFiltrados.length - 1];
+            const promedio = (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(2);
+            
+            let maximo = datosFiltrados[0];
+            let minimo = datosFiltrados[0];
+            datosFiltrados.forEach(d => {
+                if (d.porcentaje_pbi > maximo.porcentaje_pbi) maximo = d;
+                if (d.porcentaje_pbi < minimo.porcentaje_pbi) minimo = d;
+            });
+            
+            const formatearFecha = (fecha) => {
+                const f = stringToFechaLocal(fecha);
+                return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
+            };
+            
+            document.getElementById('m2-primero').textContent = primero.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('m2-primero-fecha').textContent = formatearFecha(primero.fecha);
+            document.getElementById('m2-ultimo').textContent = ultimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('m2-ultimo-fecha').textContent = formatearFecha(ultimo.fecha);
+            document.getElementById('m2-promedio').textContent = promedio + '%';
+            document.getElementById('m2-maximo').textContent = maximo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('m2-maximo-fecha').textContent = formatearFecha(maximo.fecha);
+            document.getElementById('m2-minimo').textContent = minimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('m2-minimo-fecha').textContent = formatearFecha(minimo.fecha);
+        }
+        
+        function inicializarSelectoresFechasM2() {
+            const primeraFechaStr = datosM2[0].fecha;
+            const ultimaFechaStr = datosM2[datosM2.length - 1].fecha;
+            const fechaDesdeDefaultStr = '2023-12-01';
+            
+            const inputDesde = document.getElementById('fechaDesdeM2');
+            const inputHasta = document.getElementById('fechaHastaM2');
+            
+            inputDesde.value = fechaDesdeDefaultStr;
+            inputHasta.value = ultimaFechaStr;
+            inputDesde.min = primeraFechaStr;
+            inputDesde.max = ultimaFechaStr;
+            inputHasta.min = primeraFechaStr;
+            inputHasta.max = ultimaFechaStr;
+            
+            fechaDesdeM2 = stringToFechaLocal(fechaDesdeDefaultStr);
+            fechaHastaM2 = stringToFechaLocal(ultimaFechaStr);
+        }
+        
+        function filtrarDatosM2PorFechas() {
+            if (!fechaDesdeM2 || !fechaHastaM2) return datosM2;
+            
+            let indiceDesde = datosM2.findIndex(d => stringToFechaLocal(d.fecha) >= fechaDesdeM2);
+            if (indiceDesde === -1) indiceDesde = datosM2.length - 1;
+            else if (indiceDesde > 0 && stringToFechaLocal(datosM2[indiceDesde].fecha) > fechaDesdeM2) indiceDesde = indiceDesde - 1;
+            
+            let indiceHasta = -1;
+            for (let i = datosM2.length - 1; i >= 0; i--) {
+                if (stringToFechaLocal(datosM2[i].fecha) <= fechaHastaM2) {
+                    indiceHasta = i;
+                    break;
+                }
+            }
+            
+            if (indiceHasta === -1) return [];
+            return datosM2.slice(indiceDesde, indiceHasta + 1);
+        }
+        
+        function inicializarChartM2() {
+            const ctx = document.getElementById('chartM2');
+            if (!ctx) return;
+            const datosFiltrados = filtrarDatosM2PorFechas();
+            if (datosFiltrados.length === 0) return;
+            const isMobile = window.innerWidth <= 768;
+            
+            chartM2 = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datosFiltrados.map(d => {
+                        const fecha = stringToFechaLocal(d.fecha);
+                        return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+                    }),
+                    datasets: [{
+                        label: 'M2 Transaccional (% PBI)',
+                        data: datosFiltrados.map(d => d.porcentaje_pbi),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: isMobile ? 2 : 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 16,
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 16, weight: '700' },
+                            titleColor: '#94a3b8',
+                            bodyColor: '#fff',
+                            borderColor: '#f59e0b',
+                            borderWidth: 2,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const fecha = stringToFechaLocal(datosFiltrados[context[0].dataIndex].fecha);
+                                    return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                                },
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '% del PBI';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 10 : 12 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 9 : 11 },
+                                maxRotation: isMobile ? 45 : 0,
+                                minRotation: isMobile ? 45 : 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function aplicarFiltroM2() {
+            const inputDesde = document.getElementById('fechaDesdeM2');
+            const inputHasta = document.getElementById('fechaHastaM2');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            fechaDesdeM2 = new Date(inputDesde.value + 'T00:00:00');
+            fechaHastaM2 = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesdeM2 > fechaHastaM2) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            actualizarChartM2();
+        }
+        
+        function actualizarChartM2() {
+            if (!chartM2) return;
+            const datosFiltrados = filtrarDatosM2PorFechas();
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            chartM2.data.labels = datosFiltrados.map(d => {
+                const fecha = stringToFechaLocal(d.fecha);
+                return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+            });
+            chartM2.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
+            chartM2.update();
         }
         
         function aplicarFiltroResumenDEP() {
@@ -2792,6 +3141,16 @@
                 inicializarChartDEP();
             }
             
+            // Si va a bcra-m2Section, inicializar
+            if (section === 'bcra-m2Section') {
+                if (datosM2.length === 0) {
+                    alert('Primero debes cargar los datos de BCRA');
+                    return;
+                }
+                inicializarSelectoresFechasM2();
+                inicializarChartM2();
+            }
+            
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(section + 'Section').classList.add('active');
             
@@ -2804,13 +3163,14 @@
                 'emae': 0,
                 'bcra': 1,
                 'bcra-bm': 1,  // BCRA Base Monetaria activa tab BCRA
-                'bcra-depositos': 1  // Depósitos activa tab BCRA
+                'bcra-depositos': 1,  // Depósitos activa tab BCRA
+                'bcra-m2Section': 1  // M2 activa tab BCRA
             };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
             
-            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos')) {
+            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos' || section === 'bcra-m2Section')) {
                 initCharts();
                 chartsInitialized = true;
             }
@@ -2940,7 +3300,7 @@
                         status.style.background = 'rgba(34, 197, 94, 0.1)';
                         status.style.color = '#22c55e';
                         status.style.border = '1px solid #22c55e';
-                        status.innerHTML = `✅ Excel procesado: ${resultado.base_monetaria} Base Monetaria + ${resultado.depositos} Depósitos guardados 🌐`;
+                        status.innerHTML = `✅ Excel procesado: ${resultado.base_monetaria} Base Monetaria + ${resultado.m2_transaccional} M2 + ${resultado.depositos} Depósitos guardados 🌐`;
                         
                         // Cerrar modal y mostrar dashboard BCRA
                         setTimeout(() => {

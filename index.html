@@ -1029,7 +1029,7 @@
             </div>
             
             <!-- Botón M2 Transaccional -->
-            <div class="bcra-metric-card" onclick="showSection('bcra-m2Section')">
+            <div class="bcra-metric-card" onclick="showSection('bcra-m2')">
                 <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #cbd5e1;">M2 Transaccional Sector Privado (% PBI)</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
@@ -1227,7 +1227,7 @@
 
         <!-- SECCIÓN M2 TRANSACCIONAL -->
         <div id="bcra-m2Section" class="section">
-            <button class="back-btn" onclick="showSection('bcraSection')">← Volver</button>
+            <button class="back-btn" onclick="showSection('bcra')">← Volver</button>
             
             <div class="date-filter">
                 <div class="filter-group">
@@ -3139,8 +3139,8 @@
                 inicializarChartDEP();
             }
             
-            // Si va a bcra-m2Section, inicializar
-            if (section === 'bcra-m2Section') {
+            // Si va a bcra-m2, inicializar
+            if (section === 'bcra-m2') {
                 if (datosM2.length === 0) {
                     alert('Primero debes cargar los datos de BCRA');
                     return;
@@ -3162,13 +3162,13 @@
                 'bcra': 1,
                 'bcra-bm': 1,  // BCRA Base Monetaria activa tab BCRA
                 'bcra-depositos': 1,  // Depósitos activa tab BCRA
-                'bcra-m2Section': 1  // M2 activa tab BCRA
+                'bcra-m2': 1  // M2 activa tab BCRA
             };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
             
-            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos' || section === 'bcra-m2Section')) {
+            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos' || section === 'bcra-m2')) {
                 initCharts();
                 chartsInitialized = true;
             }

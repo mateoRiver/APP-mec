@@ -2511,7 +2511,9 @@
             'usuario': 'MECON2026!',
             'MartinVauthier': 'MECON2026!',
             'FedericoFuriase': 'MECON2026!',
-            'FelipeNuñez': 'MECON2026!'
+            'FelipeNuñez': 'MECON2026!',
+            'FeloBeron': 'MECON2026!',
+            'CristobalCaputo': 'MECON2026!'
         };
         let chartMensual, chartInteranual, chartEmae, chartBcra;
         let chartsInitialized = false;
@@ -2624,9 +2626,9 @@
                 lastUpdate.textContent = 'Sin datos cargados';
             }
             
-            // Volver a la sección de resumen
+            // Volver a la sección de IPC/EMAE
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById('resumenSection').classList.add('active');
+            document.getElementById('ipc-emaeSection').classList.add('active');
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.querySelectorAll('.nav-item')[0].classList.add('active');
             

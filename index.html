@@ -1279,6 +1279,62 @@
             </div>
         </div>
 
+        <!-- SECCIÓN PRÉSTAMOS EN DÓLARES -->
+        <div id="bcra-prestamos-dolaresSection" class="section">
+            <button class="back-btn" onclick="showSection('bcra')">← Volver</button>
+            
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <input type="date" id="fechaDesdePrestDolares" class="date-input">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <input type="date" id="fechaHastaPrestDolares" class="date-input">
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroPrestDolares()">Aplicar</button>
+            </div>
+            
+            <div class="chart-detail">
+                <h2>Préstamos en Dólares Sector Privado (% PBI)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="chartPrestDolares"></canvas>
+                </div>
+                
+                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdatePrestDolares">
+                    Sin datos cargados
+                </p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN PRÉSTAMOS TOTALES -->
+        <div id="bcra-prestamos-totalesSection" class="section">
+            <button class="back-btn" onclick="showSection('bcra')">← Volver</button>
+            
+            <div class="date-filter">
+                <div class="filter-group">
+                    <label>Desde</label>
+                    <input type="date" id="fechaDesdePrestTotales" class="date-input">
+                </div>
+                <div class="filter-group">
+                    <label>Hasta</label>
+                    <input type="date" id="fechaHastaPrestTotales" class="date-input">
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltroPrestTotales()">Aplicar</button>
+            </div>
+            
+            <div class="chart-detail">
+                <h2>Préstamos Totales Sector Privado (% PBI)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="chartPrestTotales"></canvas>
+                </div>
+                
+                <p style="font-size: 12px; opacity: 0.6; margin-top: 12px; text-align: center;" id="lastUpdatePrestTotales">
+                    Sin datos cargados
+                </p>
+            </div>
+        </div>
+
         <!-- MODAL DE UPLOAD SIMPLIFICADO -->
         <div id="modalUploadBCRA" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 30px 20px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); position: relative;">
@@ -1757,6 +1813,8 @@
                 // ============================================
                 console.log('\n=== PROCESANDO PRÉSTAMOS EN PESOS ===');
                 let datosPrestPesos = [];
+                let datosPrestDolares = [];
+                let datosPrestTotales = [];
                 
                 const sheetPREST = workbook.SheetNames.find(name => 
                     name.toUpperCase().includes('PREST') || name.toUpperCase().includes('PRÉST')
@@ -1821,6 +1879,76 @@
                         if (datosPrestPesos.length > 0) {
                             await guardarDatosSupabase('prestamos_pesos', datosPrestPesos);
                         }
+                        
+                        // ============================================
+                        // PROCESAR PRÉSTAMOS EN DÓLARES (misma hoja)
+                        // ============================================
+                        console.log('\n=== PROCESANDO PRÉSTAMOS EN DÓLARES ===');
+                        datosPrestDolares = [];
+                        for (let i = startRowPREST; i < dataPREST.length; i++) {
+                            const fechaStr = dataPREST[i][0];
+                            const valorS = dataPREST[i][18]; // Columna S (idx 18) - Préstamos en Dólares
+                            
+                            if (!fechaStr || !valorS) continue;
+                            
+                            const fecha = parseFechaExcel(fechaStr);
+                            if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
+                            
+                            const pbi = obtenerPBI(fecha);
+                            if (!pbi) continue;
+                            
+                            const valor = parseFloat(String(valorS).replace(/,/g, ''));
+                            if (isNaN(valor)) continue;
+                            
+                            datosPrestDolares.push({
+                                fecha: fechaToString(fecha),
+                                valor_millones: valor,
+                                porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
+                            });
+                        }
+                        
+                        console.log(`✅ Préstamos en Dólares: ${datosPrestDolares.length} registros`);
+                        console.log('Primeros 3:', datosPrestDolares.slice(0, 3));
+                        console.log('Últimos 3:', datosPrestDolares.slice(-3));
+                        
+                        if (datosPrestDolares.length > 0) {
+                            await guardarDatosSupabase('prestamos_dolares', datosPrestDolares);
+                        }
+                        
+                        // ============================================
+                        // PROCESAR PRÉSTAMOS TOTALES (misma hoja)
+                        // ============================================
+                        console.log('\n=== PROCESANDO PRÉSTAMOS TOTALES ===');
+                        datosPrestTotales = [];
+                        for (let i = startRowPREST; i < dataPREST.length; i++) {
+                            const fechaStr = dataPREST[i][0];
+                            const valorU = dataPREST[i][20]; // Columna U (idx 20) - Préstamos Totales
+                            
+                            if (!fechaStr || !valorU) continue;
+                            
+                            const fecha = parseFechaExcel(fechaStr);
+                            if (isNaN(fecha.getTime()) || fecha.getFullYear() < 2017) continue;
+                            
+                            const pbi = obtenerPBI(fecha);
+                            if (!pbi) continue;
+                            
+                            const valor = parseFloat(String(valorU).replace(/,/g, ''));
+                            if (isNaN(valor)) continue;
+                            
+                            datosPrestTotales.push({
+                                fecha: fechaToString(fecha),
+                                valor_millones: valor,
+                                porcentaje_pbi: parseFloat(((valor / pbi) * 100).toFixed(4))
+                            });
+                        }
+                        
+                        console.log(`✅ Préstamos Totales: ${datosPrestTotales.length} registros`);
+                        console.log('Primeros 3:', datosPrestTotales.slice(0, 3));
+                        console.log('Últimos 3:', datosPrestTotales.slice(-3));
+                        
+                        if (datosPrestTotales.length > 0) {
+                            await guardarDatosSupabase('prestamos_totales', datosPrestTotales);
+                        }
                     }
                 }
                 
@@ -1834,7 +1962,9 @@
                     base_monetaria: datosBaseMon.length, 
                     m2_transaccional: datosM2.length,
                     depositos: datosDepositos.length,
-                    prestamos_pesos: datosPrestPesos.length
+                    prestamos_pesos: datosPrestPesos.length,
+                    prestamos_dolares: datosPrestDolares.length,
+                    prestamos_totales: datosPrestTotales.length
                 };
                 
             } catch (error) {
@@ -1938,6 +2068,18 @@
         let fechaDesdePrestPesos = null;
         let fechaHastaPrestPesos = null;
         
+        // PRÉSTAMOS EN DÓLARES
+        let chartPrestDolares = null;
+        let datosPrestDolares = [];
+        let fechaDesdePrestDolares = null;
+        let fechaHastaPrestDolares = null;
+        
+        // PRÉSTAMOS TOTALES
+        let chartPrestTotales = null;
+        let datosPrestTotales = [];
+        let fechaDesdePrestTotales = null;
+        let fechaHastaPrestTotales = null;
+        
         async function mostrarDashboardBCRA() {
             if (cargandoBCRA) {
                 console.log('Ya se está cargando el dashboard, esperando...');
@@ -2011,6 +2153,22 @@
                     console.error('Error cargando Préstamos en Pesos:', error);
                 }
                 
+                // Cargar Préstamos en Dólares
+                try {
+                    await cargarDatosPrestDolares();
+                    console.log(`✅ Préstamos en Dólares cargados: ${datosPrestDolares.length} registros`);
+                } catch (error) {
+                    console.error('Error cargando Préstamos en Dólares:', error);
+                }
+                
+                // Cargar Préstamos Totales
+                try {
+                    await cargarDatosPrestTotales();
+                    console.log(`✅ Préstamos Totales cargados: ${datosPrestTotales.length} registros`);
+                } catch (error) {
+                    console.error('Error cargando Préstamos Totales:', error);
+                }
+                
                 // Actualizar info de última actualización
                 const ultimoDato = datosBM[datosBM.length - 1];
                 document.getElementById('lastUpdateBCRA').textContent = 
@@ -2068,6 +2226,16 @@
                 // Aplicar filtro de Préstamos en Pesos si hay datos
                 if (datosPrestPesos.length > 0) {
                     aplicarFiltroResumenPrestPesos();
+                }
+                
+                // Aplicar filtro de Préstamos en Dólares si hay datos
+                if (datosPrestDolares.length > 0) {
+                    aplicarFiltroResumenPrestDolares();
+                }
+                
+                // Aplicar filtro de Préstamos Totales si hay datos
+                if (datosPrestTotales.length > 0) {
+                    aplicarFiltroResumenPrestTotales();
                 }
                 
             } catch (error) {
@@ -2993,6 +3161,528 @@
             chartPrestPesos.update();
         }
         
+        // ==========================================
+        // PRÉSTAMOS EN DÓLARES - FUNCIONES
+        // ==========================================
+        
+        async function cargarDatosPrestDolares() {
+            try {
+                console.log('Cargando Préstamos en Dólares desde Supabase...');
+                
+                datosPrestDolares = [];
+                let offset = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+                
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('prestamos_dolares')
+                        .select('*')
+                        .order('fecha', { ascending: true })
+                        .range(offset, offset + pageSize - 1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        datosPrestDolares = datosPrestDolares.concat(data);
+                        console.log(`PrestU$D - Página cargada: ${data.length} registros (total: ${datosPrestDolares.length})`);
+                        offset += pageSize;
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                console.log(`✅ Préstamos en Dólares cargados: ${datosPrestDolares.length} registros`);
+                console.log('Primeros 3:', datosPrestDolares.slice(0, 3));
+                console.log('Últimos 3:', datosPrestDolares.slice(-3));
+                return datosPrestDolares;
+                
+            } catch (error) {
+                console.error('Error cargando Préstamos en Dólares:', error);
+                throw error;
+            }
+        }
+        
+        function aplicarFiltroResumenPrestDolares() {
+            if (!datosPrestDolares || datosPrestDolares.length === 0) {
+                console.log('No hay datos de Préstamos en Dólares para mostrar');
+                return;
+            }
+            
+            const inputDesde = document.getElementById('fechaDesdeBCRAResumen');
+            const inputHasta = document.getElementById('fechaHastaBCRAResumen');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            const fechaDesde = new Date(inputDesde.value + 'T00:00:00');
+            const fechaHasta = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesde > fechaHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            const datosFiltrados = datosPrestDolares.filter(d => {
+                const fecha = stringToFechaLocal(d.fecha);
+                return fecha >= fechaDesde && fecha <= fechaHasta;
+            });
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            const valores = datosFiltrados.map(d => d.porcentaje_pbi);
+            const primero = datosFiltrados[0];
+            const ultimo = datosFiltrados[datosFiltrados.length - 1];
+            const promedio = (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(2);
+            
+            let maximo = datosFiltrados[0];
+            let minimo = datosFiltrados[0];
+            datosFiltrados.forEach(d => {
+                if (d.porcentaje_pbi > maximo.porcentaje_pbi) maximo = d;
+                if (d.porcentaje_pbi < minimo.porcentaje_pbi) minimo = d;
+            });
+            
+            const formatearFecha = (fecha) => {
+                const f = stringToFechaLocal(fecha);
+                return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
+            };
+            
+            document.getElementById('pd-primero').textContent = primero.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pd-primero-fecha').textContent = formatearFecha(primero.fecha);
+            document.getElementById('pd-ultimo').textContent = ultimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pd-ultimo-fecha').textContent = formatearFecha(ultimo.fecha);
+            document.getElementById('pd-promedio').textContent = promedio + '%';
+            document.getElementById('pd-maximo').textContent = maximo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pd-maximo-fecha').textContent = formatearFecha(maximo.fecha);
+            document.getElementById('pd-minimo').textContent = minimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pd-minimo-fecha').textContent = formatearFecha(minimo.fecha);
+        }
+        
+        function inicializarSelectoresFechasPrestDolares() {
+            const primeraFechaStr = datosPrestDolares[0].fecha;
+            const ultimaFechaStr = datosPrestDolares[datosPrestDolares.length - 1].fecha;
+            const fechaDesdeDefaultStr = '2023-12-01';
+            
+            const inputDesde = document.getElementById('fechaDesdePrestDolares');
+            const inputHasta = document.getElementById('fechaHastaPrestDolares');
+            
+            inputDesde.value = fechaDesdeDefaultStr;
+            inputHasta.value = ultimaFechaStr;
+            inputDesde.min = primeraFechaStr;
+            inputDesde.max = ultimaFechaStr;
+            inputHasta.min = primeraFechaStr;
+            inputHasta.max = ultimaFechaStr;
+            
+            fechaDesdePrestDolares = stringToFechaLocal(fechaDesdeDefaultStr);
+            fechaHastaPrestDolares = stringToFechaLocal(ultimaFechaStr);
+        }
+        
+        function filtrarDatosPrestDolaresPorFechas() {
+            if (!fechaDesdePrestDolares || !fechaHastaPrestDolares) return datosPrestDolares;
+            
+            let indiceDesde = datosPrestDolares.findIndex(d => stringToFechaLocal(d.fecha) >= fechaDesdePrestDolares);
+            if (indiceDesde === -1) indiceDesde = datosPrestDolares.length - 1;
+            else if (indiceDesde > 0 && stringToFechaLocal(datosPrestDolares[indiceDesde].fecha) > fechaDesdePrestDolares) indiceDesde = indiceDesde - 1;
+            
+            let indiceHasta = -1;
+            for (let i = datosPrestDolares.length - 1; i >= 0; i--) {
+                if (stringToFechaLocal(datosPrestDolares[i].fecha) <= fechaHastaPrestDolares) {
+                    indiceHasta = i;
+                    break;
+                }
+            }
+            
+            if (indiceHasta === -1) return [];
+            return datosPrestDolares.slice(indiceDesde, indiceHasta + 1);
+        }
+        
+        function inicializarChartPrestDolares() {
+            const ctx = document.getElementById('chartPrestDolares');
+            if (!ctx) return;
+            const datosFiltrados = filtrarDatosPrestDolaresPorFechas();
+            if (datosFiltrados.length === 0) return;
+            const isMobile = window.innerWidth <= 768;
+            
+            chartPrestDolares = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datosFiltrados.map(d => {
+                        const fecha = stringToFechaLocal(d.fecha);
+                        return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+                    }),
+                    datasets: [{
+                        label: 'Préstamos en Dólares (% PBI)',
+                        data: datosFiltrados.map(d => d.porcentaje_pbi),
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        borderWidth: isMobile ? 2 : 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#06b6d4',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 16,
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 16, weight: '700' },
+                            titleColor: '#94a3b8',
+                            bodyColor: '#fff',
+                            borderColor: '#06b6d4',
+                            borderWidth: 2,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const fecha = stringToFechaLocal(datosFiltrados[context[0].dataIndex].fecha);
+                                    return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                                },
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '% del PBI';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 10 : 12 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 9 : 11 },
+                                maxRotation: isMobile ? 45 : 0,
+                                minRotation: isMobile ? 45 : 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function aplicarFiltroPrestDolares() {
+            const inputDesde = document.getElementById('fechaDesdePrestDolares');
+            const inputHasta = document.getElementById('fechaHastaPrestDolares');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            fechaDesdePrestDolares = new Date(inputDesde.value + 'T00:00:00');
+            fechaHastaPrestDolares = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesdePrestDolares > fechaHastaPrestDolares) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            actualizarChartPrestDolares();
+        }
+        
+        function actualizarChartPrestDolares() {
+            if (!chartPrestDolares) return;
+            const datosFiltrados = filtrarDatosPrestDolaresPorFechas();
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            chartPrestDolares.data.labels = datosFiltrados.map(d => {
+                const fecha = stringToFechaLocal(d.fecha);
+                return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+            });
+            chartPrestDolares.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
+            chartPrestDolares.update();
+        }
+        
+        // ==========================================
+        // PRÉSTAMOS TOTALES - FUNCIONES
+        // ==========================================
+        
+        async function cargarDatosPrestTotales() {
+            try {
+                console.log('Cargando Préstamos Totales desde Supabase...');
+                
+                datosPrestTotales = [];
+                let offset = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+                
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('prestamos_totales')
+                        .select('*')
+                        .order('fecha', { ascending: true })
+                        .range(offset, offset + pageSize - 1);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        datosPrestTotales = datosPrestTotales.concat(data);
+                        console.log(`PrestTot - Página cargada: ${data.length} registros (total: ${datosPrestTotales.length})`);
+                        offset += pageSize;
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                console.log(`✅ Préstamos Totales cargados: ${datosPrestTotales.length} registros`);
+                console.log('Primeros 3:', datosPrestTotales.slice(0, 3));
+                console.log('Últimos 3:', datosPrestTotales.slice(-3));
+                return datosPrestTotales;
+                
+            } catch (error) {
+                console.error('Error cargando Préstamos Totales:', error);
+                throw error;
+            }
+        }
+        
+        function aplicarFiltroResumenPrestTotales() {
+            if (!datosPrestTotales || datosPrestTotales.length === 0) {
+                console.log('No hay datos de Préstamos Totales para mostrar');
+                return;
+            }
+            
+            const inputDesde = document.getElementById('fechaDesdeBCRAResumen');
+            const inputHasta = document.getElementById('fechaHastaBCRAResumen');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            const fechaDesde = new Date(inputDesde.value + 'T00:00:00');
+            const fechaHasta = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesde > fechaHasta) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            const datosFiltrados = datosPrestTotales.filter(d => {
+                const fecha = stringToFechaLocal(d.fecha);
+                return fecha >= fechaDesde && fecha <= fechaHasta;
+            });
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            const valores = datosFiltrados.map(d => d.porcentaje_pbi);
+            const primero = datosFiltrados[0];
+            const ultimo = datosFiltrados[datosFiltrados.length - 1];
+            const promedio = (valores.reduce((a, b) => a + b, 0) / valores.length).toFixed(2);
+            
+            let maximo = datosFiltrados[0];
+            let minimo = datosFiltrados[0];
+            datosFiltrados.forEach(d => {
+                if (d.porcentaje_pbi > maximo.porcentaje_pbi) maximo = d;
+                if (d.porcentaje_pbi < minimo.porcentaje_pbi) minimo = d;
+            });
+            
+            const formatearFecha = (fecha) => {
+                const f = stringToFechaLocal(fecha);
+                return f.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '');
+            };
+            
+            document.getElementById('pt-primero').textContent = primero.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pt-primero-fecha').textContent = formatearFecha(primero.fecha);
+            document.getElementById('pt-ultimo').textContent = ultimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pt-ultimo-fecha').textContent = formatearFecha(ultimo.fecha);
+            document.getElementById('pt-promedio').textContent = promedio + '%';
+            document.getElementById('pt-maximo').textContent = maximo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pt-maximo-fecha').textContent = formatearFecha(maximo.fecha);
+            document.getElementById('pt-minimo').textContent = minimo.porcentaje_pbi.toFixed(2) + '%';
+            document.getElementById('pt-minimo-fecha').textContent = formatearFecha(minimo.fecha);
+        }
+        
+        function inicializarSelectoresFechasPrestTotales() {
+            const primeraFechaStr = datosPrestTotales[0].fecha;
+            const ultimaFechaStr = datosPrestTotales[datosPrestTotales.length - 1].fecha;
+            const fechaDesdeDefaultStr = '2023-12-01';
+            
+            const inputDesde = document.getElementById('fechaDesdePrestTotales');
+            const inputHasta = document.getElementById('fechaHastaPrestTotales');
+            
+            inputDesde.value = fechaDesdeDefaultStr;
+            inputHasta.value = ultimaFechaStr;
+            inputDesde.min = primeraFechaStr;
+            inputDesde.max = ultimaFechaStr;
+            inputHasta.min = primeraFechaStr;
+            inputHasta.max = ultimaFechaStr;
+            
+            fechaDesdePrestTotales = stringToFechaLocal(fechaDesdeDefaultStr);
+            fechaHastaPrestTotales = stringToFechaLocal(ultimaFechaStr);
+        }
+        
+        function filtrarDatosPrestTotalesPorFechas() {
+            if (!fechaDesdePrestTotales || !fechaHastaPrestTotales) return datosPrestTotales;
+            
+            let indiceDesde = datosPrestTotales.findIndex(d => stringToFechaLocal(d.fecha) >= fechaDesdePrestTotales);
+            if (indiceDesde === -1) indiceDesde = datosPrestTotales.length - 1;
+            else if (indiceDesde > 0 && stringToFechaLocal(datosPrestTotales[indiceDesde].fecha) > fechaDesdePrestTotales) indiceDesde = indiceDesde - 1;
+            
+            let indiceHasta = -1;
+            for (let i = datosPrestTotales.length - 1; i >= 0; i--) {
+                if (stringToFechaLocal(datosPrestTotales[i].fecha) <= fechaHastaPrestTotales) {
+                    indiceHasta = i;
+                    break;
+                }
+            }
+            
+            if (indiceHasta === -1) return [];
+            return datosPrestTotales.slice(indiceDesde, indiceHasta + 1);
+        }
+        
+        function inicializarChartPrestTotales() {
+            const ctx = document.getElementById('chartPrestTotales');
+            if (!ctx) return;
+            const datosFiltrados = filtrarDatosPrestTotalesPorFechas();
+            if (datosFiltrados.length === 0) return;
+            const isMobile = window.innerWidth <= 768;
+            
+            chartPrestTotales = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: datosFiltrados.map(d => {
+                        const fecha = stringToFechaLocal(d.fecha);
+                        return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+                    }),
+                    datasets: [{
+                        label: 'Préstamos Totales (% PBI)',
+                        data: datosFiltrados.map(d => d.porcentaje_pbi),
+                        borderColor: '#ec4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        borderWidth: isMobile ? 2 : 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#ec4899',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 16,
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 16, weight: '700' },
+                            titleColor: '#94a3b8',
+                            bodyColor: '#fff',
+                            borderColor: '#ec4899',
+                            borderWidth: 2,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    const fecha = stringToFechaLocal(datosFiltrados[context[0].dataIndex].fecha);
+                                    return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                                },
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '% del PBI';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 10 : 12 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: isMobile ? 9 : 11 },
+                                maxRotation: isMobile ? 45 : 0,
+                                minRotation: isMobile ? 45 : 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function aplicarFiltroPrestTotales() {
+            const inputDesde = document.getElementById('fechaDesdePrestTotales');
+            const inputHasta = document.getElementById('fechaHastaPrestTotales');
+            
+            if (!inputDesde.value || !inputHasta.value) {
+                alert('Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            fechaDesdePrestTotales = new Date(inputDesde.value + 'T00:00:00');
+            fechaHastaPrestTotales = new Date(inputHasta.value + 'T23:59:59');
+            
+            if (fechaDesdePrestTotales > fechaHastaPrestTotales) {
+                alert('La fecha "Desde" debe ser anterior a "Hasta"');
+                return;
+            }
+            
+            actualizarChartPrestTotales();
+        }
+        
+        function actualizarChartPrestTotales() {
+            if (!chartPrestTotales) return;
+            const datosFiltrados = filtrarDatosPrestTotalesPorFechas();
+            
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos disponibles para el rango seleccionado');
+                return;
+            }
+            
+            chartPrestTotales.data.labels = datosFiltrados.map(d => {
+                const fecha = stringToFechaLocal(d.fecha);
+                return fecha.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '');
+            });
+            chartPrestTotales.data.datasets[0].data = datosFiltrados.map(d => d.porcentaje_pbi);
+            chartPrestTotales.update();
+        }
+        
         function aplicarFiltroResumenDEP() {
             // Si no hay datos, salir silenciosamente
             if (!datosDEP || datosDEP.length === 0) {
@@ -3538,6 +4228,26 @@
                 inicializarChartPrestPesos();
             }
             
+            // Si va a bcra-prestamos-dolares, inicializar
+            if (section === 'bcra-prestamos-dolares') {
+                if (datosPrestDolares.length === 0) {
+                    alert('Primero debes cargar los datos de BCRA');
+                    return;
+                }
+                inicializarSelectoresFechasPrestDolares();
+                inicializarChartPrestDolares();
+            }
+            
+            // Si va a bcra-prestamos-totales, inicializar
+            if (section === 'bcra-prestamos-totales') {
+                if (datosPrestTotales.length === 0) {
+                    alert('Primero debes cargar los datos de BCRA');
+                    return;
+                }
+                inicializarSelectoresFechasPrestTotales();
+                inicializarChartPrestTotales();
+            }
+            
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(section + 'Section').classList.add('active');
             
@@ -3552,13 +4262,15 @@
                 'bcra-bm': 1,  // BCRA Base Monetaria activa tab BCRA
                 'bcra-depositos': 1,  // Depósitos activa tab BCRA
                 'bcra-m2': 1,  // M2 activa tab BCRA
-                'bcra-prestamos-pesos': 1  // Préstamos en Pesos activa tab BCRA
+                'bcra-prestamos-pesos': 1,  // Préstamos en Pesos activa tab BCRA
+                'bcra-prestamos-dolares': 1,  // Préstamos en Dólares activa tab BCRA
+                'bcra-prestamos-totales': 1  // Préstamos Totales activa tab BCRA
             };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
             }
             
-            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos' || section === 'bcra-m2' || section === 'bcra-prestamos-pesos')) {
+            if (!chartsInitialized && (section === 'mensual' || section === 'interanual' || section === 'emae' || section === 'bcra-bm' || section === 'bcra-depositos' || section === 'bcra-m2' || section === 'bcra-prestamos-pesos' || section === 'bcra-prestamos-dolares' || section === 'bcra-prestamos-totales')) {
                 initCharts();
                 chartsInitialized = true;
             }
@@ -3688,7 +4400,7 @@
                         status.style.background = 'rgba(34, 197, 94, 0.1)';
                         status.style.color = '#22c55e';
                         status.style.border = '1px solid #22c55e';
-                        status.innerHTML = `✅ Excel procesado: ${resultado.base_monetaria} BM + ${resultado.m2_transaccional} M2 + ${resultado.depositos} DEP + ${resultado.prestamos_pesos} Prest$ guardados 🌐`;
+                        status.innerHTML = `✅ Excel procesado: ${resultado.base_monetaria} BM + ${resultado.m2_transaccional} M2 + ${resultado.depositos} DEP + ${resultado.prestamos_pesos} Prest$ + ${resultado.prestamos_dolares} PrestU$D + ${resultado.prestamos_totales} PrestTot guardados 🌐`;
                         
                         // Cerrar modal y mostrar dashboard BCRA
                         setTimeout(() => {

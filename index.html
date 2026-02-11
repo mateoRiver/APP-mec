@@ -2882,6 +2882,62 @@
                     }
                 }
             });
+            
+            // Agregar eventos touch para móvil (ocultar tooltip al dejar de tocar)
+            if (isMobile) {
+                const canvas = ctx;
+                let touchTimeout;
+                let isTouch = false;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    clearTimeout(touchTimeout);
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    if (!isTouch) return;
+                    
+                    touchTimeout = setTimeout(() => {
+                        if (chartM2 && chartM2.data && chartM2.data.datasets[0]) {
+                            chartM2.data.datasets[0].pointRadius = 0;
+                            chartM2.data.datasets[0].pointHoverRadius = 0;
+                            chartM2.tooltip.setActiveElements([]);
+                            chartM2.setActiveElements([]);
+                            chartM2.update('none');
+                            
+                            setTimeout(() => {
+                                if (chartM2 && chartM2.data && chartM2.data.datasets[0]) {
+                                    chartM2.data.datasets[0].pointRadius = 0;
+                                    chartM2.data.datasets[0].pointHoverRadius = 8;
+                                }
+                            }, 100);
+                        }
+                        isTouch = false;
+                    }, 200);
+                });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    clearTimeout(touchTimeout);
+                    if (chartM2 && chartM2.data && chartM2.data.datasets[0]) {
+                        chartM2.data.datasets[0].pointRadius = 0;
+                        chartM2.data.datasets[0].pointHoverRadius = 0;
+                        chartM2.tooltip.setActiveElements([]);
+                        chartM2.setActiveElements([]);
+                        chartM2.update('none');
+                        setTimeout(() => {
+                            if (chartM2 && chartM2.data && chartM2.data.datasets[0]) {
+                                chartM2.data.datasets[0].pointRadius = 0;
+                                chartM2.data.datasets[0].pointHoverRadius = 8;
+                            }
+                        }, 100);
+                    }
+                    isTouch = false;
+                });
+            }
         }
         
         function aplicarFiltroM2() {
@@ -3143,6 +3199,62 @@
                     }
                 }
             });
+            
+            // Agregar eventos touch para móvil (ocultar tooltip al dejar de tocar)
+            if (isMobile) {
+                const canvas = ctx;
+                let touchTimeout;
+                let isTouch = false;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    clearTimeout(touchTimeout);
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    if (!isTouch) return;
+                    
+                    touchTimeout = setTimeout(() => {
+                        if (chartPrestPesos && chartPrestPesos.data && chartPrestPesos.data.datasets[0]) {
+                            chartPrestPesos.data.datasets[0].pointRadius = 0;
+                            chartPrestPesos.data.datasets[0].pointHoverRadius = 0;
+                            chartPrestPesos.tooltip.setActiveElements([]);
+                            chartPrestPesos.setActiveElements([]);
+                            chartPrestPesos.update('none');
+                            
+                            setTimeout(() => {
+                                if (chartPrestPesos && chartPrestPesos.data && chartPrestPesos.data.datasets[0]) {
+                                    chartPrestPesos.data.datasets[0].pointRadius = 0;
+                                    chartPrestPesos.data.datasets[0].pointHoverRadius = 8;
+                                }
+                            }, 100);
+                        }
+                        isTouch = false;
+                    }, 200);
+                });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    clearTimeout(touchTimeout);
+                    if (chartPrestPesos && chartPrestPesos.data && chartPrestPesos.data.datasets[0]) {
+                        chartPrestPesos.data.datasets[0].pointRadius = 0;
+                        chartPrestPesos.data.datasets[0].pointHoverRadius = 0;
+                        chartPrestPesos.tooltip.setActiveElements([]);
+                        chartPrestPesos.setActiveElements([]);
+                        chartPrestPesos.update('none');
+                        setTimeout(() => {
+                            if (chartPrestPesos && chartPrestPesos.data && chartPrestPesos.data.datasets[0]) {
+                                chartPrestPesos.data.datasets[0].pointRadius = 0;
+                                chartPrestPesos.data.datasets[0].pointHoverRadius = 8;
+                            }
+                        }, 100);
+                    }
+                    isTouch = false;
+                });
+            }
         }
         
         function aplicarFiltroPrestPesos() {
@@ -3404,6 +3516,62 @@
                     }
                 }
             });
+            
+            // Agregar eventos touch para móvil (ocultar tooltip al dejar de tocar)
+            if (isMobile) {
+                const canvas = ctx;
+                let touchTimeout;
+                let isTouch = false;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    clearTimeout(touchTimeout);
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    if (!isTouch) return;
+                    
+                    touchTimeout = setTimeout(() => {
+                        if (chartPrestDolares && chartPrestDolares.data && chartPrestDolares.data.datasets[0]) {
+                            chartPrestDolares.data.datasets[0].pointRadius = 0;
+                            chartPrestDolares.data.datasets[0].pointHoverRadius = 0;
+                            chartPrestDolares.tooltip.setActiveElements([]);
+                            chartPrestDolares.setActiveElements([]);
+                            chartPrestDolares.update('none');
+                            
+                            setTimeout(() => {
+                                if (chartPrestDolares && chartPrestDolares.data && chartPrestDolares.data.datasets[0]) {
+                                    chartPrestDolares.data.datasets[0].pointRadius = 0;
+                                    chartPrestDolares.data.datasets[0].pointHoverRadius = 8;
+                                }
+                            }, 100);
+                        }
+                        isTouch = false;
+                    }, 200);
+                });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    clearTimeout(touchTimeout);
+                    if (chartPrestDolares && chartPrestDolares.data && chartPrestDolares.data.datasets[0]) {
+                        chartPrestDolares.data.datasets[0].pointRadius = 0;
+                        chartPrestDolares.data.datasets[0].pointHoverRadius = 0;
+                        chartPrestDolares.tooltip.setActiveElements([]);
+                        chartPrestDolares.setActiveElements([]);
+                        chartPrestDolares.update('none');
+                        setTimeout(() => {
+                            if (chartPrestDolares && chartPrestDolares.data && chartPrestDolares.data.datasets[0]) {
+                                chartPrestDolares.data.datasets[0].pointRadius = 0;
+                                chartPrestDolares.data.datasets[0].pointHoverRadius = 8;
+                            }
+                        }, 100);
+                    }
+                    isTouch = false;
+                });
+            }
         }
         
         function aplicarFiltroPrestDolares() {
@@ -3665,6 +3833,62 @@
                     }
                 }
             });
+            
+            // Agregar eventos touch para móvil (ocultar tooltip al dejar de tocar)
+            if (isMobile) {
+                const canvas = ctx;
+                let touchTimeout;
+                let isTouch = false;
+                
+                canvas.addEventListener('touchstart', function(e) {
+                    clearTimeout(touchTimeout);
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    isTouch = true;
+                });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    if (!isTouch) return;
+                    
+                    touchTimeout = setTimeout(() => {
+                        if (chartPrestTotales && chartPrestTotales.data && chartPrestTotales.data.datasets[0]) {
+                            chartPrestTotales.data.datasets[0].pointRadius = 0;
+                            chartPrestTotales.data.datasets[0].pointHoverRadius = 0;
+                            chartPrestTotales.tooltip.setActiveElements([]);
+                            chartPrestTotales.setActiveElements([]);
+                            chartPrestTotales.update('none');
+                            
+                            setTimeout(() => {
+                                if (chartPrestTotales && chartPrestTotales.data && chartPrestTotales.data.datasets[0]) {
+                                    chartPrestTotales.data.datasets[0].pointRadius = 0;
+                                    chartPrestTotales.data.datasets[0].pointHoverRadius = 8;
+                                }
+                            }, 100);
+                        }
+                        isTouch = false;
+                    }, 200);
+                });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    clearTimeout(touchTimeout);
+                    if (chartPrestTotales && chartPrestTotales.data && chartPrestTotales.data.datasets[0]) {
+                        chartPrestTotales.data.datasets[0].pointRadius = 0;
+                        chartPrestTotales.data.datasets[0].pointHoverRadius = 0;
+                        chartPrestTotales.tooltip.setActiveElements([]);
+                        chartPrestTotales.setActiveElements([]);
+                        chartPrestTotales.update('none');
+                        setTimeout(() => {
+                            if (chartPrestTotales && chartPrestTotales.data && chartPrestTotales.data.datasets[0]) {
+                                chartPrestTotales.data.datasets[0].pointRadius = 0;
+                                chartPrestTotales.data.datasets[0].pointHoverRadius = 8;
+                            }
+                        }, 100);
+                    }
+                    isTouch = false;
+                });
+            }
         }
         
         function aplicarFiltroPrestTotales() {

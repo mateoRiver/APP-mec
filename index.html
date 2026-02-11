@@ -4654,8 +4654,10 @@
             btn.innerHTML = '<span>⏳</span><span>Generando...</span>';
             
             try {
-                if (datosBM.length === 0) {
-                    alert('No hay datos de Base Monetaria cargados');
+                // Validar que al menos una serie tenga datos
+                if (datosBM.length === 0 && datosDEP.length === 0 && datosM2.length === 0 && 
+                    datosPrestPesos.length === 0 && datosPrestDolares.length === 0 && datosPrestTotales.length === 0) {
+                    alert('No hay datos de BCRA cargados');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
@@ -4666,50 +4668,72 @@
                 }
                 
                 const workbook = new ExcelJS.Workbook();
-                const ws = workbook.addWorksheet('Base Monetaria');
                 
-                // Headers
-                ws.addRow(['Fecha', 'Base Monetaria (millones $)', 'PBI (millones $)', '% PBI']);
-                
-                // Data
-                for (const dato of datosBM) {
-                    // Parsear fecha correctamente (dato.fecha es "YYYY-MM-DD")
-                    const [year, month, day] = dato.fecha.split('-');
-                    const fecha = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
-                    const fechaStr = fecha.toLocaleDateString('es-AR');
+                // Función helper para crear hoja
+                const crearHoja = (nombre, datos, colorHeader, usarValor = false) => {
+                    if (datos.length === 0) return null;
                     
-                    // Obtener PBI correspondiente
-                    const pbi = obtenerPBI(fecha);
+                    const ws = workbook.addWorksheet(nombre);
                     
-                    ws.addRow([
-                        fechaStr,
-                        dato.valor,
-                        pbi,
-                        dato.porcentaje_pbi
-                    ]);
-                }
-                
-                // Formato
-                const headerRow = ws.getRow(1);
-                headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3b82f6' } };
-                headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
-                
-                ws.getColumn(1).width = 12;
-                ws.getColumn(2).width = 28;
-                ws.getColumn(3).width = 20;
-                ws.getColumn(4).width = 12;
-                
-                // Formatear números
-                for (let i = 2; i <= ws.rowCount; i++) {
-                    ws.getCell(i, 2).numFmt = '#,##0'; // Base Monetaria
-                    ws.getCell(i, 2).alignment = { horizontal: 'right' };
+                    // Headers
+                    ws.addRow(['Fecha', 'Valor (millones $)', 'PBI (millones $)', '% PBI']);
                     
-                    ws.getCell(i, 3).numFmt = '#,##0'; // PBI
-                    ws.getCell(i, 3).alignment = { horizontal: 'right' };
+                    // Data
+                    for (const dato of datos) {
+                        const [year, month, day] = dato.fecha.split('-');
+                        const fecha = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0);
+                        const fechaStr = fecha.toLocaleDateString('es-AR');
+                        const pbi = obtenerPBI(fecha);
+                        
+                        ws.addRow([
+                            fechaStr,
+                            usarValor ? dato.valor : dato.valor_millones,
+                            pbi,
+                            dato.porcentaje_pbi
+                        ]);
+                    }
                     
-                    ws.getCell(i, 4).numFmt = '0.00"%"'; // % PBI
-                    ws.getCell(i, 4).alignment = { horizontal: 'center' };
+                    // Formato header
+                    const headerRow = ws.getRow(1);
+                    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorHeader } };
+                    headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+                    
+                    // Anchos de columna
+                    ws.getColumn(1).width = 12;
+                    ws.getColumn(2).width = 22;
+                    ws.getColumn(3).width = 20;
+                    ws.getColumn(4).width = 12;
+                    
+                    // Formatear números
+                    for (let i = 2; i <= ws.rowCount; i++) {
+                        ws.getCell(i, 2).numFmt = '#,##0';
+                        ws.getCell(i, 2).alignment = { horizontal: 'right' };
+                        
+                        ws.getCell(i, 3).numFmt = '#,##0';
+                        ws.getCell(i, 3).alignment = { horizontal: 'right' };
+                        
+                        ws.getCell(i, 4).numFmt = '0.00"%"';
+                        ws.getCell(i, 4).alignment = { horizontal: 'center' };
+                    }
+                    
+                    return ws;
+                };
+                
+                // Crear hojas (solo si tienen datos)
+                crearHoja('Base Monetaria', datosBM, 'FF3b82f6', true); // true = usar "valor"
+                crearHoja('Depositos Totales', datosDEP, 'FF10b981');
+                crearHoja('M2 Transaccional', datosM2, 'FFf59e0b');
+                crearHoja('Prestamos Pesos', datosPrestPesos, 'FF8b5cf6');
+                crearHoja('Prestamos Dolares', datosPrestDolares, 'FF06b6d4');
+                crearHoja('Prestamos Totales', datosPrestTotales, 'FFec4899');
+                
+                // Validar que al menos una hoja se creó
+                if (workbook.worksheets.length === 0) {
+                    alert('No hay datos para exportar');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
                 }
                 
                 const buffer = await workbook.xlsx.writeBuffer();
@@ -4719,7 +4743,7 @@
                 a.href = url;
                 
                 const fechaActual = new Date().toISOString().split('T')[0];
-                a.download = `base_monetaria_${fechaActual}.xlsx`;
+                a.download = `series_bcra_${fechaActual}.xlsx`;
                 a.click();
                 window.URL.revokeObjectURL(url);
                 

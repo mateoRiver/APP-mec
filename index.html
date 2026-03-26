@@ -868,10 +868,10 @@
                     <div class="change neutral">Base 2004=100</div>
                     <div class="view-more">Ver gráfico →</div>
                 </div>
-                <div class="stat-card" onclick="showSection('informes')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="stat-card" onclick="showSection('informes')" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 1px solid rgba(102, 126, 234, 0.3);">
                     <h3>📄 Informes Diarios</h3>
-                    <div class="value" id="ultimoInformeNombre">--</div>
-                    <div class="description" id="ultimoInformeFecha">Sin informes disponibles</div>
+                    <div class="value" id="ultimoInformeNombre" style="font-size: 1rem; color: #a5b4fc;">--</div>
+                    <div class="description" id="ultimoInformeFecha">Cargando...</div>
                     <div class="view-more">Ver informes →</div>
                 </div>
             </div>
@@ -1438,6 +1438,10 @@
         <button class="nav-item" onclick="showSection('bcra')">
             <div class="icon">🏦</div>
             <div class="label">BCRA</div>
+        </button>
+        <button class="nav-item" onclick="showSection('informes')">
+            <div class="icon">📄</div>
+            <div class="label">Informes</div>
         </button>
     </div>
 
@@ -4630,64 +4634,8 @@
         }
 
         async function cargarInformes() {
-            try {
-                // Obtener informes de los últimos 30 días
-                const hace30Dias = new Date();
-                hace30Dias.setDate(hace30Dias.getDate() - 30);
-                const fechaLimite = `${hace30Dias.getFullYear()}-${String(hace30Dias.getMonth() + 1).padStart(2, '0')}-${String(hace30Dias.getDate()).padStart(2, '0')}`;
-
-                const { data, error } = await supabaseClient
-                    .from('informes')
-                    .select('*')
-                    .gte('fecha', fechaLimite)
-                    .order('fecha', { ascending: false });
-
-                if (error) throw error;
-
-                informesCache = data || [];
-
-                // Actualizar tarjeta principal
-                actualizarTarjetaInformes();
-
-                // Actualizar sección de último informe
-                if (informesCache.length > 0) {
-                    const ultimo = informesCache[0];
-                    document.getElementById('ultimoInformeNombreGrande').textContent = ultimo.nombre_original;
-                    document.getElementById('ultimoInformeFechaGrande').textContent = formatearFecha(ultimo.fecha);
-                    document.getElementById('btnDescargarUltimo').style.display = 'block';
-                } else {
-                    document.getElementById('ultimoInformeNombreGrande').textContent = 'No hay informes disponibles';
-                    document.getElementById('ultimoInformeFechaGrande').textContent = '';
-                    document.getElementById('btnDescargarUltimo').style.display = 'none';
-                }
-
-                // Actualizar lista de informes anteriores (últimos 7 días, excluyendo el más reciente)
-                const listaDiv = document.getElementById('listaInformesAnteriores');
-                if (informesCache.length <= 1) {
-                    listaDiv.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 30px;">No hay informes anteriores</div>';
-                } else {
-                    const anteriores = informesCache.slice(1, 8); // Máximo 7 informes anteriores
-                    listaDiv.innerHTML = anteriores.map(informe => `
-                        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="color: white; font-weight: 600; margin-bottom: 4px;">${informe.nombre_original}</div>
-                                <div style="color: #94a3b8; font-size: 0.85rem;">${formatearFecha(informe.fecha)} • ${formatBytes(informe.tamaño)}</div>
-                            </div>
-                            <button onclick="descargarInforme('${informe.fecha}')" style="padding: 8px 16px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; white-space: nowrap;">
-                                📥 Descargar
-                            </button>
-                        </div>
-                    `).join('');
-                }
-
-            } catch (error) {
-                console.error('Error cargando informes:', error);
-                document.getElementById('listaInformesAnteriores').innerHTML = `
-                    <div style="color: #f87171; text-align: center; padding: 30px;">
-                        Error al cargar informes: ${error.message}
-                    </div>
-                `;
-            }
+            // Usar el sistema de Supabase Storage
+            await cargarInformesUsuarios();
         }
 
         async function descargarUltimoInforme() {
@@ -4726,15 +4674,7 @@
         }
 
         function actualizarTarjetaInformes() {
-            if (informesCache.length > 0) {
-                const ultimo = informesCache[0];
-                const fechaFormateada = formatearFecha(ultimo.fecha);
-                document.getElementById('ultimoInformeNombre').textContent = ultimo.nombre_original.substring(0, 25) + (ultimo.nombre_original.length > 25 ? '...' : '');
-                document.getElementById('ultimoInformeFecha').textContent = fechaFormateada;
-            } else {
-                document.getElementById('ultimoInformeNombre').textContent = '--';
-                document.getElementById('ultimoInformeFecha').textContent = 'Sin informes disponibles';
-            }
+            // Ya no se necesita - Informes es una sección independiente
         }
 
         function formatearFecha(fechaStr) {
@@ -4840,14 +4780,14 @@
                 'mensual': 0,  // IPC gráficos activan tab IPC
                 'interanual': 0,
                 'emae': 0,
-                'informes': 0, // Informes activa tab IPC/Principal
                 'bcra': 1,
                 'bcra-bm': 1,  // BCRA Base Monetaria activa tab BCRA
                 'bcra-depositos': 1,  // Depósitos activa tab BCRA
                 'bcra-m2': 1,  // M2 activa tab BCRA
                 'bcra-prestamos-pesos': 1,  // Préstamos en Pesos activa tab BCRA
                 'bcra-prestamos-dolares': 1,  // Préstamos en Dólares activa tab BCRA
-                'bcra-prestamos-totales': 1  // Préstamos Totales activa tab BCRA
+                'bcra-prestamos-totales': 1,  // Préstamos Totales activa tab BCRA
+                'informes': 2  // Informes activa su propio tab
             };
             if (sectionMap[section] !== undefined) {
                 navItems[sectionMap[section]].classList.add('active');
@@ -6143,73 +6083,124 @@
         // Cargar informes para usuarios
         async function cargarInformesUsuarios() {
             try {
-                const { data, error } = await supabaseClient.storage
+                // Verificar si Supabase está disponible
+                if (!supabaseClient || !supabaseClient.storage) {
+                    console.warn('Supabase Storage no disponible');
+                    mostrarInformesNoDisponibles();
+                    return;
+                }
+
+                // Intentar cargar con timeout
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 10000)
+                );
+                
+                const storagePromise = supabaseClient.storage
                     .from(BUCKET_INFORMES)
                     .list('', {
                         limit: 10,
                         sortBy: { column: 'created_at', order: 'desc' }
                     });
+
+                const { data, error } = await Promise.race([storagePromise, timeoutPromise]);
                 
-                if (error) throw error;
-                
-                if (data.length === 0) {
-                    document.getElementById('ultimoInformeNombre').textContent = '--';
-                    document.getElementById('ultimoInformeFecha').textContent = 'Sin informes disponibles';
-                    document.getElementById('ultimoInformeNombreGrande').textContent = 'No hay informes disponibles';
-                    document.getElementById('ultimoInformeFechaGrande').textContent = 'El administrador no ha publicado informes aún';
-                    document.getElementById('btnDescargarUltimo').style.display = 'none';
-                    document.getElementById('listaInformes').innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 30px;">No hay informes anteriores</div>';
+                if (error) {
+                    console.error('Error de Supabase Storage:', error);
+                    mostrarInformesNoDisponibles();
                     return;
                 }
                 
-                // Último informe - Extraer solo datos serializables
-                const ultimo = data[0];
-                const fecha = ultimo.name.match(/\d{4}-\d{2}-\d{2}/)?.[0] || 'Fecha desconocida';
-                const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                if (!data || data.length === 0) {
+                    mostrarInformesNoDisponibles();
+                    return;
+                }
                 
-                // IMPORTANTE: Guardar solo datos planos (sin Headers)
+                // Procesar datos de forma segura
+                procesarInformesData(data);
+                
+            } catch (error) {
+                console.error('Error cargando informes usuarios:', error);
+                mostrarInformesNoDisponibles();
+            }
+        }
+
+        function procesarInformesData(data) {
+            try {
+                // Último informe - Extraer SOLO strings primitivos
+                const ultimo = data[0];
+                const nombreArchivo = String(ultimo.name || '');
+                const fecha = nombreArchivo.match(/\d{4}-\d{2}-\d{2}/)?.[0] || 'Fecha desconocida';
+                const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR', { 
+                    day: '2-digit', 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+                
+                // Guardar datos PLANOS (sin ninguna referencia al objeto original)
                 ultimoInformeData = {
-                    name: ultimo.name,
-                    id: ultimo.id,
-                    created_at: ultimo.created_at,
-                    updated_at: ultimo.updated_at
+                    name: nombreArchivo,
+                    id: String(ultimo.id || ''),
+                    created_at: String(ultimo.created_at || ''),
+                    updated_at: String(ultimo.updated_at || '')
                 };
                 
-                document.getElementById('ultimoInformeNombre').textContent = ultimo.name;
-                document.getElementById('ultimoInformeFecha').textContent = fechaFormateada;
-                document.getElementById('ultimoInformeNombreGrande').textContent = ultimo.name;
-                document.getElementById('ultimoInformeFechaGrande').textContent = 'Publicado el ' + fechaFormateada;
-                document.getElementById('btnDescargarUltimo').style.display = 'inline-block';
+                // Actualizar DOM de forma segura
+                const nombreGrande = document.getElementById('ultimoInformeNombreGrande');
+                const fechaGrande = document.getElementById('ultimoInformeFechaGrande');
+                const btnDescargar = document.getElementById('btnDescargarUltimo');
+                
+                if (nombreGrande) nombreGrande.textContent = nombreArchivo;
+                if (fechaGrande) fechaGrande.textContent = 'Publicado el ' + fechaFormateada;
+                if (btnDescargar) btnDescargar.style.display = 'inline-block';
                 
                 // Lista de informes anteriores
-                const listaDiv = document.getElementById('listaInformes');
+                const listaDiv = document.getElementById('listaInformesAnteriores');
+                if (!listaDiv) return;
+                
                 if (data.length <= 1) {
                     listaDiv.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 30px;">No hay informes anteriores</div>';
                 } else {
                     let html = '';
-                    data.slice(1).forEach(archivo => {
-                        const fecha = archivo.name.match(/\d{4}-\d{2}-\d{2}/)?.[0] || 'Fecha desconocida';
-                        const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+                    for (let i = 1; i < data.length; i++) {
+                        const archivo = data[i];
+                        const nombre = String(archivo.name || '');
+                        const fechaMatch = nombre.match(/\d{4}-\d{2}-\d{2}/)?.[0] || 'Fecha desconocida';
+                        const fechaFormato = new Date(fechaMatch + 'T00:00:00').toLocaleDateString('es-AR', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric' 
+                        });
                         
                         html += `
                             <div style="background: #0f172a; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
                                 <div>
-                                    <div style="color: white; font-weight: 500; margin-bottom: 3px;">${archivo.name}</div>
-                                    <div style="color: #94a3b8; font-size: 0.9rem;">${fechaFormateada}</div>
+                                    <div style="color: white; font-weight: 500; margin-bottom: 3px;">${nombre}</div>
+                                    <div style="color: #94a3b8; font-size: 0.9rem;">${fechaFormato}</div>
                                 </div>
-                                <button onclick="descargarInforme('${archivo.name}')" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                                <button onclick="descargarInforme('${nombre}')" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
                                     📥 Descargar
                                 </button>
                             </div>
                         `;
-                    });
+                    }
                     listaDiv.innerHTML = html;
                 }
-                
             } catch (error) {
-                console.error('Error cargando informes usuarios:', error);
-                document.getElementById('listaInformes').innerHTML = '<div style="color: #ef4444; text-align: center; padding: 30px;">Error al cargar informes</div>';
+                console.error('Error procesando informes:', error);
+                mostrarInformesNoDisponibles();
             }
+        }
+
+        function mostrarInformesNoDisponibles() {
+            const nombreGrande = document.getElementById('ultimoInformeNombreGrande');
+            const fechaGrande = document.getElementById('ultimoInformeFechaGrande');
+            const btnDescargar = document.getElementById('btnDescargarUltimo');
+            const listaDiv = document.getElementById('listaInformesAnteriores');
+            
+            if (nombreGrande) nombreGrande.textContent = 'No hay informes disponibles';
+            if (fechaGrande) fechaGrande.textContent = 'El administrador no ha publicado informes aún';
+            if (btnDescargar) btnDescargar.style.display = 'none';
+            if (listaDiv) listaDiv.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 30px;">No hay informes anteriores</div>';
         }
 
         // Descargar informe

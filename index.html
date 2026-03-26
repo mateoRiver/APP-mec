@@ -5891,8 +5891,12 @@
 
         // Autenticar admin
         function autenticarAdmin() {
-            const password = document.getElementById('adminPassword').value;
+            const password = document.getElementById('adminPassword').value.trim();
             const errorDiv = document.getElementById('adminAuthError');
+            
+            console.log('Password ingresado:', password);
+            console.log('Password esperado:', ADMIN_PASSWORD);
+            console.log('¿Coinciden?', password === ADMIN_PASSWORD);
             
             if (password === ADMIN_PASSWORD) {
                 esAdmin = true;
